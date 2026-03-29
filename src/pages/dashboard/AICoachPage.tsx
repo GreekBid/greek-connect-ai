@@ -11,8 +11,10 @@ const aiTools = [
   { icon: Sparkles, title: "Best Fit Analysis", desc: "See which rushees match best with your chapter's values and culture" },
 ];
 
-const mockChat = [
-  { role: "assistant" as const, text: "Hey! I'm your RushFlow AI Coach. I can help with interview prep, scheduling, matching, and deciding who to choose. What would you like help with?" },
+type ChatMsg = { role: "user" | "assistant"; text: string };
+
+const mockChat: ChatMsg[] = [
+  { role: "assistant", text: "Hey! I'm your RushFlow AI Coach. I can help with interview prep, scheduling, matching, and deciding who to choose. What would you like help with?" },
 ];
 
 export default function AICoachPage() {
