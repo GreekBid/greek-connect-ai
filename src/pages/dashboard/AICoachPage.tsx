@@ -18,7 +18,7 @@ const mockChat: ChatMsg[] = [
 ];
 
 export default function AICoachPage() {
-  const [messages, setMessages] = useState(mockChat);
+  const [messages, setMessages] = useState<ChatMsg[]>(mockChat);
   const [input, setInput] = useState("");
 
   const handleSend = () => {
