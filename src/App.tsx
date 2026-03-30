@@ -1,10 +1,14 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Route, Routes } from "react-router-dom";
+import { BrowserRouter, Route, Routes, Navigate } from "react-router-dom";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
+import { AuthProvider, useAuth } from "@/contexts/AuthContext";
 import Landing from "./pages/Landing";
 import NotFound from "./pages/NotFound";
+import LoginPage from "./pages/LoginPage";
+import SignupPage from "./pages/SignupPage";
+import ProtectedRoute from "./components/ProtectedRoute";
 import DashboardLayout from "./components/DashboardLayout";
 import DashboardHome from "./pages/dashboard/DashboardHome";
 import ProfilesPage from "./pages/dashboard/ProfilesPage";
@@ -14,8 +18,19 @@ import AnalyticsPage from "./pages/dashboard/AnalyticsPage";
 import MessagesPage from "./pages/dashboard/MessagesPage";
 import AICoachPage from "./pages/dashboard/AICoachPage";
 import BidsPage from "./pages/dashboard/BidsPage";
+import RusheeLayout from "./components/RusheeLayout";
+import RusheeHome from "./pages/rushee/RusheeHome";
 
 const queryClient = new QueryClient();
+
+function AuthRedirect() {
+  const { user, role, loading } = useAuth();
+  if (loading) return <div className="min-h-screen flex items-center justify-center bg-background"><span className="text-muted-foreground">Loading…</span></div>;
+  if (!user) return <Landing />;
+  if (role === "chapter") return <Navigate to="/dashboard" replace />;
+  if (role === "rushee") return <Navigate to="/rushee" replace />;
+  return <Landing />;
+}
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
@@ -23,18 +38,28 @@ const App = () => (
       <Toaster />
       <Sonner />
       <BrowserRouter>
-        <Routes>
-          <Route path="/" element={<Landing />} />
-          <Route path="/dashboard" element={<DashboardLayout><DashboardHome /></DashboardLayout>} />
-          <Route path="/dashboard/profiles" element={<DashboardLayout><ProfilesPage /></DashboardLayout>} />
-          <Route path="/dashboard/events" element={<DashboardLayout><EventsPage /></DashboardLayout>} />
-          <Route path="/dashboard/rankings" element={<DashboardLayout><RankingsPage /></DashboardLayout>} />
-          <Route path="/dashboard/analytics" element={<DashboardLayout><AnalyticsPage /></DashboardLayout>} />
-          <Route path="/dashboard/messages" element={<DashboardLayout><MessagesPage /></DashboardLayout>} />
-          <Route path="/dashboard/ai-coach" element={<DashboardLayout><AICoachPage /></DashboardLayout>} />
-          <Route path="/dashboard/bids" element={<DashboardLayout><BidsPage /></DashboardLayout>} />
-          <Route path="*" element={<NotFound />} />
-        </Routes>
+        <AuthProvider>
+          <Routes>
+            <Route path="/" element={<AuthRedirect />} />
+            <Route path="/login" element={<LoginPage />} />
+            <Route path="/signup" element={<SignupPage />} />
+
+            {/* Chapter routes */}
+            <Route path="/dashboard" element={<ProtectedRoute requiredRole="chapter"><DashboardLayout><DashboardHome /></DashboardLayout></ProtectedRoute>} />
+            <Route path="/dashboard/profiles" element={<ProtectedRoute requiredRole="chapter"><DashboardLayout><ProfilesPage /></DashboardLayout></ProtectedRoute>} />
+            <Route path="/dashboard/events" element={<ProtectedRoute requiredRole="chapter"><DashboardLayout><EventsPage /></DashboardLayout></ProtectedRoute>} />
+            <Route path="/dashboard/rankings" element={<ProtectedRoute requiredRole="chapter"><DashboardLayout><RankingsPage /></DashboardLayout></ProtectedRoute>} />
+            <Route path="/dashboard/analytics" element={<ProtectedRoute requiredRole="chapter"><DashboardLayout><AnalyticsPage /></DashboardLayout></ProtectedRoute>} />
+            <Route path="/dashboard/messages" element={<ProtectedRoute requiredRole="chapter"><DashboardLayout><MessagesPage /></DashboardLayout></ProtectedRoute>} />
+            <Route path="/dashboard/ai-coach" element={<ProtectedRoute requiredRole="chapter"><DashboardLayout><AICoachPage /></DashboardLayout></ProtectedRoute>} />
+            <Route path="/dashboard/bids" element={<ProtectedRoute requiredRole="chapter"><DashboardLayout><BidsPage /></DashboardLayout></ProtectedRoute>} />
+
+            {/* Rushee routes */}
+            <Route path="/rushee" element={<ProtectedRoute requiredRole="rushee"><RusheeLayout><RusheeHome /></RusheeLayout></ProtectedRoute>} />
+
+            <Route path="*" element={<NotFound />} />
+          </Routes>
+        </AuthProvider>
       </BrowserRouter>
     </TooltipProvider>
   </QueryClientProvider>
