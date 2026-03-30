@@ -47,6 +47,7 @@ const toolsNav = [
 function AppSidebar() {
   const { state } = useSidebar();
   const collapsed = state === "collapsed";
+  const { signOut } = useAuth();
   const location = useLocation();
 
   return (
