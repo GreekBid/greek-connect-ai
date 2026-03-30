@@ -9,6 +9,7 @@ import NotFound from "./pages/NotFound";
 import LoginPage from "./pages/LoginPage";
 import SignupPage from "./pages/SignupPage";
 import ProtectedRoute from "./components/ProtectedRoute";
+import AdminViewSwitcher from "./components/AdminViewSwitcher";
 import DashboardLayout from "./components/DashboardLayout";
 import DashboardHome from "./pages/dashboard/DashboardHome";
 import ProfilesPage from "./pages/dashboard/ProfilesPage";
@@ -24,11 +25,11 @@ import RusheeHome from "./pages/rushee/RusheeHome";
 const queryClient = new QueryClient();
 
 function AuthRedirect() {
-  const { user, role, loading } = useAuth();
+  const { user, activeView, loading } = useAuth();
   if (loading) return <div className="min-h-screen flex items-center justify-center bg-background"><span className="text-muted-foreground">Loading…</span></div>;
   if (!user) return <Landing />;
-  if (role === "chapter") return <Navigate to="/dashboard" replace />;
-  if (role === "rushee") return <Navigate to="/rushee" replace />;
+  if (activeView === "chapter") return <Navigate to="/dashboard" replace />;
+  if (activeView === "rushee") return <Navigate to="/rushee" replace />;
   return <Landing />;
 }
 
@@ -59,6 +60,7 @@ const App = () => (
 
             <Route path="*" element={<NotFound />} />
           </Routes>
+          <AdminViewSwitcher />
         </AuthProvider>
       </BrowserRouter>
     </TooltipProvider>

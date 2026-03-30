@@ -8,6 +8,9 @@ interface AuthContextType {
   user: User | null;
   session: Session | null;
   role: AppRole | null;
+  isAdmin: boolean;
+  activeView: AppRole | null;
+  setActiveView: (view: AppRole) => void;
   loading: boolean;
   signOut: () => Promise<void>;
 }
@@ -16,6 +19,9 @@ const AuthContext = createContext<AuthContextType>({
   user: null,
   session: null,
   role: null,
+  isAdmin: false,
+  activeView: null,
+  setActiveView: () => {},
   loading: true,
   signOut: async () => {},
 });
@@ -26,15 +32,33 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [session, setSession] = useState<Session | null>(null);
   const [role, setRole] = useState<AppRole | null>(null);
+  const [isAdmin, setIsAdmin] = useState(false);
+  const [activeView, setActiveView] = useState<AppRole | null>(null);
   const [loading, setLoading] = useState(true);
 
-  const fetchRole = async (userId: string) => {
-    const { data } = await supabase
+  const fetchRoleAndAdmin = async (userId: string) => {
+    // Fetch profile role
+    const { data: profile } = await supabase
       .from("profiles")
       .select("role")
       .eq("user_id", userId)
       .single();
-    setRole((data?.role as AppRole) ?? null);
+    
+    const profileRole = (profile?.role as AppRole) ?? null;
+    setRole(profileRole);
+
+    // Check admin status
+    const { data: adminRow } = await supabase
+      .from("user_roles")
+      .select("role")
+      .eq("user_id", userId)
+      .eq("role", "admin")
+      .maybeSingle();
+    
+    const admin = !!adminRow;
+    setIsAdmin(admin);
+    setActiveView(admin ? (profileRole ?? "chapter") : profileRole);
+    setLoading(false);
   };
 
   useEffect(() => {
@@ -43,12 +67,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         setSession(session);
         setUser(session?.user ?? null);
         if (session?.user) {
-          // Use setTimeout to avoid Supabase client deadlock
-          setTimeout(() => fetchRole(session.user.id), 0);
+          setTimeout(() => fetchRoleAndAdmin(session.user.id), 0);
         } else {
           setRole(null);
+          setIsAdmin(false);
+          setActiveView(null);
+          setLoading(false);
         }
-        setLoading(false);
       }
     );
 
@@ -56,7 +81,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setSession(session);
       setUser(session?.user ?? null);
       if (session?.user) {
-        fetchRole(session.user.id);
+        fetchRoleAndAdmin(session.user.id);
       } else {
         setLoading(false);
       }
@@ -68,10 +93,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const signOut = async () => {
     await supabase.auth.signOut();
     setRole(null);
+    setIsAdmin(false);
+    setActiveView(null);
   };
 
   return (
-    <AuthContext.Provider value={{ user, session, role, loading, signOut }}>
+    <AuthContext.Provider value={{ user, session, role, isAdmin, activeView, setActiveView, loading, signOut }}>
       {children}
     </AuthContext.Provider>
   );
