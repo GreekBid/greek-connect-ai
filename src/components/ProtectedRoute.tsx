@@ -7,7 +7,7 @@ interface ProtectedRouteProps {
 }
 
 export default function ProtectedRoute({ children, requiredRole }: ProtectedRouteProps) {
-  const { user, role, loading } = useAuth();
+  const { user, role, isAdmin, activeView, loading } = useAuth();
 
   if (loading) {
     return (
@@ -18,6 +18,9 @@ export default function ProtectedRoute({ children, requiredRole }: ProtectedRout
   }
 
   if (!user) return <Navigate to="/login" replace />;
+
+  // Admins can access everything
+  if (isAdmin) return <>{children}</>;
 
   // Redirect to correct dashboard if role doesn't match
   if (requiredRole && role && role !== requiredRole) {
