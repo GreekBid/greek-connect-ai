@@ -96,7 +96,7 @@ function AppSidebar() {
         </SidebarGroup>
 
         <div className="mt-auto p-4">
-          <Button variant="ghost" size="sm" className="w-full justify-start gap-2 text-muted-foreground">
+          <Button variant="ghost" size="sm" className="w-full justify-start gap-2 text-muted-foreground" onClick={() => signOut()}>
             <LogOut className="h-4 w-4" />
             {!collapsed && <span>Log out</span>}
           </Button>
