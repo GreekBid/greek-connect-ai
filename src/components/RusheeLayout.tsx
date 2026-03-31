@@ -20,6 +20,7 @@ import {
   Brain,
   User,
   LogOut,
+  StickyNote,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/contexts/AuthContext";
