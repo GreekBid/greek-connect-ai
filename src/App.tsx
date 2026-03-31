@@ -21,6 +21,7 @@ import AICoachPage from "./pages/dashboard/AICoachPage";
 import BidsPage from "./pages/dashboard/BidsPage";
 import RusheeLayout from "./components/RusheeLayout";
 import RusheeHome from "./pages/rushee/RusheeHome";
+import RusheeProfile from "./pages/rushee/RusheeProfile";
 
 const queryClient = new QueryClient();
 
@@ -57,6 +58,7 @@ const App = () => (
 
             {/* Rushee routes */}
             <Route path="/rushee" element={<ProtectedRoute requiredRole="rushee"><RusheeLayout><RusheeHome /></RusheeLayout></ProtectedRoute>} />
+            <Route path="/rushee/profile" element={<ProtectedRoute requiredRole="rushee"><RusheeLayout><RusheeProfile /></RusheeLayout></ProtectedRoute>} />
 
             <Route path="*" element={<NotFound />} />
           </Routes>

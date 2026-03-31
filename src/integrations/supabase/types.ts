@@ -17,26 +17,53 @@ export type Database = {
       profiles: {
         Row: {
           avatar_url: string | null
+          bio: string | null
           created_at: string
           full_name: string
+          hometown: string | null
           id: string
+          instagram: string | null
+          interests: string[] | null
+          linkedin: string | null
+          major: string | null
           role: Database["public"]["Enums"]["app_role"]
+          snapchat: string | null
+          tiktok: string | null
+          twitter: string | null
           user_id: string
         }
         Insert: {
           avatar_url?: string | null
+          bio?: string | null
           created_at?: string
           full_name?: string
+          hometown?: string | null
           id?: string
+          instagram?: string | null
+          interests?: string[] | null
+          linkedin?: string | null
+          major?: string | null
           role: Database["public"]["Enums"]["app_role"]
+          snapchat?: string | null
+          tiktok?: string | null
+          twitter?: string | null
           user_id: string
         }
         Update: {
           avatar_url?: string | null
+          bio?: string | null
           created_at?: string
           full_name?: string
+          hometown?: string | null
           id?: string
+          instagram?: string | null
+          interests?: string[] | null
+          linkedin?: string | null
+          major?: string | null
           role?: Database["public"]["Enums"]["app_role"]
+          snapchat?: string | null
+          tiktok?: string | null
+          twitter?: string | null
           user_id?: string
         }
         Relationships: []
