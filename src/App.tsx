@@ -60,6 +60,7 @@ const App = () => (
             {/* Rushee routes */}
             <Route path="/rushee" element={<ProtectedRoute requiredRole="rushee"><RusheeLayout><RusheeHome /></RusheeLayout></ProtectedRoute>} />
             <Route path="/rushee/profile" element={<ProtectedRoute requiredRole="rushee"><RusheeLayout><RusheeProfile /></RusheeLayout></ProtectedRoute>} />
+            <Route path="/rushee/notes" element={<ProtectedRoute requiredRole="rushee"><RusheeLayout><RusheeNotes /></RusheeLayout></ProtectedRoute>} />
 
             <Route path="*" element={<NotFound />} />
           </Routes>

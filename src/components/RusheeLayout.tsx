@@ -29,6 +29,7 @@ const nav = [
   { title: "Home", url: "/rushee", icon: LayoutDashboard },
   { title: "Events", url: "/rushee/events", icon: Calendar },
   { title: "Messages", url: "/rushee/messages", icon: MessageSquare },
+  { title: "My Notes", url: "/rushee/notes", icon: StickyNote },
   { title: "AI Coach", url: "/rushee/ai-coach", icon: Brain },
   { title: "My Profile", url: "/rushee/profile", icon: User },
 ];
