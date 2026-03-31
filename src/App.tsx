@@ -23,6 +23,9 @@ import RusheeLayout from "./components/RusheeLayout";
 import RusheeHome from "./pages/rushee/RusheeHome";
 import RusheeProfile from "./pages/rushee/RusheeProfile";
 import RusheeNotes from "./pages/rushee/RusheeNotes";
+import RusheeEvents from "./pages/rushee/RusheeEvents";
+import RusheeMessages from "./pages/rushee/RusheeMessages";
+import RusheeAICoach from "./pages/rushee/RusheeAICoach";
 
 const queryClient = new QueryClient();
 
