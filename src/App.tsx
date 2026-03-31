@@ -23,6 +23,9 @@ import RusheeLayout from "./components/RusheeLayout";
 import RusheeHome from "./pages/rushee/RusheeHome";
 import RusheeProfile from "./pages/rushee/RusheeProfile";
 import RusheeNotes from "./pages/rushee/RusheeNotes";
+import RusheeEvents from "./pages/rushee/RusheeEvents";
+import RusheeMessages from "./pages/rushee/RusheeMessages";
+import RusheeAICoach from "./pages/rushee/RusheeAICoach";
 
 const queryClient = new QueryClient();
 
@@ -61,6 +64,9 @@ const App = () => (
             <Route path="/rushee" element={<ProtectedRoute requiredRole="rushee"><RusheeLayout><RusheeHome /></RusheeLayout></ProtectedRoute>} />
             <Route path="/rushee/profile" element={<ProtectedRoute requiredRole="rushee"><RusheeLayout><RusheeProfile /></RusheeLayout></ProtectedRoute>} />
             <Route path="/rushee/notes" element={<ProtectedRoute requiredRole="rushee"><RusheeLayout><RusheeNotes /></RusheeLayout></ProtectedRoute>} />
+            <Route path="/rushee/events" element={<ProtectedRoute requiredRole="rushee"><RusheeLayout><RusheeEvents /></RusheeLayout></ProtectedRoute>} />
+            <Route path="/rushee/messages" element={<ProtectedRoute requiredRole="rushee"><RusheeLayout><RusheeMessages /></RusheeLayout></ProtectedRoute>} />
+            <Route path="/rushee/ai-coach" element={<ProtectedRoute requiredRole="rushee"><RusheeLayout><RusheeAICoach /></RusheeLayout></ProtectedRoute>} />
 
             <Route path="*" element={<NotFound />} />
           </Routes>
