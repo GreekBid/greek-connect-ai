@@ -21,6 +21,7 @@ import AICoachPage from "./pages/dashboard/AICoachPage";
 import BidsPage from "./pages/dashboard/BidsPage";
 import RusheeLayout from "./components/RusheeLayout";
 import RusheeHome from "./pages/rushee/RusheeHome";
+import RusheeProfile from "./pages/rushee/RusheeProfile";
 
 const queryClient = new QueryClient();
 
