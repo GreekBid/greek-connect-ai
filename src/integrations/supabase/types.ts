@@ -68,6 +68,36 @@ export type Database = {
         }
         Relationships: []
       }
+      rush_notes: {
+        Row: {
+          author_id: string
+          content: string
+          created_at: string
+          id: string
+          subject_id: string
+          subject_type: string
+          updated_at: string
+        }
+        Insert: {
+          author_id: string
+          content?: string
+          created_at?: string
+          id?: string
+          subject_id: string
+          subject_type: string
+          updated_at?: string
+        }
+        Update: {
+          author_id?: string
+          content?: string
+          created_at?: string
+          id?: string
+          subject_id?: string
+          subject_type?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       user_roles: {
         Row: {
           id: string
