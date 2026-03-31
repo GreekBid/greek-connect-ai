@@ -2,20 +2,23 @@ import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Star, Search, Filter, MapPin, BookOpen, Instagram } from "lucide-react";
+import { Star, Search, Filter, MapPin, BookOpen, X } from "lucide-react";
 import { useState } from "react";
+import NotesPanel from "@/components/NotesPanel";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 const mockProfiles = [
-  { id: 1, name: "Jake Martinez", major: "Business", hometown: "Austin, TX", gpa: "3.7", interests: ["Basketball", "Finance", "Gaming"], starred: true, notes: "Great conversationalist, leadership potential", status: "Active" },
-  { id: 2, name: "Emily Chen", major: "Computer Science", hometown: "San Jose, CA", gpa: "3.9", interests: ["Coding", "Hiking", "Photography"], starred: true, notes: "Very involved on campus, strong GPA", status: "Active" },
-  { id: 3, name: "Marcus Williams", major: "Pre-Med", hometown: "Chicago, IL", gpa: "3.5", interests: ["Volunteering", "Track", "Music"], starred: false, notes: "", status: "Active" },
-  { id: 4, name: "Sofia Ramirez", major: "Communications", hometown: "Miami, FL", gpa: "3.6", interests: ["Social Media", "Dance", "Travel"], starred: false, notes: "Outgoing personality", status: "New" },
-  { id: 5, name: "Tyler Johnson", major: "Engineering", hometown: "Denver, CO", gpa: "3.8", interests: ["Robotics", "Skiing", "Cooking"], starred: true, notes: "Strong technical background", status: "Active" },
-  { id: 6, name: "Aisha Patel", major: "Psychology", hometown: "Atlanta, GA", gpa: "3.4", interests: ["Yoga", "Reading", "Art"], starred: false, notes: "", status: "New" },
+  { id: "mock-1", name: "Jake Martinez", major: "Business", hometown: "Austin, TX", gpa: "3.7", interests: ["Basketball", "Finance", "Gaming"], starred: true, notes: "Great conversationalist, leadership potential", status: "Active" },
+  { id: "mock-2", name: "Emily Chen", major: "Computer Science", hometown: "San Jose, CA", gpa: "3.9", interests: ["Coding", "Hiking", "Photography"], starred: true, notes: "Very involved on campus, strong GPA", status: "Active" },
+  { id: "mock-3", name: "Marcus Williams", major: "Pre-Med", hometown: "Chicago, IL", gpa: "3.5", interests: ["Volunteering", "Track", "Music"], starred: false, notes: "", status: "Active" },
+  { id: "mock-4", name: "Sofia Ramirez", major: "Communications", hometown: "Miami, FL", gpa: "3.6", interests: ["Social Media", "Dance", "Travel"], starred: false, notes: "Outgoing personality", status: "New" },
+  { id: "mock-5", name: "Tyler Johnson", major: "Engineering", hometown: "Denver, CO", gpa: "3.8", interests: ["Robotics", "Skiing", "Cooking"], starred: true, notes: "Strong technical background", status: "Active" },
+  { id: "mock-6", name: "Aisha Patel", major: "Psychology", hometown: "Atlanta, GA", gpa: "3.4", interests: ["Yoga", "Reading", "Art"], starred: false, notes: "", status: "New" },
 ];
 
 export default function ProfilesPage() {
   const [search, setSearch] = useState("");
+  const [selectedProfile, setSelectedProfile] = useState<typeof mockProfiles[0] | null>(null);
   const filtered = mockProfiles.filter((p) => p.name.toLowerCase().includes(search.toLowerCase()));
 
   return (
@@ -38,39 +41,84 @@ export default function ProfilesPage() {
         </Button>
       </div>
 
-      <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
-        {filtered.map((p) => (
-          <Card key={p.id} className="p-5 bg-card shadow-warm hover:shadow-warm-lg transition-shadow cursor-pointer">
-            <div className="flex items-start justify-between mb-3">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-full bg-accent flex items-center justify-center font-display font-bold text-accent-foreground">
-                  {p.name.split(" ").map((n) => n[0]).join("")}
+      <div className="flex gap-6">
+        {/* Profiles grid */}
+        <div className={`grid gap-4 ${selectedProfile ? "md:grid-cols-1 lg:grid-cols-2 flex-1" : "md:grid-cols-2 lg:grid-cols-3 flex-1"}`}>
+          {filtered.map((p) => (
+            <Card
+              key={p.id}
+              className={`p-5 bg-card shadow-warm hover:shadow-warm-lg transition-shadow cursor-pointer ${selectedProfile?.id === p.id ? "ring-2 ring-primary" : ""}`}
+              onClick={() => setSelectedProfile(selectedProfile?.id === p.id ? null : p)}
+            >
+              <div className="flex items-start justify-between mb-3">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-full bg-accent flex items-center justify-center font-display font-bold text-accent-foreground">
+                    {p.name.split(" ").map((n) => n[0]).join("")}
+                  </div>
+                  <div>
+                    <h3 className="font-semibold text-foreground">{p.name}</h3>
+                    <Badge variant={p.status === "New" ? "default" : "secondary"} className="text-xs">{p.status}</Badge>
+                  </div>
                 </div>
+                <button className="text-muted-foreground hover:text-primary transition-colors">
+                  <Star className={`w-5 h-5 ${p.starred ? "fill-primary text-primary" : ""}`} />
+                </button>
+              </div>
+              <div className="space-y-2 text-sm">
+                <div className="flex items-center gap-2 text-muted-foreground">
+                  <BookOpen className="w-3.5 h-3.5" /> {p.major} · GPA {p.gpa}
+                </div>
+                <div className="flex items-center gap-2 text-muted-foreground">
+                  <MapPin className="w-3.5 h-3.5" /> {p.hometown}
+                </div>
+                <div className="flex flex-wrap gap-1.5 mt-2">
+                  {p.interests.map((i) => (
+                    <span key={i} className="px-2 py-0.5 rounded-full bg-accent text-accent-foreground text-xs">{i}</span>
+                  ))}
+                </div>
+              </div>
+            </Card>
+          ))}
+        </div>
+
+        {/* Notes side panel */}
+        {selectedProfile && (
+          <Card className="w-80 shrink-0 p-5 bg-card shadow-warm self-start sticky top-6">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="font-display font-semibold text-foreground">
+                {selectedProfile.name}
+              </h3>
+              <Button variant="ghost" size="sm" className="h-7 w-7 p-0" onClick={() => setSelectedProfile(null)}>
+                <X className="w-4 h-4" />
+              </Button>
+            </div>
+            <Tabs defaultValue="notes">
+              <TabsList className="w-full">
+                <TabsTrigger value="notes" className="flex-1">Notes</TabsTrigger>
+                <TabsTrigger value="info" className="flex-1">Info</TabsTrigger>
+              </TabsList>
+              <TabsContent value="notes" className="mt-4">
+                <NotesPanel
+                  subjectId={selectedProfile.id}
+                  subjectType="rushee"
+                />
+              </TabsContent>
+              <TabsContent value="info" className="mt-4 space-y-3 text-sm">
+                <div><span className="text-muted-foreground">Major:</span> <span className="text-foreground">{selectedProfile.major}</span></div>
+                <div><span className="text-muted-foreground">GPA:</span> <span className="text-foreground">{selectedProfile.gpa}</span></div>
+                <div><span className="text-muted-foreground">Hometown:</span> <span className="text-foreground">{selectedProfile.hometown}</span></div>
                 <div>
-                  <h3 className="font-semibold text-foreground">{p.name}</h3>
-                  <Badge variant={p.status === "New" ? "default" : "secondary"} className="text-xs">{p.status}</Badge>
+                  <span className="text-muted-foreground">Interests:</span>
+                  <div className="flex flex-wrap gap-1.5 mt-1">
+                    {selectedProfile.interests.map((i) => (
+                      <span key={i} className="px-2 py-0.5 rounded-full bg-accent text-accent-foreground text-xs">{i}</span>
+                    ))}
+                  </div>
                 </div>
-              </div>
-              <button className="text-muted-foreground hover:text-primary transition-colors">
-                <Star className={`w-5 h-5 ${p.starred ? "fill-primary text-primary" : ""}`} />
-              </button>
-            </div>
-            <div className="space-y-2 text-sm">
-              <div className="flex items-center gap-2 text-muted-foreground">
-                <BookOpen className="w-3.5 h-3.5" /> {p.major} · GPA {p.gpa}
-              </div>
-              <div className="flex items-center gap-2 text-muted-foreground">
-                <MapPin className="w-3.5 h-3.5" /> {p.hometown}
-              </div>
-              <div className="flex flex-wrap gap-1.5 mt-2">
-                {p.interests.map((i) => (
-                  <span key={i} className="px-2 py-0.5 rounded-full bg-accent text-accent-foreground text-xs">{i}</span>
-                ))}
-              </div>
-              {p.notes && <p className="text-xs text-muted-foreground mt-2 italic">"{p.notes}"</p>}
-            </div>
+              </TabsContent>
+            </Tabs>
           </Card>
-        ))}
+        )}
       </div>
     </div>
   );
