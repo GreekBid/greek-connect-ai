@@ -1,0 +1,11 @@
+
+ALTER TABLE public.profiles
+  ADD COLUMN bio TEXT DEFAULT '',
+  ADD COLUMN major TEXT DEFAULT '',
+  ADD COLUMN hometown TEXT DEFAULT '',
+  ADD COLUMN instagram TEXT DEFAULT '',
+  ADD COLUMN twitter TEXT DEFAULT '',
+  ADD COLUMN snapchat TEXT DEFAULT '',
+  ADD COLUMN tiktok TEXT DEFAULT '',
+  ADD COLUMN linkedin TEXT DEFAULT '',
+  ADD COLUMN interests TEXT[] DEFAULT '{}';
