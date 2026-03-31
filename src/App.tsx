@@ -22,6 +22,7 @@ import BidsPage from "./pages/dashboard/BidsPage";
 import RusheeLayout from "./components/RusheeLayout";
 import RusheeHome from "./pages/rushee/RusheeHome";
 import RusheeProfile from "./pages/rushee/RusheeProfile";
+import RusheeNotes from "./pages/rushee/RusheeNotes";
 
 const queryClient = new QueryClient();
 
