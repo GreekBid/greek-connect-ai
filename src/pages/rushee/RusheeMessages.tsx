@@ -64,7 +64,7 @@ export default function RusheeMessages() {
     const { data: recipientRows } = await supabase.from("direct_message_recipients").select("id, message_id, read").eq("recipient_id", user.id);
     if (recipientRows && recipientRows.length > 0) {
       const msgIds = (recipientRows as any[]).map((r: any) => r.message_id);
-      const { data: dms } = await supabase.from("direct_messages").select("*").is("reply_to" as any, null).in("id", msgIds).order("created_at", { ascending: false });
+      const { data: dms } = await (supabase.from("direct_messages").select("*") as any).is("reply_to", null).in("id", msgIds).order("created_at", { ascending: false });
       const allSenderIds = new Set<string>();
       (dms as any[] || []).forEach((d: any) => allSenderIds.add(d.sender_id));
 

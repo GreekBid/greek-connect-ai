@@ -87,7 +87,7 @@ export default function MessagesPage() {
       });
 
       // Fetch replies
-      const { data: replies } = await supabase.from("direct_messages").select("*").in("reply_to" as any, dmIds).order("created_at", { ascending: true });
+      const { data: replies } = await (supabase.from("direct_messages").select("*") as any).in("reply_to", dmIds).order("created_at", { ascending: true });
 
       const allUserIds = new Set<string>();
       (dms as any[]).forEach((d: any) => allUserIds.add(d.sender_id));
