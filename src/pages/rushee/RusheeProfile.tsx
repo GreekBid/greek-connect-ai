@@ -48,7 +48,7 @@ export default function RusheeProfile() {
     if (!user) return;
     supabase
       .from("profiles")
-      .select("full_name, bio, major, hometown, instagram, twitter, snapchat, tiktok, linkedin, avatar_url")
+      .select("full_name, bio, major, hometown, college, instagram, twitter, snapchat, tiktok, linkedin, avatar_url")
       .eq("user_id", user.id)
       .single()
       .then(({ data }) => {
