@@ -2,7 +2,7 @@ import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Star, Search, MapPin, BookOpen, X, Instagram, Linkedin } from "lucide-react";
+import { Star, Search, MapPin, BookOpen, X, Instagram, Linkedin, GraduationCap } from "lucide-react";
 import { useState, useEffect } from "react";
 import NotesPanel from "@/components/NotesPanel";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -17,6 +17,7 @@ interface RusheeProfile {
   full_name: string;
   major: string | null;
   hometown: string | null;
+  college: string | null;
   bio: string | null;
   interests: string[] | null;
   avatar_url: string | null;
@@ -123,6 +124,7 @@ export default function ProfilesPage() {
               </div>
               <div className="space-y-2 text-sm">
                 {p.major && <div className="flex items-center gap-2 text-muted-foreground"><BookOpen className="w-3.5 h-3.5" /> {p.major}</div>}
+                {p.college && <div className="flex items-center gap-2 text-muted-foreground"><GraduationCap className="w-3.5 h-3.5" /> {p.college}</div>}
                 {p.hometown && <div className="flex items-center gap-2 text-muted-foreground"><MapPin className="w-3.5 h-3.5" /> {p.hometown}</div>}
                 {p.interests && p.interests.length > 0 && (
                   <div className="flex flex-wrap gap-1.5 mt-2">
@@ -155,6 +157,7 @@ export default function ProfilesPage() {
               <TabsContent value="info" className="mt-4 space-y-3 text-sm">
                 {selectedProfile.bio && <div><span className="text-muted-foreground">Bio:</span> <span className="text-foreground">{selectedProfile.bio}</span></div>}
                 {selectedProfile.major && <div><span className="text-muted-foreground">Major:</span> <span className="text-foreground">{selectedProfile.major}</span></div>}
+                {selectedProfile.college && <div><span className="text-muted-foreground">College:</span> <span className="text-foreground">{selectedProfile.college}</span></div>}
                 {selectedProfile.hometown && <div><span className="text-muted-foreground">Hometown:</span> <span className="text-foreground">{selectedProfile.hometown}</span></div>}
                 {selectedProfile.instagram && (
                   <a href={`https://instagram.com/${selectedProfile.instagram}`} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 text-primary hover:underline">

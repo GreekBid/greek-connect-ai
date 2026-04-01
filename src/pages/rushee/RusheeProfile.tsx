@@ -8,13 +8,15 @@ import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import { Camera, Instagram, Twitter, Linkedin, Save, Loader2 } from "lucide-react";
+import { Camera, Instagram, Twitter, Linkedin, Save, Loader2, GraduationCap } from "lucide-react";
+import { CollegePicker } from "@/components/CollegePicker";
 
 interface ProfileData {
   full_name: string;
   bio: string;
   major: string;
   hometown: string;
+  college: string;
   instagram: string;
   twitter: string;
   snapchat: string;
@@ -33,6 +35,7 @@ export default function RusheeProfile() {
     bio: "",
     major: "",
     hometown: "",
+    college: "",
     instagram: "",
     twitter: "",
     snapchat: "",
@@ -45,7 +48,7 @@ export default function RusheeProfile() {
     if (!user) return;
     supabase
       .from("profiles")
-      .select("full_name, bio, major, hometown, instagram, twitter, snapchat, tiktok, linkedin, avatar_url")
+      .select("full_name, bio, major, hometown, college, instagram, twitter, snapchat, tiktok, linkedin, avatar_url")
       .eq("user_id", user.id)
       .single()
       .then(({ data }) => {
@@ -55,6 +58,7 @@ export default function RusheeProfile() {
             bio: (data as any).bio || "",
             major: (data as any).major || "",
             hometown: (data as any).hometown || "",
+            college: (data as any).college || "",
             instagram: (data as any).instagram || "",
             twitter: (data as any).twitter || "",
             snapchat: (data as any).snapchat || "",
@@ -115,6 +119,7 @@ export default function RusheeProfile() {
         bio: profile.bio,
         major: profile.major,
         hometown: profile.hometown,
+        college: profile.college,
         instagram: profile.instagram,
         twitter: profile.twitter,
         snapchat: profile.snapchat,
@@ -222,6 +227,10 @@ export default function RusheeProfile() {
               placeholder="e.g. Austin, TX"
             />
           </div>
+        </div>
+        <div className="space-y-2">
+          <Label className="flex items-center gap-2"><GraduationCap className="w-4 h-4" /> College</Label>
+          <CollegePicker value={profile.college} onChange={(v) => handleChange("college", v)} />
         </div>
       </Card>
 
