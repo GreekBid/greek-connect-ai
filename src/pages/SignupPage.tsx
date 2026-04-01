@@ -16,6 +16,8 @@ export default function SignupPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [college, setCollege] = useState("");
+  const [gender, setGender] = useState<"male" | "female" | "">("");
+  const [orgType, setOrgType] = useState<"fraternity" | "sorority" | "">("");
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
@@ -29,12 +31,20 @@ export default function SignupPage() {
       toast.error("Please select your college");
       return;
     }
+    if (role === "rushee" && !gender) {
+      toast.error("Please select your gender");
+      return;
+    }
+    if (role === "chapter" && !orgType) {
+      toast.error("Please select Fraternity or Sorority");
+      return;
+    }
     setLoading(true);
     const { data, error } = await supabase.auth.signUp({
       email,
       password,
       options: {
-        data: { role, full_name: fullName, college },
+        data: { role, full_name: fullName, college, gender, org_type: orgType },
         emailRedirectTo: window.location.origin,
       },
     });
@@ -120,6 +130,52 @@ export default function SignupPage() {
             <Label>College</Label>
             <CollegePicker value={college} onChange={setCollege} />
           </div>
+
+          {/* Gender for rushees */}
+          {role === "rushee" && (
+            <div className="space-y-2">
+              <Label>Gender</Label>
+              <div className="grid grid-cols-2 gap-3">
+                <button
+                  type="button"
+                  onClick={() => setGender("male")}
+                  className={`p-3 rounded-lg border-2 text-center transition-all ${gender === "male" ? "border-primary bg-primary/10 text-primary font-semibold" : "border-border bg-card hover:border-primary/50 text-foreground"}`}
+                >
+                  ♂ Male
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setGender("female")}
+                  className={`p-3 rounded-lg border-2 text-center transition-all ${gender === "female" ? "border-primary bg-primary/10 text-primary font-semibold" : "border-border bg-card hover:border-primary/50 text-foreground"}`}
+                >
+                  ♀ Female
+                </button>
+              </div>
+            </div>
+          )}
+
+          {/* Org type for chapters */}
+          {role === "chapter" && (
+            <div className="space-y-2">
+              <Label>Organization Type</Label>
+              <div className="grid grid-cols-2 gap-3">
+                <button
+                  type="button"
+                  onClick={() => setOrgType("fraternity")}
+                  className={`p-3 rounded-lg border-2 text-center transition-all ${orgType === "fraternity" ? "border-primary bg-primary/10 text-primary font-semibold" : "border-border bg-card hover:border-primary/50 text-foreground"}`}
+                >
+                  🏛️ Fraternity
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setOrgType("sorority")}
+                  className={`p-3 rounded-lg border-2 text-center transition-all ${orgType === "sorority" ? "border-primary bg-primary/10 text-primary font-semibold" : "border-border bg-card hover:border-primary/50 text-foreground"}`}
+                >
+                  🏛️ Sorority
+                </button>
+              </div>
+            </div>
+          )}
           <Button type="submit" className="w-full" disabled={loading}>
             {loading ? "Creating account…" : "Create Account"}
           </Button>

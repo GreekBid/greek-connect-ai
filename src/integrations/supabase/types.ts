@@ -219,12 +219,14 @@ export type Database = {
           college: string | null
           created_at: string
           full_name: string
+          gender: string | null
           hometown: string | null
           id: string
           instagram: string | null
           interests: string[] | null
           linkedin: string | null
           major: string | null
+          org_type: string | null
           role: Database["public"]["Enums"]["app_role"]
           snapchat: string | null
           tiktok: string | null
@@ -237,12 +239,14 @@ export type Database = {
           college?: string | null
           created_at?: string
           full_name?: string
+          gender?: string | null
           hometown?: string | null
           id?: string
           instagram?: string | null
           interests?: string[] | null
           linkedin?: string | null
           major?: string | null
+          org_type?: string | null
           role: Database["public"]["Enums"]["app_role"]
           snapchat?: string | null
           tiktok?: string | null
@@ -255,12 +259,14 @@ export type Database = {
           college?: string | null
           created_at?: string
           full_name?: string
+          gender?: string | null
           hometown?: string | null
           id?: string
           instagram?: string | null
           interests?: string[] | null
           linkedin?: string | null
           major?: string | null
+          org_type?: string | null
           role?: Database["public"]["Enums"]["app_role"]
           snapchat?: string | null
           tiktok?: string | null
@@ -368,6 +374,7 @@ export type Database = {
     }
     Functions: {
       get_user_college: { Args: { _user_id: string }; Returns: string }
+      get_user_org_type: { Args: { _user_id: string }; Returns: string }
       is_admin: { Args: { _user_id: string }; Returns: boolean }
       is_chapter_member: { Args: { _user_id: string }; Returns: boolean }
     }
