@@ -44,7 +44,7 @@ export default function SignupPage() {
       email,
       password,
       options: {
-        data: { role, full_name: fullName, college },
+        data: { role, full_name: fullName, college, gender, org_type: orgType },
         emailRedirectTo: window.location.origin,
       },
     });
