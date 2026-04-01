@@ -30,11 +30,6 @@ import RusheeAICoach from "./pages/rushee/RusheeAICoach";
 const queryClient = new QueryClient();
 
 function AuthRedirect() {
-  const { user, activeView, loading } = useAuth();
-  if (loading) return <div className="min-h-screen flex items-center justify-center bg-background"><span className="text-muted-foreground">Loading…</span></div>;
-  if (!user) return <Landing />;
-  if (activeView === "chapter") return <Navigate to="/dashboard" replace />;
-  if (activeView === "rushee") return <Navigate to="/rushee" replace />;
   return <Landing />;
 }
 
