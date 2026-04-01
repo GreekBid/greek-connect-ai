@@ -116,6 +116,10 @@ export default function SignupPage() {
             <Label htmlFor="password">Password</Label>
             <Input id="password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} placeholder="••••••••" minLength={6} required />
           </div>
+          <div className="space-y-2">
+            <Label>College</Label>
+            <CollegePicker value={college} onChange={setCollege} />
+          </div>
           <Button type="submit" className="w-full" disabled={loading}>
             {loading ? "Creating account…" : "Create Account"}
           </Button>
