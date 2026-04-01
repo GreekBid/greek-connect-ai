@@ -17,6 +17,7 @@ interface RusheeProfile {
   full_name: string;
   major: string | null;
   hometown: string | null;
+  college: string | null;
   bio: string | null;
   interests: string[] | null;
   avatar_url: string | null;
