@@ -35,6 +35,7 @@ export default function RusheeProfile() {
     bio: "",
     major: "",
     hometown: "",
+    college: "",
     instagram: "",
     twitter: "",
     snapchat: "",
