@@ -17,6 +17,7 @@ const nav = [
   { title: "My Notes", url: "/rushee/notes", icon: StickyNote, badgeKey: null },
   { title: "Bid Status", url: "/rushee/bid-status", icon: FileText, badgeKey: "bids" as const },
   { title: "AI Coach", url: "/rushee/ai-coach", icon: Brain, badgeKey: null },
+  { title: "Search Chapters", url: "/rushee/search", icon: Search, badgeKey: null },
   { title: "My Profile", url: "/rushee/profile", icon: User, badgeKey: null },
   { title: "Settings", url: "/rushee/settings", icon: Settings, badgeKey: null },
 ];

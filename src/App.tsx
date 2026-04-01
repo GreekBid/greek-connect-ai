@@ -68,6 +68,7 @@ const App = () => (
             <Route path="/rushee/messages" element={<ProtectedRoute requiredRole="rushee"><RusheeLayout><RusheeMessages /></RusheeLayout></ProtectedRoute>} />
             <Route path="/rushee/ai-coach" element={<ProtectedRoute requiredRole="rushee"><RusheeLayout><RusheeAICoach /></RusheeLayout></ProtectedRoute>} />
             <Route path="/rushee/bid-status" element={<ProtectedRoute requiredRole="rushee"><RusheeLayout><RusheeBidStatus /></RusheeLayout></ProtectedRoute>} />
+            <Route path="/rushee/search" element={<ProtectedRoute requiredRole="rushee"><RusheeLayout><RusheeSearchChapters /></RusheeLayout></ProtectedRoute>} />
             <Route path="/rushee/settings" element={<ProtectedRoute requiredRole="rushee"><RusheeLayout><RusheeSettings /></RusheeLayout></ProtectedRoute>} />
 
             <Route path="*" element={<NotFound />} />
