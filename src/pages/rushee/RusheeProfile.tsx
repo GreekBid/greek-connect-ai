@@ -119,6 +119,7 @@ export default function RusheeProfile() {
         bio: profile.bio,
         major: profile.major,
         hometown: profile.hometown,
+        college: profile.college,
         instagram: profile.instagram,
         twitter: profile.twitter,
         snapchat: profile.snapchat,
