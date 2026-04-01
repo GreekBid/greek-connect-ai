@@ -14,6 +14,104 @@ export type Database = {
   }
   public: {
     Tables: {
+      event_rsvps: {
+        Row: {
+          created_at: string
+          event_id: string
+          id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          event_id: string
+          id?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          event_id?: string
+          id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "event_rsvps_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "events"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      events: {
+        Row: {
+          attire: string | null
+          capacity: number | null
+          created_at: string
+          created_by: string
+          date: string
+          description: string | null
+          id: string
+          location: string
+          name: string
+          status: string
+          time: string
+          vibe: string | null
+        }
+        Insert: {
+          attire?: string | null
+          capacity?: number | null
+          created_at?: string
+          created_by: string
+          date: string
+          description?: string | null
+          id?: string
+          location?: string
+          name: string
+          status?: string
+          time: string
+          vibe?: string | null
+        }
+        Update: {
+          attire?: string | null
+          capacity?: number | null
+          created_at?: string
+          created_by?: string
+          date?: string
+          description?: string | null
+          id?: string
+          location?: string
+          name?: string
+          status?: string
+          time?: string
+          vibe?: string | null
+        }
+        Relationships: []
+      }
+      messages: {
+        Row: {
+          author_id: string
+          content: string
+          created_at: string
+          id: string
+          message_type: string
+        }
+        Insert: {
+          author_id: string
+          content: string
+          created_at?: string
+          id?: string
+          message_type?: string
+        }
+        Update: {
+          author_id?: string
+          content?: string
+          created_at?: string
+          id?: string
+          message_type?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           avatar_url: string | null

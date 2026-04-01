@@ -2,33 +2,58 @@ import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Star, Search, Filter, MapPin, BookOpen, X } from "lucide-react";
-import { useState } from "react";
+import { Star, Search, Filter, MapPin, BookOpen, X, Instagram, Linkedin } from "lucide-react";
+import { useState, useEffect } from "react";
 import NotesPanel from "@/components/NotesPanel";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { supabase } from "@/integrations/supabase/client";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
-const mockProfiles = [
-  { id: "mock-1", name: "Jake Martinez", major: "Business", hometown: "Austin, TX", gpa: "3.7", interests: ["Basketball", "Finance", "Gaming"], starred: true, notes: "Great conversationalist, leadership potential", status: "Active" },
-  { id: "mock-2", name: "Emily Chen", major: "Computer Science", hometown: "San Jose, CA", gpa: "3.9", interests: ["Coding", "Hiking", "Photography"], starred: true, notes: "Very involved on campus, strong GPA", status: "Active" },
-  { id: "mock-3", name: "Marcus Williams", major: "Pre-Med", hometown: "Chicago, IL", gpa: "3.5", interests: ["Volunteering", "Track", "Music"], starred: false, notes: "", status: "Active" },
-  { id: "mock-4", name: "Sofia Ramirez", major: "Communications", hometown: "Miami, FL", gpa: "3.6", interests: ["Social Media", "Dance", "Travel"], starred: false, notes: "Outgoing personality", status: "New" },
-  { id: "mock-5", name: "Tyler Johnson", major: "Engineering", hometown: "Denver, CO", gpa: "3.8", interests: ["Robotics", "Skiing", "Cooking"], starred: true, notes: "Strong technical background", status: "Active" },
-  { id: "mock-6", name: "Aisha Patel", major: "Psychology", hometown: "Atlanta, GA", gpa: "3.4", interests: ["Yoga", "Reading", "Art"], starred: false, notes: "", status: "New" },
-];
+interface RusheeProfile {
+  id: string;
+  user_id: string;
+  full_name: string;
+  major: string | null;
+  hometown: string | null;
+  bio: string | null;
+  interests: string[] | null;
+  avatar_url: string | null;
+  instagram: string | null;
+  linkedin: string | null;
+  created_at: string;
+}
 
 export default function ProfilesPage() {
   const [search, setSearch] = useState("");
-  const [selectedProfile, setSelectedProfile] = useState<typeof mockProfiles[0] | null>(null);
-  const filtered = mockProfiles.filter((p) => p.name.toLowerCase().includes(search.toLowerCase()));
+  const [profiles, setProfiles] = useState<RusheeProfile[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [selectedProfile, setSelectedProfile] = useState<RusheeProfile | null>(null);
+
+  useEffect(() => {
+    const fetch = async () => {
+      const { data, error } = await supabase.from("profiles").select("*").eq("role", "rushee").order("created_at", { ascending: false });
+      if (error) { console.error(error); setLoading(false); return; }
+      setProfiles(data || []);
+      setLoading(false);
+    };
+    fetch();
+  }, []);
+
+  const filtered = profiles.filter((p) =>
+    p.full_name.toLowerCase().includes(search.toLowerCase()) ||
+    (p.major || "").toLowerCase().includes(search.toLowerCase()) ||
+    (p.hometown || "").toLowerCase().includes(search.toLowerCase())
+  );
+
+  if (loading) return <div className="text-muted-foreground p-8">Loading profiles…</div>;
 
   return (
     <div className="space-y-6 max-w-6xl">
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-display font-bold text-foreground">Rushee Profiles</h1>
-          <p className="text-muted-foreground mt-1">{mockProfiles.length} applicants this cycle</p>
+          <p className="text-muted-foreground mt-1">{profiles.length} applicants this cycle</p>
         </div>
-        <Button variant="hero" size="sm">Export List</Button>
       </div>
 
       <div className="flex gap-3">
@@ -36,13 +61,15 @@ export default function ProfilesPage() {
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
           <Input placeholder="Search by name, major, or hometown..." className="pl-9" value={search} onChange={(e) => setSearch(e.target.value)} />
         </div>
-        <Button variant="outline" size="default" className="gap-2">
-          <Filter className="w-4 h-4" /> Filters
-        </Button>
       </div>
 
+      {profiles.length === 0 && (
+        <div className="text-center py-12 text-muted-foreground">
+          <p>No rushee profiles yet — they'll appear here as people sign up.</p>
+        </div>
+      )}
+
       <div className="flex gap-6">
-        {/* Profiles grid */}
         <div className={`grid gap-4 ${selectedProfile ? "md:grid-cols-1 lg:grid-cols-2 flex-1" : "md:grid-cols-2 lg:grid-cols-3 flex-1"}`}>
           {filtered.map((p) => (
             <Card
@@ -52,42 +79,37 @@ export default function ProfilesPage() {
             >
               <div className="flex items-start justify-between mb-3">
                 <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-full bg-accent flex items-center justify-center font-display font-bold text-accent-foreground">
-                    {p.name.split(" ").map((n) => n[0]).join("")}
-                  </div>
+                  <Avatar className="w-10 h-10">
+                    <AvatarImage src={p.avatar_url || undefined} />
+                    <AvatarFallback className="bg-accent text-accent-foreground font-display font-bold text-sm">
+                      {p.full_name.split(" ").map((n) => n[0]).join("")}
+                    </AvatarFallback>
+                  </Avatar>
                   <div>
-                    <h3 className="font-semibold text-foreground">{p.name}</h3>
-                    <Badge variant={p.status === "New" ? "default" : "secondary"} className="text-xs">{p.status}</Badge>
+                    <h3 className="font-semibold text-foreground">{p.full_name}</h3>
+                    <Badge variant="secondary" className="text-xs">Rushee</Badge>
                   </div>
                 </div>
-                <button className="text-muted-foreground hover:text-primary transition-colors">
-                  <Star className={`w-5 h-5 ${p.starred ? "fill-primary text-primary" : ""}`} />
-                </button>
               </div>
               <div className="space-y-2 text-sm">
-                <div className="flex items-center gap-2 text-muted-foreground">
-                  <BookOpen className="w-3.5 h-3.5" /> {p.major} · GPA {p.gpa}
-                </div>
-                <div className="flex items-center gap-2 text-muted-foreground">
-                  <MapPin className="w-3.5 h-3.5" /> {p.hometown}
-                </div>
-                <div className="flex flex-wrap gap-1.5 mt-2">
-                  {p.interests.map((i) => (
-                    <span key={i} className="px-2 py-0.5 rounded-full bg-accent text-accent-foreground text-xs">{i}</span>
-                  ))}
-                </div>
+                {p.major && <div className="flex items-center gap-2 text-muted-foreground"><BookOpen className="w-3.5 h-3.5" /> {p.major}</div>}
+                {p.hometown && <div className="flex items-center gap-2 text-muted-foreground"><MapPin className="w-3.5 h-3.5" /> {p.hometown}</div>}
+                {p.interests && p.interests.length > 0 && (
+                  <div className="flex flex-wrap gap-1.5 mt-2">
+                    {p.interests.map((i) => (
+                      <span key={i} className="px-2 py-0.5 rounded-full bg-accent text-accent-foreground text-xs">{i}</span>
+                    ))}
+                  </div>
+                )}
               </div>
             </Card>
           ))}
         </div>
 
-        {/* Notes side panel */}
         {selectedProfile && (
           <Card className="w-80 shrink-0 p-5 bg-card shadow-warm self-start sticky top-6">
             <div className="flex items-center justify-between mb-4">
-              <h3 className="font-display font-semibold text-foreground">
-                {selectedProfile.name}
-              </h3>
+              <h3 className="font-display font-semibold text-foreground">{selectedProfile.full_name}</h3>
               <Button variant="ghost" size="sm" className="h-7 w-7 p-0" onClick={() => setSelectedProfile(null)}>
                 <X className="w-4 h-4" />
               </Button>
@@ -98,23 +120,32 @@ export default function ProfilesPage() {
                 <TabsTrigger value="info" className="flex-1">Info</TabsTrigger>
               </TabsList>
               <TabsContent value="notes" className="mt-4">
-                <NotesPanel
-                  subjectId={selectedProfile.id}
-                  subjectType="rushee"
-                />
+                <NotesPanel subjectId={selectedProfile.user_id} subjectType="rushee" />
               </TabsContent>
               <TabsContent value="info" className="mt-4 space-y-3 text-sm">
-                <div><span className="text-muted-foreground">Major:</span> <span className="text-foreground">{selectedProfile.major}</span></div>
-                <div><span className="text-muted-foreground">GPA:</span> <span className="text-foreground">{selectedProfile.gpa}</span></div>
-                <div><span className="text-muted-foreground">Hometown:</span> <span className="text-foreground">{selectedProfile.hometown}</span></div>
-                <div>
-                  <span className="text-muted-foreground">Interests:</span>
-                  <div className="flex flex-wrap gap-1.5 mt-1">
-                    {selectedProfile.interests.map((i) => (
-                      <span key={i} className="px-2 py-0.5 rounded-full bg-accent text-accent-foreground text-xs">{i}</span>
-                    ))}
+                {selectedProfile.bio && <div><span className="text-muted-foreground">Bio:</span> <span className="text-foreground">{selectedProfile.bio}</span></div>}
+                {selectedProfile.major && <div><span className="text-muted-foreground">Major:</span> <span className="text-foreground">{selectedProfile.major}</span></div>}
+                {selectedProfile.hometown && <div><span className="text-muted-foreground">Hometown:</span> <span className="text-foreground">{selectedProfile.hometown}</span></div>}
+                {selectedProfile.instagram && (
+                  <a href={`https://instagram.com/${selectedProfile.instagram}`} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 text-primary hover:underline">
+                    <Instagram className="w-3.5 h-3.5" /> @{selectedProfile.instagram}
+                  </a>
+                )}
+                {selectedProfile.linkedin && (
+                  <a href={selectedProfile.linkedin} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 text-primary hover:underline">
+                    <Linkedin className="w-3.5 h-3.5" /> LinkedIn
+                  </a>
+                )}
+                {selectedProfile.interests && selectedProfile.interests.length > 0 && (
+                  <div>
+                    <span className="text-muted-foreground">Interests:</span>
+                    <div className="flex flex-wrap gap-1.5 mt-1">
+                      {selectedProfile.interests.map((i) => (
+                        <span key={i} className="px-2 py-0.5 rounded-full bg-accent text-accent-foreground text-xs">{i}</span>
+                      ))}
+                    </div>
                   </div>
-                </div>
+                )}
               </TabsContent>
             </Tabs>
           </Card>
