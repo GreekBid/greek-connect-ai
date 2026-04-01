@@ -1,45 +1,30 @@
 import { ReactNode } from "react";
 import {
-  Sidebar,
-  SidebarContent,
-  SidebarGroup,
-  SidebarGroupContent,
-  SidebarGroupLabel,
-  SidebarMenu,
-  SidebarMenuButton,
-  SidebarMenuItem,
-  SidebarProvider,
-  SidebarTrigger,
-  useSidebar,
+  Sidebar, SidebarContent, SidebarGroup, SidebarGroupContent, SidebarGroupLabel,
+  SidebarMenu, SidebarMenuButton, SidebarMenuItem, SidebarProvider, SidebarTrigger, useSidebar,
 } from "@/components/ui/sidebar";
 import { NavLink } from "@/components/NavLink";
-import {
-  LayoutDashboard,
-  Calendar,
-  MessageSquare,
-  Brain,
-  User,
-  LogOut,
-  StickyNote,
-  FileText,
-} from "lucide-react";
+import { LayoutDashboard, Calendar, MessageSquare, Brain, User, LogOut, StickyNote, FileText } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import { useAuth } from "@/contexts/AuthContext";
+import { useRusheeUnreadCounts } from "@/hooks/useUnreadCounts";
 
 const nav = [
-  { title: "Home", url: "/rushee", icon: LayoutDashboard },
-  { title: "Events", url: "/rushee/events", icon: Calendar },
-  { title: "Messages", url: "/rushee/messages", icon: MessageSquare },
-  { title: "My Notes", url: "/rushee/notes", icon: StickyNote },
-  { title: "Bid Status", url: "/rushee/bid-status", icon: FileText },
-  { title: "AI Coach", url: "/rushee/ai-coach", icon: Brain },
-  { title: "My Profile", url: "/rushee/profile", icon: User },
+  { title: "Home", url: "/rushee", icon: LayoutDashboard, badgeKey: null },
+  { title: "Events", url: "/rushee/events", icon: Calendar, badgeKey: "events" as const },
+  { title: "Messages", url: "/rushee/messages", icon: MessageSquare, badgeKey: "messages" as const },
+  { title: "My Notes", url: "/rushee/notes", icon: StickyNote, badgeKey: null },
+  { title: "Bid Status", url: "/rushee/bid-status", icon: FileText, badgeKey: "bids" as const },
+  { title: "AI Coach", url: "/rushee/ai-coach", icon: Brain, badgeKey: null },
+  { title: "My Profile", url: "/rushee/profile", icon: User, badgeKey: null },
 ];
 
 function RusheeSidebar() {
   const { state } = useSidebar();
   const collapsed = state === "collapsed";
   const { signOut } = useAuth();
+  const counts = useRusheeUnreadCounts();
 
   return (
     <Sidebar collapsible="icon">
@@ -55,16 +40,33 @@ function RusheeSidebar() {
           <SidebarGroupLabel>Menu</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
-              {nav.map((item) => (
-                <SidebarMenuItem key={item.title}>
-                  <SidebarMenuButton asChild>
-                    <NavLink to={item.url} end={item.url === "/rushee"} className="hover:bg-sidebar-accent/50" activeClassName="bg-sidebar-accent text-primary font-medium">
-                      <item.icon className="mr-2 h-4 w-4" />
-                      {!collapsed && <span>{item.title}</span>}
-                    </NavLink>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              ))}
+              {nav.map((item) => {
+                const count = item.badgeKey ? counts[item.badgeKey] : 0;
+                return (
+                  <SidebarMenuItem key={item.title}>
+                    <SidebarMenuButton asChild>
+                      <NavLink to={item.url} end={item.url === "/rushee"} className="hover:bg-sidebar-accent/50" activeClassName="bg-sidebar-accent text-primary font-medium">
+                        <div className="relative mr-2">
+                          <item.icon className="h-4 w-4" />
+                          {count > 0 && collapsed && (
+                            <span className="absolute -top-1.5 -right-1.5 w-2 h-2 rounded-full bg-primary" />
+                          )}
+                        </div>
+                        {!collapsed && (
+                          <>
+                            <span className="flex-1">{item.title}</span>
+                            {count > 0 && (
+                              <Badge className="ml-auto bg-primary text-primary-foreground text-[10px] px-1.5 py-0 h-5 min-w-[20px] flex items-center justify-center">
+                                {count}
+                              </Badge>
+                            )}
+                          </>
+                        )}
+                      </NavLink>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                );
+              })}
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
