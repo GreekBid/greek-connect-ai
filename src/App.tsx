@@ -19,6 +19,7 @@ import AnalyticsPage from "./pages/dashboard/AnalyticsPage";
 import MessagesPage from "./pages/dashboard/MessagesPage";
 import AICoachPage from "./pages/dashboard/AICoachPage";
 import BidsPage from "./pages/dashboard/BidsPage";
+import SettingsPage from "./pages/dashboard/SettingsPage";
 import RusheeLayout from "./components/RusheeLayout";
 import RusheeHome from "./pages/rushee/RusheeHome";
 import RusheeProfile from "./pages/rushee/RusheeProfile";
@@ -26,6 +27,7 @@ import RusheeNotes from "./pages/rushee/RusheeNotes";
 import RusheeEvents from "./pages/rushee/RusheeEvents";
 import RusheeMessages from "./pages/rushee/RusheeMessages";
 import RusheeAICoach from "./pages/rushee/RusheeAICoach";
+import RusheeBidStatus from "./pages/rushee/RusheeBidStatus";
 
 const queryClient = new QueryClient();
 
