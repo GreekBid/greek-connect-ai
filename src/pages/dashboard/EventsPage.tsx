@@ -156,12 +156,42 @@ export default function EventsPage() {
                   </div>
                 </div>
                 <div className="flex items-center gap-4">
-                  <div className="text-center">
+                  <button
+                    onClick={() => setExpandedEvent(expandedEvent === e.id ? null : e.id)}
+                    className="text-center hover:bg-accent rounded-lg p-2 transition-colors"
+                  >
                     <div className="flex items-center gap-1 text-sm text-muted-foreground"><Users className="w-3.5 h-3.5" /> RSVPs</div>
-                    <p className="font-display font-bold text-foreground">{e.rsvpCount}/{e.capacity}</p>
-                  </div>
+                    <div className="flex items-center gap-1 justify-center">
+                      <p className="font-display font-bold text-foreground">{e.rsvpCount}/{e.capacity}</p>
+                      {expandedEvent === e.id ? <ChevronUp className="w-3.5 h-3.5 text-muted-foreground" /> : <ChevronDown className="w-3.5 h-3.5 text-muted-foreground" />}
+                    </div>
+                  </button>
                 </div>
               </div>
+
+              {/* RSVP attendee list */}
+              {expandedEvent === e.id && (
+                <div className="mt-4 pt-4 border-t border-border">
+                  <h4 className="text-sm font-semibold text-foreground mb-3">Attendees ({e.rsvpUsers.length})</h4>
+                  {e.rsvpUsers.length === 0 ? (
+                    <p className="text-sm text-muted-foreground">No RSVPs yet.</p>
+                  ) : (
+                    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
+                      {e.rsvpUsers.map((u) => (
+                        <div key={u.user_id} className="flex items-center gap-2 p-2 rounded-lg bg-accent/50">
+                          <Avatar className="w-7 h-7">
+                            <AvatarImage src={u.avatar_url || undefined} />
+                            <AvatarFallback className="text-xs font-display bg-primary/10 text-primary">
+                              {u.full_name.split(" ").map((n) => n[0]).join("").slice(0, 2)}
+                            </AvatarFallback>
+                          </Avatar>
+                          <span className="text-sm text-foreground truncate">{u.full_name}</span>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              )}
             </Card>
           );
         })}
