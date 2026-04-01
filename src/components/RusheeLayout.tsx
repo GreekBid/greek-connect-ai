@@ -11,14 +11,14 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useRusheeUnreadCounts } from "@/hooks/useUnreadCounts";
 import { supabase } from "@/integrations/supabase/client";
 
-const nav = [
+const getNav = (searchLabel: string) => [
   { title: "Home", url: "/rushee", icon: LayoutDashboard, badgeKey: null },
   { title: "Events", url: "/rushee/events", icon: Calendar, badgeKey: "events" as const },
   { title: "Messages", url: "/rushee/messages", icon: MessageSquare, badgeKey: "messages" as const },
   { title: "My Notes", url: "/rushee/notes", icon: StickyNote, badgeKey: null },
   { title: "Bid Status", url: "/rushee/bid-status", icon: FileText, badgeKey: "bids" as const },
   { title: "AI Coach", url: "/rushee/ai-coach", icon: Brain, badgeKey: null },
-  { title: "Search Chapters", url: "/rushee/search", icon: Search, badgeKey: null },
+  { title: searchLabel, url: "/rushee/search", icon: Search, badgeKey: null },
   { title: "My Profile", url: "/rushee/profile", icon: User, badgeKey: null },
   { title: "Settings", url: "/rushee/settings", icon: Settings, badgeKey: null },
 ];
