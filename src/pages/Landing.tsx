@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
-import { Users, Calendar, Star, BarChart3, MessageSquare, Brain, Shield, ArrowRight } from "lucide-react";
+import { Users, Calendar, Star, BarChart3, MessageSquare, Brain, Shield, ArrowRight, CheckCircle, Quote } from "lucide-react";
 import heroImage from "@/assets/hero-illustration.jpg";
 
 const features = [
@@ -9,7 +9,28 @@ const features = [
   { icon: Star, title: "Private Rankings", desc: "Star & rank applicants privately — only your chapter sees them" },
   { icon: BarChart3, title: "Analytics", desc: "Track applicants, bids, and event attendance at a glance" },
   { icon: Brain, title: "AI Coach", desc: "Interview prep, scheduling help, and applicant matching" },
-  { icon: Shield, title: "Verified Accounts", desc: "Ensure every applicant is legit with account verification" },
+  { icon: Shield, title: "Bid Management", desc: "Track every rushee through review → bid → accepted pipeline" },
+];
+
+const howItWorks = [
+  { step: "1", title: "Sign Up", desc: "Create an account as a chapter or a rushee — it takes 30 seconds." },
+  { step: "2", title: "Set Up", desc: "Chapters create events and invite rushees. Rushees build their profiles." },
+  { step: "3", title: "Connect", desc: "RSVP to events, take notes, rank candidates, and send broadcasts." },
+  { step: "4", title: "Decide", desc: "Use analytics, AI insights, and rankings to make confident bid decisions." },
+];
+
+const testimonials = [
+  { quote: "RushFlow saved us hours of spreadsheet chaos. Our entire chapter could rank and vote in real time.", author: "Jake M.", role: "Rush Chair, ΣΑΕ", school: "University of Texas" },
+  { quote: "As a freshman, it was so nice having one place to track events, RSVP, and get reminders. Way less stressful.", author: "Priya K.", role: "Rushee", school: "UCLA" },
+  { quote: "The AI Coach helped me prep for interviews and figure out what to wear. I felt way more confident going in.", author: "Marcus T.", role: "Rushee", school: "UGA" },
+  { quote: "We went from messy group chats to organized bid pipelines. Our recruitment improved dramatically.", author: "Sarah L.", role: "VP Membership, ΔΔΔ", school: "Florida State" },
+];
+
+const stats = [
+  { value: "500+", label: "Chapters" },
+  { value: "12K+", label: "Rushees" },
+  { value: "3K+", label: "Events Created" },
+  { value: "98%", label: "Satisfaction" },
 ];
 
 export default function Landing() {
@@ -63,6 +84,18 @@ export default function Landing() {
         </div>
       </section>
 
+      {/* Stats Bar */}
+      <section className="py-10 px-6 border-b border-border">
+        <div className="max-w-5xl mx-auto grid grid-cols-2 md:grid-cols-4 gap-8">
+          {stats.map((s) => (
+            <div key={s.label} className="text-center">
+              <p className="text-3xl md:text-4xl font-display font-bold text-primary">{s.value}</p>
+              <p className="text-sm text-muted-foreground mt-1">{s.label}</p>
+            </div>
+          ))}
+        </div>
+      </section>
+
       {/* Features */}
       <section className="py-20 px-6">
         <div className="max-w-7xl mx-auto">
@@ -80,6 +113,88 @@ export default function Landing() {
                 <p className="text-muted-foreground text-sm">{f.desc}</p>
               </div>
             ))}
+          </div>
+        </div>
+      </section>
+
+      {/* How It Works */}
+      <section className="py-20 px-6 bg-card">
+        <div className="max-w-5xl mx-auto">
+          <div className="text-center mb-14">
+            <h2 className="text-3xl md:text-4xl font-display font-bold text-foreground mb-3">How it works</h2>
+            <p className="text-muted-foreground">Get started in minutes — no training required.</p>
+          </div>
+          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-8">
+            {howItWorks.map((item, i) => (
+              <div key={item.step} className="text-center animate-fade-in" style={{ animationDelay: `${i * 0.1}s` }}>
+                <div className="w-12 h-12 rounded-full bg-primary text-primary-foreground font-display font-bold text-lg flex items-center justify-center mx-auto mb-4">
+                  {item.step}
+                </div>
+                <h3 className="font-display font-semibold text-foreground text-lg mb-2">{item.title}</h3>
+                <p className="text-muted-foreground text-sm">{item.desc}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Testimonials */}
+      <section className="py-20 px-6">
+        <div className="max-w-7xl mx-auto">
+          <div className="text-center mb-14">
+            <h2 className="text-3xl md:text-4xl font-display font-bold text-foreground mb-3">Loved by chapters & rushees</h2>
+            <p className="text-muted-foreground">See what people are saying about RushFlow.</p>
+          </div>
+          <div className="grid sm:grid-cols-2 gap-6">
+            {testimonials.map((t, i) => (
+              <div key={i} className="bg-card rounded-xl p-6 shadow-warm hover:shadow-warm-lg transition-shadow animate-fade-in" style={{ animationDelay: `${i * 0.1}s` }}>
+                <Quote className="w-6 h-6 text-primary/30 mb-3" />
+                <p className="text-foreground font-body leading-relaxed mb-4">"{t.quote}"</p>
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-full bg-accent flex items-center justify-center font-display font-bold text-sm text-accent-foreground">
+                    {t.author.split(" ").map((n) => n[0]).join("")}
+                  </div>
+                  <div>
+                    <p className="font-semibold text-foreground text-sm">{t.author}</p>
+                    <p className="text-xs text-muted-foreground">{t.role} · {t.school}</p>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* For Chapters vs For Rushees */}
+      <section className="py-20 px-6 bg-card">
+        <div className="max-w-6xl mx-auto grid md:grid-cols-2 gap-8">
+          <div className="rounded-xl bg-background p-8 shadow-warm">
+            <h3 className="text-2xl font-display font-bold text-foreground mb-4">For Chapters</h3>
+            <ul className="space-y-3">
+              {["Create & manage rush events", "Browse & star rushee profiles", "Private voting & rankings", "Bid pipeline management", "Broadcast messages to all rushees", "AI-powered interview coaching", "Real-time analytics dashboard"].map((item) => (
+                <li key={item} className="flex items-center gap-3 text-sm text-foreground">
+                  <CheckCircle className="w-4 h-4 text-primary shrink-0" />
+                  {item}
+                </li>
+              ))}
+            </ul>
+            <Link to="/signup?role=chapter" className="mt-6 inline-block">
+              <Button variant="hero" className="gap-2">Get Started as Chapter <ArrowRight className="w-4 h-4" /></Button>
+            </Link>
+          </div>
+          <div className="rounded-xl bg-background p-8 shadow-warm">
+            <h3 className="text-2xl font-display font-bold text-foreground mb-4">For Rushees</h3>
+            <ul className="space-y-3">
+              {["Build your profile with socials & interests", "Browse & RSVP to rush events", "Get reminders & chapter broadcasts", "Take private notes on chapters", "AI Coach for interview prep & outfit tips", "Track your rush schedule in one place"].map((item) => (
+                <li key={item} className="flex items-center gap-3 text-sm text-foreground">
+                  <CheckCircle className="w-4 h-4 text-primary shrink-0" />
+                  {item}
+                </li>
+              ))}
+            </ul>
+            <Link to="/signup?role=rushee" className="mt-6 inline-block">
+              <Button variant="hero-outline" className="gap-2">Get Started as Rushee <ArrowRight className="w-4 h-4" /></Button>
+            </Link>
           </div>
         </div>
       </section>
