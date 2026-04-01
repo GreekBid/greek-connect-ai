@@ -56,6 +56,7 @@ const App = () => (
             <Route path="/dashboard/messages" element={<ProtectedRoute requiredRole="chapter"><DashboardLayout><MessagesPage /></DashboardLayout></ProtectedRoute>} />
             <Route path="/dashboard/ai-coach" element={<ProtectedRoute requiredRole="chapter"><DashboardLayout><AICoachPage /></DashboardLayout></ProtectedRoute>} />
             <Route path="/dashboard/bids" element={<ProtectedRoute requiredRole="chapter"><DashboardLayout><BidsPage /></DashboardLayout></ProtectedRoute>} />
+            <Route path="/dashboard/settings" element={<ProtectedRoute requiredRole="chapter"><DashboardLayout><SettingsPage /></DashboardLayout></ProtectedRoute>} />
 
             {/* Rushee routes */}
             <Route path="/rushee" element={<ProtectedRoute requiredRole="rushee"><RusheeLayout><RusheeHome /></RusheeLayout></ProtectedRoute>} />
@@ -64,6 +65,7 @@ const App = () => (
             <Route path="/rushee/events" element={<ProtectedRoute requiredRole="rushee"><RusheeLayout><RusheeEvents /></RusheeLayout></ProtectedRoute>} />
             <Route path="/rushee/messages" element={<ProtectedRoute requiredRole="rushee"><RusheeLayout><RusheeMessages /></RusheeLayout></ProtectedRoute>} />
             <Route path="/rushee/ai-coach" element={<ProtectedRoute requiredRole="rushee"><RusheeLayout><RusheeAICoach /></RusheeLayout></ProtectedRoute>} />
+            <Route path="/rushee/bid-status" element={<ProtectedRoute requiredRole="rushee"><RusheeLayout><RusheeBidStatus /></RusheeLayout></ProtectedRoute>} />
 
             <Route path="*" element={<NotFound />} />
           </Routes>
