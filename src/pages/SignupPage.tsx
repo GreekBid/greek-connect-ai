@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card } from "@/components/ui/card";
 import { toast } from "sonner";
+import { CollegePicker } from "@/components/CollegePicker";
 
 export default function SignupPage() {
   const [searchParams] = useSearchParams();
