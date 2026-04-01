@@ -38,6 +38,7 @@ export default function EventsPage() {
   const [loading, setLoading] = useState(true);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [creating, setCreating] = useState(false);
+  const [expandedEvent, setExpandedEvent] = useState<string | null>(null);
   const [form, setForm] = useState({ name: "", description: "", date: "", time: "", location: "", capacity: "50", vibe: "Casual", attire: "Casual" });
 
   const fetchEvents = async () => {
