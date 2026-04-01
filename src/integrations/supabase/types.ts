@@ -196,6 +196,30 @@ export type Database = {
         }
         Relationships: []
       }
+      rankings: {
+        Row: {
+          created_at: string
+          id: string
+          rushee_id: string
+          vote: string
+          voter_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          rushee_id: string
+          vote?: string
+          voter_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          rushee_id?: string
+          vote?: string
+          voter_id?: string
+        }
+        Relationships: []
+      }
       rush_notes: {
         Row: {
           author_id: string
@@ -223,6 +247,27 @@ export type Database = {
           subject_id?: string
           subject_type?: string
           updated_at?: string
+        }
+        Relationships: []
+      }
+      stars: {
+        Row: {
+          created_at: string
+          id: string
+          rushee_id: string
+          starred_by: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          rushee_id: string
+          starred_by: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          rushee_id?: string
+          starred_by?: string
         }
         Relationships: []
       }
