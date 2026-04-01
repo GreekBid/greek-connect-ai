@@ -25,6 +25,10 @@ export default function SignupPage() {
       toast.error("Please select whether you're a Chapter or Rushee");
       return;
     }
+    if (!college) {
+      toast.error("Please select your college");
+      return;
+    }
     setLoading(true);
     const { data, error } = await supabase.auth.signUp({
       email,
