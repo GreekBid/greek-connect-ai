@@ -76,7 +76,7 @@ export default function MessagesPage() {
     })));
 
     // Direct messages (top-level only)
-    const { data: dms } = await supabase.from("direct_messages").select("*").is("reply_to" as any, null).order("created_at", { ascending: false });
+    const { data: dms } = await (supabase.from("direct_messages").select("*") as any).is("reply_to", null).order("created_at", { ascending: false });
     if (dms && dms.length > 0) {
       const dmIds = (dms as any[]).map((d: any) => d.id);
       const { data: recipients } = await supabase.from("direct_message_recipients").select("message_id, recipient_id").in("message_id", dmIds);
