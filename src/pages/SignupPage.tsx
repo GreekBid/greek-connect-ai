@@ -16,6 +16,8 @@ export default function SignupPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [college, setCollege] = useState("");
+  const [gender, setGender] = useState<"male" | "female" | "">("");
+  const [orgType, setOrgType] = useState<"fraternity" | "sorority" | "">("");
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
