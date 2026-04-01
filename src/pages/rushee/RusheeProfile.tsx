@@ -228,6 +228,10 @@ export default function RusheeProfile() {
             />
           </div>
         </div>
+        <div className="space-y-2">
+          <Label className="flex items-center gap-2"><GraduationCap className="w-4 h-4" /> College</Label>
+          <CollegePicker value={profile.college} onChange={(v) => handleChange("college", v)} />
+        </div>
       </Card>
 
       {/* Socials */}

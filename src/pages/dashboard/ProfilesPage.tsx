@@ -157,6 +157,7 @@ export default function ProfilesPage() {
               <TabsContent value="info" className="mt-4 space-y-3 text-sm">
                 {selectedProfile.bio && <div><span className="text-muted-foreground">Bio:</span> <span className="text-foreground">{selectedProfile.bio}</span></div>}
                 {selectedProfile.major && <div><span className="text-muted-foreground">Major:</span> <span className="text-foreground">{selectedProfile.major}</span></div>}
+                {selectedProfile.college && <div><span className="text-muted-foreground">College:</span> <span className="text-foreground">{selectedProfile.college}</span></div>}
                 {selectedProfile.hometown && <div><span className="text-muted-foreground">Hometown:</span> <span className="text-foreground">{selectedProfile.hometown}</span></div>}
                 {selectedProfile.instagram && (
                   <a href={`https://instagram.com/${selectedProfile.instagram}`} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 text-primary hover:underline">
