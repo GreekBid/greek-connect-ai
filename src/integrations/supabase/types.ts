@@ -14,6 +14,36 @@ export type Database = {
   }
   public: {
     Tables: {
+      bids: {
+        Row: {
+          chapter_user_id: string
+          created_at: string
+          id: string
+          notes: string | null
+          rushee_id: string
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          chapter_user_id: string
+          created_at?: string
+          id?: string
+          notes?: string | null
+          rushee_id: string
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          chapter_user_id?: string
+          created_at?: string
+          id?: string
+          notes?: string | null
+          rushee_id?: string
+          status?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       event_rsvps: {
         Row: {
           created_at: string
@@ -220,6 +250,7 @@ export type Database = {
     }
     Functions: {
       is_admin: { Args: { _user_id: string }; Returns: boolean }
+      is_chapter_member: { Args: { _user_id: string }; Returns: boolean }
     }
     Enums: {
       admin_role: "admin"
