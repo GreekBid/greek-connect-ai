@@ -16,6 +16,7 @@ interface ProfileData {
   bio: string;
   major: string;
   hometown: string;
+  college: string;
   instagram: string;
   twitter: string;
   snapchat: string;
