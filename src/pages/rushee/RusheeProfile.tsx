@@ -61,6 +61,7 @@ export default function RusheeProfile() {
             major: (data as any).major || "",
             hometown: (data as any).hometown || "",
             college: (data as any).college || "",
+            gender: (data as any).gender || "",
             instagram: (data as any).instagram || "",
             twitter: (data as any).twitter || "",
             snapchat: (data as any).snapchat || "",
