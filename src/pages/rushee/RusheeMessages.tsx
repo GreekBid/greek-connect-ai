@@ -72,7 +72,7 @@ export default function RusheeMessages() {
       const dmIds = (dms as any[] || []).map((d: any) => d.id);
       let replies: any[] = [];
       if (dmIds.length > 0) {
-        const { data: replyData } = await supabase.from("direct_messages").select("*").in("reply_to" as any, dmIds).order("created_at", { ascending: true });
+        const { data: replyData } = await (supabase.from("direct_messages").select("*") as any).in("reply_to", dmIds).order("created_at", { ascending: true });
         replies = (replyData as any[]) || [];
       }
       (replies as any[] || []).forEach((r: any) => allSenderIds.add(r.sender_id));
