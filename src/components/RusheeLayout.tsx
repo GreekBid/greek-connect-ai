@@ -26,8 +26,24 @@ const getNav = (searchLabel: string) => [
 function RusheeSidebar() {
   const { state } = useSidebar();
   const collapsed = state === "collapsed";
-  const { signOut } = useAuth();
+  const { signOut, user } = useAuth();
   const counts = useRusheeUnreadCounts();
+  const [gender, setGender] = useState("");
+
+  useEffect(() => {
+    if (!user) return;
+    supabase
+      .from("profiles")
+      .select("gender")
+      .eq("user_id", user.id)
+      .single()
+      .then(({ data }) => {
+        setGender((data as any)?.gender || "");
+      });
+  }, [user]);
+
+  const searchLabel = gender === "female" ? "Search Sororities" : "Search Fraternities";
+  const nav = getNav(searchLabel);
 
   return (
     <Sidebar collapsible="icon">
