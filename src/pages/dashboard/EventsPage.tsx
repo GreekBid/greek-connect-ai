@@ -2,13 +2,20 @@ import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Calendar, MapPin, Clock, Users, Plus, Loader2 } from "lucide-react";
+import { Calendar, MapPin, Clock, Users, Plus, Loader2, ChevronDown, ChevronUp } from "lucide-react";
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { format } from "date-fns";
+
+interface RsvpUser {
+  user_id: string;
+  full_name: string;
+  avatar_url: string | null;
+}
 
 interface EventRow {
   id: string;
@@ -22,6 +29,7 @@ interface EventRow {
   attire: string;
   status: string;
   rsvpCount: number;
+  rsvpUsers: RsvpUser[];
 }
 
 export default function EventsPage() {
