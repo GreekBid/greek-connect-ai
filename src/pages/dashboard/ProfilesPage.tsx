@@ -124,6 +124,7 @@ export default function ProfilesPage() {
               </div>
               <div className="space-y-2 text-sm">
                 {p.major && <div className="flex items-center gap-2 text-muted-foreground"><BookOpen className="w-3.5 h-3.5" /> {p.major}</div>}
+                {p.college && <div className="flex items-center gap-2 text-muted-foreground"><GraduationCap className="w-3.5 h-3.5" /> {p.college}</div>}
                 {p.hometown && <div className="flex items-center gap-2 text-muted-foreground"><MapPin className="w-3.5 h-3.5" /> {p.hometown}</div>}
                 {p.interests && p.interests.length > 0 && (
                   <div className="flex flex-wrap gap-1.5 mt-2">
