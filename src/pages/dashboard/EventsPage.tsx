@@ -42,10 +42,29 @@ export default function EventsPage() {
 
   const fetchEvents = async () => {
     const { data: eventsData } = await supabase.from("events").select("*").order("date", { ascending: true });
-    const { data: rsvpsData } = await supabase.from("event_rsvps").select("event_id");
+    const { data: rsvpsData } = await supabase.from("event_rsvps").select("event_id, user_id");
     const counts: Record<string, number> = {};
-    (rsvpsData || []).forEach((r) => { counts[r.event_id] = (counts[r.event_id] || 0) + 1; });
-    setEvents((eventsData || []).map((e) => ({ ...e, description: e.description || "", capacity: e.capacity || 50, vibe: e.vibe || "Casual", attire: e.attire || "Casual", rsvpCount: counts[e.id] || 0 })));
+    const rsvpUserIds = new Set<string>();
+    const eventRsvpMap: Record<string, string[]> = {};
+    (rsvpsData || []).forEach((r) => {
+      counts[r.event_id] = (counts[r.event_id] || 0) + 1;
+      rsvpUserIds.add(r.user_id);
+      if (!eventRsvpMap[r.event_id]) eventRsvpMap[r.event_id] = [];
+      eventRsvpMap[r.event_id].push(r.user_id);
+    });
+
+    // Fetch profile info for all RSVP users
+    let profileMap: Record<string, RsvpUser> = {};
+    if (rsvpUserIds.size > 0) {
+      const { data: profiles } = await supabase.from("profiles").select("user_id, full_name, avatar_url").in("user_id", [...rsvpUserIds]);
+      (profiles || []).forEach((p) => { profileMap[p.user_id] = { user_id: p.user_id, full_name: p.full_name, avatar_url: p.avatar_url }; });
+    }
+
+    setEvents((eventsData || []).map((e) => ({
+      ...e, description: e.description || "", capacity: e.capacity || 50, vibe: e.vibe || "Casual", attire: e.attire || "Casual",
+      rsvpCount: counts[e.id] || 0,
+      rsvpUsers: (eventRsvpMap[e.id] || []).map((uid) => profileMap[uid]).filter(Boolean),
+    })));
     setLoading(false);
   };
 
