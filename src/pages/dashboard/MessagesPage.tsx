@@ -2,7 +2,7 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { Send, Bell, Users, Megaphone, Loader2, UserCheck, X, Search } from "lucide-react";
+import { Send, Bell, Users, Megaphone, Loader2, UserCheck, X, Search, MessageSquare, ChevronDown, ChevronUp } from "lucide-react";
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
@@ -15,6 +15,14 @@ import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
+interface Reply {
+  id: string;
+  content: string;
+  sender_id: string;
+  sender_name: string;
+  created_at: string;
+}
+
 interface Msg {
   id: string;
   content: string;
@@ -22,6 +30,7 @@ interface Msg {
   created_at: string;
   author_name: string;
   recipients?: string[];
+  replies?: Reply[];
 }
 
 interface RusheeOption {
@@ -40,6 +49,10 @@ export default function MessagesPage() {
   const [sending, setSending] = useState(false);
   const [loading, setLoading] = useState(true);
   const [tab, setTab] = useState("broadcast");
+  const [expandedThreads, setExpandedThreads] = useState<Set<string>>(new Set());
+  const [replyingTo, setReplyingTo] = useState<string | null>(null);
+  const [replyText, setReplyText] = useState("");
+  const [replySending, setReplySending] = useState(false);
 
   // Direct message state
   const [dmDialogOpen, setDmDialogOpen] = useState(false);
@@ -49,20 +62,21 @@ export default function MessagesPage() {
   const [rusheeSearch, setRusheeSearch] = useState("");
   const [dmSending, setDmSending] = useState(false);
 
+  const nameMap: Record<string, string> = {};
+
   const fetchMessages = async () => {
     // Broadcasts
     const { data } = await supabase.from("messages").select("*").order("created_at", { ascending: false });
     const authorIds = [...new Set((data || []).map((m) => m.author_id))];
     const { data: profiles } = await supabase.from("profiles").select("user_id, full_name").in("user_id", authorIds.length ? authorIds : ["_"]);
-    const nameMap: Record<string, string> = {};
     (profiles || []).forEach((p) => { nameMap[p.user_id] = p.full_name; });
     setBroadcasts((data || []).map((m) => ({
       id: m.id, content: m.content, message_type: m.message_type,
       created_at: m.created_at, author_name: nameMap[m.author_id] || "Unknown",
     })));
 
-    // Direct messages
-    const { data: dms } = await supabase.from("direct_messages").select("*").order("created_at", { ascending: false });
+    // Direct messages (top-level only)
+    const { data: dms } = await (supabase.from("direct_messages").select("*") as any).is("reply_to", null).order("created_at", { ascending: false });
     if (dms && dms.length > 0) {
       const dmIds = (dms as any[]).map((d: any) => d.id);
       const { data: recipients } = await supabase.from("direct_message_recipients").select("message_id, recipient_id").in("message_id", dmIds);
@@ -72,19 +86,33 @@ export default function MessagesPage() {
         recipientMap[r.message_id].push(r.recipient_id);
       });
 
-      const allRecipientIds = [...new Set(Object.values(recipientMap).flat())];
-      const { data: recipientProfiles } = await supabase.from("profiles").select("user_id, full_name").in("user_id", allRecipientIds.length ? allRecipientIds : ["_"]);
-      const recipientNames: Record<string, string> = {};
-      (recipientProfiles || []).forEach((p) => { recipientNames[p.user_id] = p.full_name; });
+      // Fetch replies
+      const { data: replies } = await (supabase.from("direct_messages").select("*") as any).in("reply_to", dmIds).order("created_at", { ascending: true });
 
-      const senderIds = [...new Set((dms as any[]).map((d: any) => d.sender_id))];
-      const { data: senderProfiles } = await supabase.from("profiles").select("user_id, full_name").in("user_id", senderIds.length ? senderIds : ["_"]);
-      (senderProfiles || []).forEach((p) => { nameMap[p.user_id] = p.full_name; });
+      const allUserIds = new Set<string>();
+      (dms as any[]).forEach((d: any) => allUserIds.add(d.sender_id));
+      Object.values(recipientMap).flat().forEach((id) => allUserIds.add(id));
+      (replies as any[] || []).forEach((r: any) => allUserIds.add(r.sender_id));
+
+      const { data: allProfiles } = await supabase.from("profiles").select("user_id, full_name").in("user_id", [...allUserIds].length ? [...allUserIds] : ["_"]);
+      (allProfiles || []).forEach((p) => { nameMap[p.user_id] = p.full_name; });
+
+      const replyMap: Record<string, Reply[]> = {};
+      (replies as any[] || []).forEach((r: any) => {
+        const parentId = (r as any).reply_to;
+        if (!replyMap[parentId]) replyMap[parentId] = [];
+        replyMap[parentId].push({
+          id: r.id, content: r.content, sender_id: r.sender_id,
+          sender_name: nameMap[r.sender_id] || "Unknown",
+          created_at: r.created_at,
+        });
+      });
 
       setDirectMsgs((dms as any[]).map((d: any) => ({
         id: d.id, content: d.content, message_type: d.message_type,
         created_at: d.created_at, author_name: nameMap[d.sender_id] || "Unknown",
-        recipients: (recipientMap[d.id] || []).map((rid) => recipientNames[rid] || "Unknown"),
+        recipients: (recipientMap[d.id] || []).map((rid) => nameMap[rid] || "Unknown"),
+        replies: replyMap[d.id] || [],
       })));
     }
 
@@ -135,6 +163,21 @@ export default function MessagesPage() {
     fetchMessages();
   };
 
+  const handleChapterReply = async (parentId: string) => {
+    if (!replyText.trim() || !user) return;
+    setReplySending(true);
+    // Chapter replies: insert as direct_message with reply_to (no RLS issue since chapter has insert policy)
+    const { error } = await supabase.from("direct_messages").insert({
+      sender_id: user.id, content: replyText, message_type: "direct", reply_to: parentId,
+    } as any);
+    setReplySending(false);
+    if (error) { toast.error("Failed to send reply"); return; }
+    toast.success("Reply sent!");
+    setReplyText("");
+    setReplyingTo(null);
+    fetchMessages();
+  };
+
   const toggleRushee = (userId: string) => {
     setSelectedRushees((prev) => {
       const next = new Set(prev);
@@ -146,6 +189,14 @@ export default function MessagesPage() {
   const selectAll = () => {
     if (selectedRushees.size === filteredRushees.length) setSelectedRushees(new Set());
     else setSelectedRushees(new Set(filteredRushees.map((r) => r.user_id)));
+  };
+
+  const toggleThread = (msgId: string) => {
+    setExpandedThreads((prev) => {
+      const next = new Set(prev);
+      if (next.has(msgId)) next.delete(msgId); else next.add(msgId);
+      return next;
+    });
   };
 
   const filteredRushees = rushees.filter((r) => r.full_name.toLowerCase().includes(rusheeSearch.toLowerCase()));
@@ -284,26 +335,82 @@ export default function MessagesPage() {
               <p>No direct messages yet — click "Message Select Rushees" to start.</p>
             </div>
           )}
-          {directMsgs.map((m) => (
-            <Card key={m.id} className="p-4 bg-card shadow-warm">
-              <div className="flex items-start justify-between">
-                <div className="flex items-start gap-3">
-                  <div className="w-8 h-8 rounded-full bg-secondary/30 flex items-center justify-center shrink-0">
-                    <UserCheck className="w-4 h-4 text-secondary-foreground" />
-                  </div>
-                  <div>
-                    <div className="flex items-center gap-2 flex-wrap">
-                      <span className="font-semibold text-foreground text-sm">{m.author_name}</span>
-                      <span className="text-xs bg-secondary/20 text-secondary-foreground px-2 py-0.5 rounded-full">Direct</span>
-                      <span className="text-xs text-muted-foreground">→ {m.recipients?.join(", ")}</span>
+          {directMsgs.map((m) => {
+            const hasReplies = (m.replies?.length || 0) > 0;
+            const isExpanded = expandedThreads.has(m.id);
+
+            return (
+              <Card key={m.id} className="p-4 bg-card shadow-warm">
+                <div className="flex items-start justify-between">
+                  <div className="flex items-start gap-3 flex-1 min-w-0">
+                    <div className="w-8 h-8 rounded-full bg-secondary/30 flex items-center justify-center shrink-0">
+                      <UserCheck className="w-4 h-4 text-secondary-foreground" />
                     </div>
-                    <p className="text-sm text-foreground mt-1">{m.content}</p>
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <span className="font-semibold text-foreground text-sm">{m.author_name}</span>
+                        <span className="text-xs bg-secondary/20 text-secondary-foreground px-2 py-0.5 rounded-full">Direct</span>
+                        <span className="text-xs text-muted-foreground">→ {m.recipients?.join(", ")}</span>
+                      </div>
+                      <p className="text-sm text-foreground mt-1">{m.content}</p>
+                      <p className="text-xs text-muted-foreground mt-1">{formatDistanceToNow(new Date(m.created_at), { addSuffix: true })}</p>
+
+                      {/* Thread */}
+                      <div className="mt-3 space-y-2">
+                        {hasReplies && (
+                          <button
+                            onClick={() => toggleThread(m.id)}
+                            className="flex items-center gap-1.5 text-xs text-primary hover:underline"
+                          >
+                            <MessageSquare className="w-3.5 h-3.5" />
+                            {m.replies!.length} repl{m.replies!.length === 1 ? "y" : "ies"}
+                            {isExpanded ? <ChevronUp className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />}
+                          </button>
+                        )}
+
+                        {isExpanded && m.replies?.map((r) => (
+                          <div key={r.id} className="ml-4 pl-3 border-l-2 border-border py-2">
+                            <div className="flex items-center gap-2">
+                              <span className="text-xs font-semibold text-foreground">{r.sender_name}</span>
+                              <span className="text-[10px] text-muted-foreground">
+                                {formatDistanceToNow(new Date(r.created_at), { addSuffix: true })}
+                              </span>
+                            </div>
+                            <p className="text-sm text-foreground mt-0.5">{r.content}</p>
+                          </div>
+                        ))}
+
+                        {/* Reply input */}
+                        {replyingTo === m.id ? (
+                          <div className="flex gap-2 mt-2">
+                            <Input
+                              placeholder="Write a reply…"
+                              value={replyText}
+                              onChange={(e) => setReplyText(e.target.value)}
+                              onKeyDown={(e) => e.key === "Enter" && handleChapterReply(m.id)}
+                              className="flex-1 h-9 text-sm"
+                              autoFocus
+                            />
+                            <Button size="sm" onClick={() => handleChapterReply(m.id)} disabled={replySending || !replyText.trim()} className="gap-1.5">
+                              {replySending ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Send className="w-3.5 h-3.5" />}
+                            </Button>
+                            <Button size="sm" variant="ghost" onClick={() => { setReplyingTo(null); setReplyText(""); }}>Cancel</Button>
+                          </div>
+                        ) : (
+                          <button
+                            onClick={() => { setReplyingTo(m.id); setExpandedThreads((p) => new Set(p).add(m.id)); }}
+                            className="text-xs text-muted-foreground hover:text-primary flex items-center gap-1.5 mt-1"
+                          >
+                            <Send className="w-3 h-3" /> Reply
+                          </button>
+                        )}
+                      </div>
+                    </div>
                   </div>
                 </div>
-                <span className="text-xs text-muted-foreground whitespace-nowrap">{formatDistanceToNow(new Date(m.created_at), { addSuffix: true })}</span>
-              </div>
-            </Card>
-          ))}
+              </Card>
+            );
+          })}
         </TabsContent>
       </Tabs>
     </div>

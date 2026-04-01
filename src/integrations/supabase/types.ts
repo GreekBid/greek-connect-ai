@@ -85,6 +85,7 @@ export type Database = {
           created_at: string
           id: string
           message_type: string
+          reply_to: string | null
           sender_id: string
         }
         Insert: {
@@ -92,6 +93,7 @@ export type Database = {
           created_at?: string
           id?: string
           message_type?: string
+          reply_to?: string | null
           sender_id: string
         }
         Update: {
@@ -99,9 +101,18 @@ export type Database = {
           created_at?: string
           id?: string
           message_type?: string
+          reply_to?: string | null
           sender_id?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "direct_messages_reply_to_fkey"
+            columns: ["reply_to"]
+            isOneToOne: false
+            referencedRelation: "direct_messages"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       event_rsvps: {
         Row: {
