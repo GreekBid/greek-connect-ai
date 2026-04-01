@@ -2,12 +2,14 @@ import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Star, Search, Filter, MapPin, BookOpen, X, Instagram, Linkedin } from "lucide-react";
+import { Star, Search, MapPin, BookOpen, X, Instagram, Linkedin } from "lucide-react";
 import { useState, useEffect } from "react";
 import NotesPanel from "@/components/NotesPanel";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/contexts/AuthContext";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { toast } from "sonner";
 
 interface RusheeProfile {
   id: string;
@@ -24,26 +26,47 @@ interface RusheeProfile {
 }
 
 export default function ProfilesPage() {
+  const { user } = useAuth();
   const [search, setSearch] = useState("");
   const [profiles, setProfiles] = useState<RusheeProfile[]>([]);
+  const [stars, setStars] = useState<Set<string>>(new Set());
   const [loading, setLoading] = useState(true);
   const [selectedProfile, setSelectedProfile] = useState<RusheeProfile | null>(null);
+  const [filterStarred, setFilterStarred] = useState(false);
 
   useEffect(() => {
-    const fetch = async () => {
-      const { data, error } = await supabase.from("profiles").select("*").eq("role", "rushee").order("created_at", { ascending: false });
-      if (error) { console.error(error); setLoading(false); return; }
-      setProfiles(data || []);
+    const load = async () => {
+      if (!user) return;
+      const [{ data: profileData }, { data: starData }] = await Promise.all([
+        supabase.from("profiles").select("*").eq("role", "rushee").order("created_at", { ascending: false }),
+        supabase.from("stars").select("rushee_id").eq("starred_by", user.id),
+      ]);
+      setProfiles(profileData || []);
+      setStars(new Set((starData as any[] || []).map((s: any) => s.rushee_id)));
       setLoading(false);
     };
-    fetch();
-  }, []);
+    load();
+  }, [user]);
 
-  const filtered = profiles.filter((p) =>
-    p.full_name.toLowerCase().includes(search.toLowerCase()) ||
-    (p.major || "").toLowerCase().includes(search.toLowerCase()) ||
-    (p.hometown || "").toLowerCase().includes(search.toLowerCase())
-  );
+  const toggleStar = async (rusheeUserId: string, e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (!user) return;
+    if (stars.has(rusheeUserId)) {
+      await supabase.from("stars").delete().eq("rushee_id", rusheeUserId).eq("starred_by", user.id);
+      setStars((prev) => { const n = new Set(prev); n.delete(rusheeUserId); return n; });
+    } else {
+      await supabase.from("stars").insert({ rushee_id: rusheeUserId, starred_by: user.id } as any);
+      setStars((prev) => new Set(prev).add(rusheeUserId));
+    }
+  };
+
+  const filtered = profiles
+    .filter((p) => !filterStarred || stars.has(p.user_id))
+    .filter((p) =>
+      p.full_name.toLowerCase().includes(search.toLowerCase()) ||
+      (p.major || "").toLowerCase().includes(search.toLowerCase()) ||
+      (p.hometown || "").toLowerCase().includes(search.toLowerCase())
+    );
 
   if (loading) return <div className="text-muted-foreground p-8">Loading profiles…</div>;
 
@@ -61,6 +84,10 @@ export default function ProfilesPage() {
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
           <Input placeholder="Search by name, major, or hometown..." className="pl-9" value={search} onChange={(e) => setSearch(e.target.value)} />
         </div>
+        <Button variant={filterStarred ? "default" : "outline"} size="sm" className="gap-2" onClick={() => setFilterStarred(!filterStarred)}>
+          <Star className={`w-4 h-4 ${filterStarred ? "fill-current" : ""}`} />
+          Starred ({stars.size})
+        </Button>
       </div>
 
       {profiles.length === 0 && (
@@ -90,6 +117,9 @@ export default function ProfilesPage() {
                     <Badge variant="secondary" className="text-xs">Rushee</Badge>
                   </div>
                 </div>
+                <button onClick={(e) => toggleStar(p.user_id, e)} className="p-1 hover:scale-110 transition-transform">
+                  <Star className={`w-5 h-5 ${stars.has(p.user_id) ? "fill-primary text-primary" : "text-muted-foreground"}`} />
+                </button>
               </div>
               <div className="space-y-2 text-sm">
                 {p.major && <div className="flex items-center gap-2 text-muted-foreground"><BookOpen className="w-3.5 h-3.5" /> {p.major}</div>}
