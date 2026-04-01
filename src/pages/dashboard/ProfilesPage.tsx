@@ -2,7 +2,7 @@ import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Star, Search, MapPin, BookOpen, X, Instagram, Linkedin } from "lucide-react";
+import { Star, Search, MapPin, BookOpen, X, Instagram, Linkedin, GraduationCap } from "lucide-react";
 import { useState, useEffect } from "react";
 import NotesPanel from "@/components/NotesPanel";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
