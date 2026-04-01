@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card } from "@/components/ui/card";
 import { toast } from "sonner";
+import { CollegePicker } from "@/components/CollegePicker";
 
 export default function SignupPage() {
   const [searchParams] = useSearchParams();
@@ -14,6 +15,7 @@ export default function SignupPage() {
   const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [college, setCollege] = useState("");
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
@@ -23,12 +25,16 @@ export default function SignupPage() {
       toast.error("Please select whether you're a Chapter or Rushee");
       return;
     }
+    if (!college) {
+      toast.error("Please select your college");
+      return;
+    }
     setLoading(true);
     const { data, error } = await supabase.auth.signUp({
       email,
       password,
       options: {
-        data: { role, full_name: fullName },
+        data: { role, full_name: fullName, college },
         emailRedirectTo: window.location.origin,
       },
     });
@@ -109,6 +115,10 @@ export default function SignupPage() {
           <div className="space-y-2">
             <Label htmlFor="password">Password</Label>
             <Input id="password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} placeholder="••••••••" minLength={6} required />
+          </div>
+          <div className="space-y-2">
+            <Label>College</Label>
+            <CollegePicker value={college} onChange={setCollege} />
           </div>
           <Button type="submit" className="w-full" disabled={loading}>
             {loading ? "Creating account…" : "Create Account"}
