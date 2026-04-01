@@ -17,6 +17,7 @@ interface ProfileData {
   major: string;
   hometown: string;
   college: string;
+  gender: string;
   instagram: string;
   twitter: string;
   snapchat: string;
@@ -36,6 +37,7 @@ export default function RusheeProfile() {
     major: "",
     hometown: "",
     college: "",
+    gender: "",
     instagram: "",
     twitter: "",
     snapchat: "",
@@ -48,7 +50,7 @@ export default function RusheeProfile() {
     if (!user) return;
     supabase
       .from("profiles")
-      .select("full_name, bio, major, hometown, college, instagram, twitter, snapchat, tiktok, linkedin, avatar_url")
+      .select("full_name, bio, major, hometown, college, gender, instagram, twitter, snapchat, tiktok, linkedin, avatar_url")
       .eq("user_id", user.id)
       .single()
       .then(({ data }) => {
@@ -59,6 +61,7 @@ export default function RusheeProfile() {
             major: (data as any).major || "",
             hometown: (data as any).hometown || "",
             college: (data as any).college || "",
+            gender: (data as any).gender || "",
             instagram: (data as any).instagram || "",
             twitter: (data as any).twitter || "",
             snapchat: (data as any).snapchat || "",
@@ -112,20 +115,34 @@ export default function RusheeProfile() {
     if (!user) return;
     setSaving(true);
 
+    const updateData: any = {
+      full_name: profile.full_name,
+      bio: profile.bio,
+      major: profile.major,
+      hometown: profile.hometown,
+      college: profile.college,
+      instagram: profile.instagram,
+      twitter: profile.twitter,
+      snapchat: profile.snapchat,
+      tiktok: profile.tiktok,
+      linkedin: profile.linkedin,
+    };
+    // Only allow setting gender once (when it's currently empty in DB)
+    if (profile.gender) {
+      // Check if gender was already set in DB
+      const { data: current } = await supabase
+        .from("profiles")
+        .select("gender")
+        .eq("user_id", user.id)
+        .single();
+      if (!(current as any)?.gender) {
+        updateData.gender = profile.gender;
+      }
+    }
+
     const { error } = await supabase
       .from("profiles")
-      .update({
-        full_name: profile.full_name,
-        bio: profile.bio,
-        major: profile.major,
-        hometown: profile.hometown,
-        college: profile.college,
-        instagram: profile.instagram,
-        twitter: profile.twitter,
-        snapchat: profile.snapchat,
-        tiktok: profile.tiktok,
-        linkedin: profile.linkedin,
-      } as any)
+      .update(updateData)
       .eq("user_id", user.id);
 
     if (error) {
@@ -231,6 +248,33 @@ export default function RusheeProfile() {
         <div className="space-y-2">
           <Label className="flex items-center gap-2"><GraduationCap className="w-4 h-4" /> College</Label>
           <CollegePicker value={profile.college} onChange={(v) => handleChange("college", v)} />
+        </div>
+        <div className="space-y-2">
+          <Label>Gender</Label>
+          {profile.gender ? (
+            <div className="flex items-center gap-2 rounded-md border border-input bg-muted/50 px-3 py-2">
+              <span className="text-sm text-foreground">{profile.gender === "male" ? "♂ Male" : "♀ Female"}</span>
+              <span className="text-xs text-muted-foreground ml-auto">Locked</span>
+            </div>
+          ) : (
+            <div className="grid grid-cols-2 gap-3">
+              <button
+                type="button"
+                onClick={() => handleChange("gender", "male")}
+                className="p-3 rounded-lg border-2 border-border bg-card hover:border-primary/50 text-foreground text-center transition-all"
+              >
+                ♂ Male
+              </button>
+              <button
+                type="button"
+                onClick={() => handleChange("gender", "female")}
+                className="p-3 rounded-lg border-2 border-border bg-card hover:border-primary/50 text-foreground text-center transition-all"
+              >
+                ♀ Female
+              </button>
+            </div>
+          )}
+          {!profile.gender && <p className="text-xs text-destructive">⚠️ Once saved, gender cannot be changed.</p>}
         </div>
       </Card>
 
