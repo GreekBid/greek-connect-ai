@@ -31,6 +31,14 @@ export default function SignupPage() {
       toast.error("Please select your college");
       return;
     }
+    if (role === "rushee" && !gender) {
+      toast.error("Please select your gender");
+      return;
+    }
+    if (role === "chapter" && !orgType) {
+      toast.error("Please select Fraternity or Sorority");
+      return;
+    }
     setLoading(true);
     const { data, error } = await supabase.auth.signUp({
       email,
