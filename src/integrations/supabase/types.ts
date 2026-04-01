@@ -367,6 +367,7 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      get_user_college: { Args: { _user_id: string }; Returns: string }
       is_admin: { Args: { _user_id: string }; Returns: boolean }
       is_chapter_member: { Args: { _user_id: string }; Returns: boolean }
     }
