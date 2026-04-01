@@ -8,7 +8,8 @@ import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import { Camera, Instagram, Twitter, Linkedin, Save, Loader2 } from "lucide-react";
+import { Camera, Instagram, Twitter, Linkedin, Save, Loader2, GraduationCap } from "lucide-react";
+import { CollegePicker } from "@/components/CollegePicker";
 
 interface ProfileData {
   full_name: string;
