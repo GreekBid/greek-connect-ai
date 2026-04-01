@@ -1,22 +1,24 @@
-import { ReactNode } from "react";
+import { ReactNode, useEffect, useState } from "react";
 import {
   Sidebar, SidebarContent, SidebarGroup, SidebarGroupContent, SidebarGroupLabel,
   SidebarMenu, SidebarMenuButton, SidebarMenuItem, SidebarProvider, SidebarTrigger, useSidebar,
 } from "@/components/ui/sidebar";
 import { NavLink } from "@/components/NavLink";
-import { LayoutDashboard, Calendar, MessageSquare, Brain, User, LogOut, StickyNote, FileText, Settings } from "lucide-react";
+import { LayoutDashboard, Calendar, MessageSquare, Brain, User, LogOut, StickyNote, FileText, Settings, Search } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { useAuth } from "@/contexts/AuthContext";
 import { useRusheeUnreadCounts } from "@/hooks/useUnreadCounts";
+import { supabase } from "@/integrations/supabase/client";
 
-const nav = [
+const getNav = (searchLabel: string) => [
   { title: "Home", url: "/rushee", icon: LayoutDashboard, badgeKey: null },
   { title: "Events", url: "/rushee/events", icon: Calendar, badgeKey: "events" as const },
   { title: "Messages", url: "/rushee/messages", icon: MessageSquare, badgeKey: "messages" as const },
   { title: "My Notes", url: "/rushee/notes", icon: StickyNote, badgeKey: null },
   { title: "Bid Status", url: "/rushee/bid-status", icon: FileText, badgeKey: "bids" as const },
   { title: "AI Coach", url: "/rushee/ai-coach", icon: Brain, badgeKey: null },
+  { title: searchLabel, url: "/rushee/search", icon: Search, badgeKey: null },
   { title: "My Profile", url: "/rushee/profile", icon: User, badgeKey: null },
   { title: "Settings", url: "/rushee/settings", icon: Settings, badgeKey: null },
 ];
@@ -24,8 +26,24 @@ const nav = [
 function RusheeSidebar() {
   const { state } = useSidebar();
   const collapsed = state === "collapsed";
-  const { signOut } = useAuth();
+  const { signOut, user } = useAuth();
   const counts = useRusheeUnreadCounts();
+  const [gender, setGender] = useState("");
+
+  useEffect(() => {
+    if (!user) return;
+    supabase
+      .from("profiles")
+      .select("gender")
+      .eq("user_id", user.id)
+      .single()
+      .then(({ data }) => {
+        setGender((data as any)?.gender || "");
+      });
+  }, [user]);
+
+  const searchLabel = gender === "female" ? "Search Sororities" : "Search Fraternities";
+  const nav = getNav(searchLabel);
 
   return (
     <Sidebar collapsible="icon">

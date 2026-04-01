@@ -329,6 +329,27 @@ export type Database = {
         }
         Relationships: []
       }
+      rushee_favorites: {
+        Row: {
+          chapter_user_id: string
+          created_at: string
+          id: string
+          rushee_id: string
+        }
+        Insert: {
+          chapter_user_id: string
+          created_at?: string
+          id?: string
+          rushee_id: string
+        }
+        Update: {
+          chapter_user_id?: string
+          created_at?: string
+          id?: string
+          rushee_id?: string
+        }
+        Relationships: []
+      }
       stars: {
         Row: {
           created_at: string
