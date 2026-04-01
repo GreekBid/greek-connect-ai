@@ -2,13 +2,20 @@ import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Calendar, MapPin, Clock, Users, Plus, Loader2 } from "lucide-react";
+import { Calendar, MapPin, Clock, Users, Plus, Loader2, ChevronDown, ChevronUp } from "lucide-react";
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { format } from "date-fns";
+
+interface RsvpUser {
+  user_id: string;
+  full_name: string;
+  avatar_url: string | null;
+}
 
 interface EventRow {
   id: string;
@@ -22,6 +29,7 @@ interface EventRow {
   attire: string;
   status: string;
   rsvpCount: number;
+  rsvpUsers: RsvpUser[];
 }
 
 export default function EventsPage() {
@@ -30,14 +38,34 @@ export default function EventsPage() {
   const [loading, setLoading] = useState(true);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [creating, setCreating] = useState(false);
+  const [expandedEvent, setExpandedEvent] = useState<string | null>(null);
   const [form, setForm] = useState({ name: "", description: "", date: "", time: "", location: "", capacity: "50", vibe: "Casual", attire: "Casual" });
 
   const fetchEvents = async () => {
     const { data: eventsData } = await supabase.from("events").select("*").order("date", { ascending: true });
-    const { data: rsvpsData } = await supabase.from("event_rsvps").select("event_id");
+    const { data: rsvpsData } = await supabase.from("event_rsvps").select("event_id, user_id");
     const counts: Record<string, number> = {};
-    (rsvpsData || []).forEach((r) => { counts[r.event_id] = (counts[r.event_id] || 0) + 1; });
-    setEvents((eventsData || []).map((e) => ({ ...e, description: e.description || "", capacity: e.capacity || 50, vibe: e.vibe || "Casual", attire: e.attire || "Casual", rsvpCount: counts[e.id] || 0 })));
+    const rsvpUserIds = new Set<string>();
+    const eventRsvpMap: Record<string, string[]> = {};
+    (rsvpsData || []).forEach((r) => {
+      counts[r.event_id] = (counts[r.event_id] || 0) + 1;
+      rsvpUserIds.add(r.user_id);
+      if (!eventRsvpMap[r.event_id]) eventRsvpMap[r.event_id] = [];
+      eventRsvpMap[r.event_id].push(r.user_id);
+    });
+
+    // Fetch profile info for all RSVP users
+    let profileMap: Record<string, RsvpUser> = {};
+    if (rsvpUserIds.size > 0) {
+      const { data: profiles } = await supabase.from("profiles").select("user_id, full_name, avatar_url").in("user_id", [...rsvpUserIds]);
+      (profiles || []).forEach((p) => { profileMap[p.user_id] = { user_id: p.user_id, full_name: p.full_name, avatar_url: p.avatar_url }; });
+    }
+
+    setEvents((eventsData || []).map((e) => ({
+      ...e, description: e.description || "", capacity: e.capacity || 50, vibe: e.vibe || "Casual", attire: e.attire || "Casual",
+      rsvpCount: counts[e.id] || 0,
+      rsvpUsers: (eventRsvpMap[e.id] || []).map((uid) => profileMap[uid]).filter(Boolean),
+    })));
     setLoading(false);
   };
 
@@ -128,12 +156,42 @@ export default function EventsPage() {
                   </div>
                 </div>
                 <div className="flex items-center gap-4">
-                  <div className="text-center">
+                  <button
+                    onClick={() => setExpandedEvent(expandedEvent === e.id ? null : e.id)}
+                    className="text-center hover:bg-accent rounded-lg p-2 transition-colors"
+                  >
                     <div className="flex items-center gap-1 text-sm text-muted-foreground"><Users className="w-3.5 h-3.5" /> RSVPs</div>
-                    <p className="font-display font-bold text-foreground">{e.rsvpCount}/{e.capacity}</p>
-                  </div>
+                    <div className="flex items-center gap-1 justify-center">
+                      <p className="font-display font-bold text-foreground">{e.rsvpCount}/{e.capacity}</p>
+                      {expandedEvent === e.id ? <ChevronUp className="w-3.5 h-3.5 text-muted-foreground" /> : <ChevronDown className="w-3.5 h-3.5 text-muted-foreground" />}
+                    </div>
+                  </button>
                 </div>
               </div>
+
+              {/* RSVP attendee list */}
+              {expandedEvent === e.id && (
+                <div className="mt-4 pt-4 border-t border-border">
+                  <h4 className="text-sm font-semibold text-foreground mb-3">Attendees ({e.rsvpUsers.length})</h4>
+                  {e.rsvpUsers.length === 0 ? (
+                    <p className="text-sm text-muted-foreground">No RSVPs yet.</p>
+                  ) : (
+                    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
+                      {e.rsvpUsers.map((u) => (
+                        <div key={u.user_id} className="flex items-center gap-2 p-2 rounded-lg bg-accent/50">
+                          <Avatar className="w-7 h-7">
+                            <AvatarImage src={u.avatar_url || undefined} />
+                            <AvatarFallback className="text-xs font-display bg-primary/10 text-primary">
+                              {u.full_name.split(" ").map((n) => n[0]).join("").slice(0, 2)}
+                            </AvatarFallback>
+                          </Avatar>
+                          <span className="text-sm text-foreground truncate">{u.full_name}</span>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              )}
             </Card>
           );
         })}
