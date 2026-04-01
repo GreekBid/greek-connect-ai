@@ -70,9 +70,11 @@ export default function RusheeMessages() {
 
       // Fetch replies for these messages
       const dmIds = (dms as any[] || []).map((d: any) => d.id);
-      const { data: replies } = dmIds.length > 0
-        ? await supabase.from("direct_messages").select("*").in("reply_to" as any, dmIds).order("created_at", { ascending: true })
-        : { data: [] };
+      let replies: any[] = [];
+      if (dmIds.length > 0) {
+        const { data: replyData } = await supabase.from("direct_messages").select("*").in("reply_to" as any, dmIds).order("created_at", { ascending: true });
+        replies = (replyData as any[]) || [];
+      }
       (replies as any[] || []).forEach((r: any) => allSenderIds.add(r.sender_id));
 
       const { data: senderProfiles } = await supabase.from("profiles").select("user_id, full_name").in("user_id", [...allSenderIds].length ? [...allSenderIds] : ["_"]);
