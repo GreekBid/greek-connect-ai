@@ -249,6 +249,33 @@ export default function RusheeProfile() {
           <Label className="flex items-center gap-2"><GraduationCap className="w-4 h-4" /> College</Label>
           <CollegePicker value={profile.college} onChange={(v) => handleChange("college", v)} />
         </div>
+        <div className="space-y-2">
+          <Label>Gender</Label>
+          {profile.gender ? (
+            <div className="flex items-center gap-2 rounded-md border border-input bg-muted/50 px-3 py-2">
+              <span className="text-sm text-foreground">{profile.gender === "male" ? "♂ Male" : "♀ Female"}</span>
+              <span className="text-xs text-muted-foreground ml-auto">Locked</span>
+            </div>
+          ) : (
+            <div className="grid grid-cols-2 gap-3">
+              <button
+                type="button"
+                onClick={() => handleChange("gender", "male")}
+                className="p-3 rounded-lg border-2 border-border bg-card hover:border-primary/50 text-foreground text-center transition-all"
+              >
+                ♂ Male
+              </button>
+              <button
+                type="button"
+                onClick={() => handleChange("gender", "female")}
+                className="p-3 rounded-lg border-2 border-border bg-card hover:border-primary/50 text-foreground text-center transition-all"
+              >
+                ♀ Female
+              </button>
+            </div>
+          )}
+          {!profile.gender && <p className="text-xs text-destructive">⚠️ Once saved, gender cannot be changed.</p>}
+        </div>
       </Card>
 
       {/* Socials */}
