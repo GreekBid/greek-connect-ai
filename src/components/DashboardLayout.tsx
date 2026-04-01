@@ -53,12 +53,12 @@ function AppSidebar() {
   return (
     <Sidebar collapsible="icon">
       <SidebarContent>
-        <div className="p-4 flex items-center gap-2">
+        <a href="/" className="p-4 flex items-center gap-2 hover:opacity-80 transition-opacity cursor-pointer">
           <div className="w-8 h-8 rounded-lg bg-primary flex items-center justify-center shrink-0">
             <span className="text-primary-foreground font-bold text-sm font-display">R</span>
           </div>
           {!collapsed && <span className="text-lg font-display font-bold text-foreground">RushFlow</span>}
-        </div>
+        </a>
 
         <SidebarGroup>
           <SidebarGroupLabel>Main</SidebarGroupLabel>
