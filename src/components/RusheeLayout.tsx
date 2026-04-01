@@ -4,7 +4,7 @@ import {
   SidebarMenu, SidebarMenuButton, SidebarMenuItem, SidebarProvider, SidebarTrigger, useSidebar,
 } from "@/components/ui/sidebar";
 import { NavLink } from "@/components/NavLink";
-import { LayoutDashboard, Calendar, MessageSquare, Brain, User, LogOut, StickyNote, FileText } from "lucide-react";
+import { LayoutDashboard, Calendar, MessageSquare, Brain, User, LogOut, StickyNote, FileText, Settings } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { useAuth } from "@/contexts/AuthContext";
@@ -18,6 +18,7 @@ const nav = [
   { title: "Bid Status", url: "/rushee/bid-status", icon: FileText, badgeKey: "bids" as const },
   { title: "AI Coach", url: "/rushee/ai-coach", icon: Brain, badgeKey: null },
   { title: "My Profile", url: "/rushee/profile", icon: User, badgeKey: null },
+  { title: "Settings", url: "/rushee/settings", icon: Settings, badgeKey: null },
 ];
 
 function RusheeSidebar() {
