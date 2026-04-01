@@ -115,20 +115,34 @@ export default function RusheeProfile() {
     if (!user) return;
     setSaving(true);
 
+    const updateData: any = {
+      full_name: profile.full_name,
+      bio: profile.bio,
+      major: profile.major,
+      hometown: profile.hometown,
+      college: profile.college,
+      instagram: profile.instagram,
+      twitter: profile.twitter,
+      snapchat: profile.snapchat,
+      tiktok: profile.tiktok,
+      linkedin: profile.linkedin,
+    };
+    // Only allow setting gender once (when it's currently empty in DB)
+    if (profile.gender) {
+      // Check if gender was already set in DB
+      const { data: current } = await supabase
+        .from("profiles")
+        .select("gender")
+        .eq("user_id", user.id)
+        .single();
+      if (!(current as any)?.gender) {
+        updateData.gender = profile.gender;
+      }
+    }
+
     const { error } = await supabase
       .from("profiles")
-      .update({
-        full_name: profile.full_name,
-        bio: profile.bio,
-        major: profile.major,
-        hometown: profile.hometown,
-        college: profile.college,
-        instagram: profile.instagram,
-        twitter: profile.twitter,
-        snapchat: profile.snapchat,
-        tiktok: profile.tiktok,
-        linkedin: profile.linkedin,
-      } as any)
+      .update(updateData)
       .eq("user_id", user.id);
 
     if (error) {
