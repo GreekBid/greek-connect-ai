@@ -18,6 +18,7 @@ const nav = [
   { title: "Bid Status", url: "/rushee/bid-status", icon: FileText, badgeKey: "bids" as const },
   { title: "AI Coach", url: "/rushee/ai-coach", icon: Brain, badgeKey: null },
   { title: "My Profile", url: "/rushee/profile", icon: User, badgeKey: null },
+  { title: "Settings", url: "/rushee/settings", icon: Settings, badgeKey: null },
 ];
 
 function RusheeSidebar() {
