@@ -28,6 +28,7 @@ import RusheeEvents from "./pages/rushee/RusheeEvents";
 import RusheeMessages from "./pages/rushee/RusheeMessages";
 import RusheeAICoach from "./pages/rushee/RusheeAICoach";
 import RusheeBidStatus from "./pages/rushee/RusheeBidStatus";
+import RusheeSettings from "./pages/rushee/RusheeSettings";
 
 const queryClient = new QueryClient();
 
