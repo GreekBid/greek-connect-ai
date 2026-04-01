@@ -24,7 +24,7 @@ export default function SignupPage() {
       return;
     }
     setLoading(true);
-    const { error } = await supabase.auth.signUp({
+    const { data, error } = await supabase.auth.signUp({
       email,
       password,
       options: {
@@ -35,9 +35,11 @@ export default function SignupPage() {
     setLoading(false);
     if (error) {
       toast.error(error.message);
-    } else {
-      toast.success("Check your email to confirm your account!");
-      navigate("/login");
+      return;
+    }
+    if (data.user) {
+      toast.success("Account created! Redirecting…");
+      navigate(role === "chapter" ? "/dashboard" : "/rushee", { replace: true });
     }
   };
 

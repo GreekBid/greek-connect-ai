@@ -16,12 +16,21 @@ export default function LoginPage() {
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    const { error } = await supabase.auth.signInWithPassword({ email, password });
+    const { data, error } = await supabase.auth.signInWithPassword({ email, password });
     setLoading(false);
     if (error) {
       toast.error(error.message);
-    } else {
-      navigate("/");
+      return;
+    }
+    // Fetch role to redirect correctly
+    if (data.user) {
+      const { data: profile } = await supabase
+        .from("profiles")
+        .select("role")
+        .eq("user_id", data.user.id)
+        .single();
+      const role = profile?.role;
+      navigate(role === "chapter" ? "/dashboard" : "/rushee", { replace: true });
     }
   };
 
