@@ -15,6 +15,7 @@ export default function SignupPage() {
   const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [college, setCollege] = useState("");
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
