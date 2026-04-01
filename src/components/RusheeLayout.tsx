@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { useAuth } from "@/contexts/AuthContext";
 import { useRusheeUnreadCounts } from "@/hooks/useUnreadCounts";
+import { supabase } from "@/integrations/supabase/client";
 
 const nav = [
   { title: "Home", url: "/rushee", icon: LayoutDashboard, badgeKey: null },
