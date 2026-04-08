@@ -16,7 +16,7 @@ const aiTools = [
 
 export default function AICoachPage() {
   const [messages, setMessages] = useState<Msg[]>([
-    { role: "assistant", content: "Hey! I'm your RushFlow AI Coach. I can help with interview prep, scheduling, matching, and deciding who to choose. What would you like help with?" },
+    { role: "assistant", content: "Hey! I'm your GreekBid AI Coach. I can help with interview prep, scheduling, matching, and deciding who to choose. What would you like help with?" },
   ]);
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);

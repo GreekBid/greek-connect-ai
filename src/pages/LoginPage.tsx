@@ -39,9 +39,9 @@ export default function LoginPage() {
       <Card className="w-full max-w-md p-8 shadow-warm">
         <div className="flex items-center gap-2 mb-8 justify-center">
           <div className="w-8 h-8 rounded-lg bg-primary flex items-center justify-center">
-            <span className="text-primary-foreground font-bold text-sm font-display">R</span>
+            <span className="text-primary-foreground font-bold text-sm font-display">G</span>
           </div>
-          <span className="text-xl font-display font-bold text-foreground">RushFlow</span>
+          <span className="text-xl font-display font-bold text-foreground">GreekBid</span>
         </div>
 
         <h1 className="text-2xl font-display font-bold text-foreground text-center mb-2">Welcome back</h1>
