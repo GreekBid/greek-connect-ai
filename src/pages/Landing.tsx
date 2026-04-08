@@ -20,7 +20,7 @@ const howItWorks = [
 ];
 
 const testimonials = [
-  { quote: "RushFlow saved us hours of spreadsheet chaos. Our entire chapter could rank and vote in real time.", author: "Jake M.", role: "Rush Chair, ΣΑΕ", school: "University of Texas" },
+  { quote: "GreekBid saved us hours of spreadsheet chaos. Our entire chapter could rank and vote in real time.", author: "Jake M.", role: "Rush Chair, ΣΑΕ", school: "University of Texas" },
   { quote: "As a freshman, it was so nice having one place to track events, RSVP, and get reminders. Way less stressful.", author: "Priya K.", role: "Rushee", school: "UCLA" },
   { quote: "The AI Coach helped me prep for interviews and figure out what to wear. I felt way more confident going in.", author: "Marcus T.", role: "Rushee", school: "UGA" },
   { quote: "We went from messy group chats to organized bid pipelines. Our recruitment improved dramatically.", author: "Sarah L.", role: "VP Membership, ΔΔΔ", school: "Florida State" },
@@ -40,9 +40,9 @@ export default function Landing() {
       <nav className="flex items-center justify-between px-6 py-4 max-w-7xl mx-auto">
         <div className="flex items-center gap-2">
           <div className="w-8 h-8 rounded-lg bg-primary flex items-center justify-center">
-            <span className="text-primary-foreground font-bold text-sm font-display">R</span>
+            <span className="text-primary-foreground font-bold text-sm font-display">G</span>
           </div>
-          <span className="text-xl font-display font-bold text-foreground">RushFlow</span>
+          <span className="text-xl font-display font-bold text-foreground">GreekBid</span>
         </div>
         <div className="flex items-center gap-3">
           <Link to="/login">
@@ -101,7 +101,7 @@ export default function Landing() {
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-14">
             <h2 className="text-3xl md:text-4xl font-display font-bold text-foreground mb-3">Everything you need for rush</h2>
-            <p className="text-muted-foreground max-w-2xl mx-auto">From organizing events to AI-powered applicant matching — RushFlow handles it all so you can focus on finding the right fit.</p>
+            <p className="text-muted-foreground max-w-2xl mx-auto">From organizing events to AI-powered applicant matching — GreekBid handles it all so you can focus on finding the right fit.</p>
           </div>
           <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {features.map((f, i) => (
@@ -143,7 +143,7 @@ export default function Landing() {
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-14">
             <h2 className="text-3xl md:text-4xl font-display font-bold text-foreground mb-3">Loved by chapters & rushees</h2>
-            <p className="text-muted-foreground">See what people are saying about RushFlow.</p>
+            <p className="text-muted-foreground">See what people are saying about GreekBid.</p>
           </div>
           <div className="grid sm:grid-cols-2 gap-6">
             {testimonials.map((t, i) => (
@@ -203,7 +203,7 @@ export default function Landing() {
       <section className="bg-warm-gradient py-16 px-6">
         <div className="max-w-3xl mx-auto text-center space-y-6">
           <h2 className="text-3xl md:text-4xl font-display font-bold text-foreground">Ready to streamline your rush?</h2>
-          <p className="text-muted-foreground">Join chapters across the country already using RushFlow.</p>
+          <p className="text-muted-foreground">Join chapters across the country already using GreekBid.</p>
           <div className="flex justify-center gap-4">
             <Link to="/signup">
               <Button variant="hero" size="lg">Start Free</Button>
@@ -215,8 +215,8 @@ export default function Landing() {
       {/* Footer */}
       <footer className="py-8 px-6 border-t border-border">
         <div className="max-w-7xl mx-auto flex items-center justify-between text-sm text-muted-foreground">
-          <span className="font-display font-semibold text-foreground">RushFlow</span>
-          <span>© 2026 RushFlow. All rights reserved.</span>
+          <span className="font-display font-semibold text-foreground">GreekBid</span>
+          <span>© 2026 GreekBid. All rights reserved.</span>
         </div>
       </footer>
     </div>

@@ -233,7 +233,7 @@ export default function RusheeSettings() {
           <Palette className="w-5 h-5 text-primary" />
           <h2 className="font-display font-semibold text-foreground text-lg">Appearance</h2>
         </div>
-        <p className="text-sm text-muted-foreground">Theme customization coming soon! RushFlow currently uses a warm, approachable light theme.</p>
+        <p className="text-sm text-muted-foreground">Theme customization coming soon! GreekBid currently uses a warm, approachable light theme.</p>
       </Card>
 
       {/* Actions */}

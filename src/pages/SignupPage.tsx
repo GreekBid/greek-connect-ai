@@ -194,13 +194,13 @@ export default function SignupPage() {
         <Card className="w-full max-w-lg p-8 shadow-warm">
           <div className="flex items-center gap-2 mb-8 justify-center">
             <div className="w-8 h-8 rounded-lg bg-primary flex items-center justify-center">
-              <span className="text-primary-foreground font-bold text-sm font-display">R</span>
+              <span className="text-primary-foreground font-bold text-sm font-display">G</span>
             </div>
-            <span className="text-xl font-display font-bold text-foreground">RushFlow</span>
+            <span className="text-xl font-display font-bold text-foreground">GreekBid</span>
           </div>
 
-          <h1 className="text-2xl font-display font-bold text-foreground text-center mb-2">Join RushFlow</h1>
-          <p className="text-muted-foreground text-center mb-8 text-sm">How will you be using RushFlow?</p>
+          <h1 className="text-2xl font-display font-bold text-foreground text-center mb-2">Join GreekBid</h1>
+          <p className="text-muted-foreground text-center mb-8 text-sm">How will you be using GreekBid?</p>
 
           <div className="grid grid-cols-3 gap-4">
             <button
@@ -243,9 +243,9 @@ export default function SignupPage() {
       <Card className="w-full max-w-md p-8 shadow-warm">
         <div className="flex items-center gap-2 mb-8 justify-center">
           <div className="w-8 h-8 rounded-lg bg-primary flex items-center justify-center">
-            <span className="text-primary-foreground font-bold text-sm font-display">R</span>
+            <span className="text-primary-foreground font-bold text-sm font-display">G</span>
           </div>
-          <span className="text-xl font-display font-bold text-foreground">RushFlow</span>
+          <span className="text-xl font-display font-bold text-foreground">GreekBid</span>
         </div>
 
         <h1 className="text-2xl font-display font-bold text-foreground text-center mb-1">{roleLabel}</h1>
