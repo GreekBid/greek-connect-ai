@@ -1,41 +1,49 @@
 import { useAuth } from "@/contexts/AuthContext";
-import { useNavigate, useLocation } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
 export default function AdminViewSwitcher() {
   const { isAdmin, activeView, setActiveView } = useAuth();
   const navigate = useNavigate();
-  const location = useLocation();
 
   if (!isAdmin) return null;
 
-  const switchTo = (view: "chapter" | "rushee") => {
-    setActiveView(view);
-    navigate(view === "chapter" ? "/dashboard" : "/rushee");
+  const views = [
+    { key: "admin" as const, label: "Admin", path: "/admin" },
+    { key: "chapter" as const, label: "Chapter View", path: "/dashboard" },
+    { key: "rushee" as const, label: "Rushee View", path: "/rushee" },
+  ];
+
+  const switchTo = (view: "admin" | "chapter" | "rushee") => {
+    if (view === "admin") {
+      setActiveView("chapter"); // keep activeView valid for context
+      navigate("/admin");
+    } else {
+      setActiveView(view);
+      navigate(view === "chapter" ? "/dashboard" : "/rushee");
+    }
   };
+
+  const currentPath = window.location.pathname;
 
   return (
     <div className="fixed bottom-4 right-4 z-50 bg-card border border-border rounded-xl shadow-warm-lg p-2 flex items-center gap-2">
       <span className="text-xs text-muted-foreground px-2 font-medium">Admin</span>
-      <button
-        onClick={() => switchTo("chapter")}
-        className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
-          activeView === "chapter"
-            ? "bg-primary text-primary-foreground"
-            : "bg-muted text-muted-foreground hover:bg-accent"
-        }`}
-      >
-        Chapter View
-      </button>
-      <button
-        onClick={() => switchTo("rushee")}
-        className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
-          activeView === "rushee"
-            ? "bg-primary text-primary-foreground"
-            : "bg-muted text-muted-foreground hover:bg-accent"
-        }`}
-      >
-        Rushee View
-      </button>
+      {views.map((v) => {
+        const isActive = currentPath.startsWith(v.path);
+        return (
+          <button
+            key={v.key}
+            onClick={() => switchTo(v.key)}
+            className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
+              isActive
+                ? "bg-primary text-primary-foreground"
+                : "bg-muted text-muted-foreground hover:bg-accent"
+            }`}
+          >
+            {v.label}
+          </button>
+        );
+      })}
     </div>
   );
 }
