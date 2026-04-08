@@ -12,6 +12,7 @@ import ProtectedRoute from "./components/ProtectedRoute";
 import PendingApprovalGate from "./components/PendingApprovalGate";
 import AdminViewSwitcher from "./components/AdminViewSwitcher";
 import DashboardLayout from "./components/DashboardLayout";
+import AdminDashboard from "./pages/admin/AdminDashboard";
 import DashboardHome from "./pages/dashboard/DashboardHome";
 import ProfilesPage from "./pages/dashboard/ProfilesPage";
 import EventsPage from "./pages/dashboard/EventsPage";
@@ -58,6 +59,13 @@ const App = () => (
             <Route path="/" element={<AuthRedirect />} />
             <Route path="/login" element={<LoginPage />} />
             <Route path="/signup" element={<SignupPage />} />
+
+            {/* Admin route */}
+            <Route path="/admin" element={
+              <ProtectedRoute requiredRole="chapter">
+                <DashboardLayout><AdminDashboard /></DashboardLayout>
+              </ProtectedRoute>
+            } />
 
             {/* Chapter routes */}
             <Route path="/dashboard" element={<ChapterRoute><DashboardHome /></ChapterRoute>} />
