@@ -254,18 +254,18 @@ export default function SignupPage() {
         </p>
 
         <form onSubmit={handleSignup} className="space-y-4">
-          <div className="space-y-2">
-            <Label htmlFor="name">
-              {role === "chapter" ? "Chapter Name" : "Full Name"}
-            </Label>
-            <Input
-              id="name"
-              value={fullName}
-              onChange={(e) => setFullName(e.target.value)}
-              placeholder={role === "chapter" ? "Alpha Beta Gamma" : "John Doe"}
-              required
-            />
-          </div>
+          {role !== "chapter" && (
+            <div className="space-y-2">
+              <Label htmlFor="name">Full Name</Label>
+              <Input
+                id="name"
+                value={fullName}
+                onChange={(e) => setFullName(e.target.value)}
+                placeholder="John Doe"
+                required
+              />
+            </div>
+          )}
 
           <div className="space-y-2">
             <Label htmlFor="email">Email</Label>
