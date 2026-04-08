@@ -60,6 +60,13 @@ const App = () => (
             <Route path="/login" element={<LoginPage />} />
             <Route path="/signup" element={<SignupPage />} />
 
+            {/* Admin route */}
+            <Route path="/admin" element={
+              <ProtectedRoute requiredRole="chapter">
+                <DashboardLayout><AdminDashboard /></DashboardLayout>
+              </ProtectedRoute>
+            } />
+
             {/* Chapter routes */}
             <Route path="/dashboard" element={<ChapterRoute><DashboardHome /></ChapterRoute>} />
             <Route path="/dashboard/profiles" element={<ChapterRoute><ProfilesPage /></ChapterRoute>} />
