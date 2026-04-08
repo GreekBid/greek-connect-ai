@@ -8,6 +8,7 @@ import { LayoutDashboard, Calendar, MessageSquare, Brain, User, LogOut, StickyNo
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { useAuth } from "@/contexts/AuthContext";
+import SupportFooter from "@/components/SupportFooter";
 import { useRusheeUnreadCounts } from "@/hooks/useUnreadCounts";
 import { supabase } from "@/integrations/supabase/client";
 

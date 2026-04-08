@@ -7,6 +7,7 @@ import {
 import { NavLink } from "@/components/NavLink";
 import { LayoutDashboard, LogOut, Settings, Shield } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import SupportFooter from "@/components/SupportFooter";
 
 const adminNav = [
   { title: "Admin Dashboard", url: "/admin", icon: LayoutDashboard },

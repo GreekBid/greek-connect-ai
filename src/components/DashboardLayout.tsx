@@ -12,6 +12,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { useChapterUnreadCounts } from "@/hooks/useUnreadCounts";
+import SupportFooter from "@/components/SupportFooter";
 
 const mainNav = [
   { title: "Dashboard", url: "/dashboard", icon: LayoutDashboard, badgeKey: null },
