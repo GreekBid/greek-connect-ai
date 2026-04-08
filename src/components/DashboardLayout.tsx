@@ -12,6 +12,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { useChapterUnreadCounts } from "@/hooks/useUnreadCounts";
+import SupportFooter from "@/components/SupportFooter";
 
 const mainNav = [
   { title: "Dashboard", url: "/dashboard", icon: LayoutDashboard, badgeKey: null },
@@ -111,6 +112,7 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
             <span className="text-sm text-muted-foreground font-body">Chapter Dashboard</span>
           </header>
           <main className="flex-1 p-6 overflow-auto">{children}</main>
+          <SupportFooter />
         </div>
       </div>
     </SidebarProvider>

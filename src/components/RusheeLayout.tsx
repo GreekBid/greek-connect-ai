@@ -8,6 +8,7 @@ import { LayoutDashboard, Calendar, MessageSquare, Brain, User, LogOut, StickyNo
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { useAuth } from "@/contexts/AuthContext";
+import SupportFooter from "@/components/SupportFooter";
 import { useRusheeUnreadCounts } from "@/hooks/useUnreadCounts";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -112,6 +113,7 @@ export default function RusheeLayout({ children }: { children: ReactNode }) {
             <span className="text-sm text-muted-foreground font-body">My Rush</span>
           </header>
           <main className="flex-1 p-6 overflow-auto">{children}</main>
+          <SupportFooter />
         </div>
       </div>
     </SidebarProvider>
