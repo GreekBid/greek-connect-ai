@@ -12,6 +12,7 @@ import ProtectedRoute from "./components/ProtectedRoute";
 import PendingApprovalGate from "./components/PendingApprovalGate";
 import AdminViewSwitcher from "./components/AdminViewSwitcher";
 import DashboardLayout from "./components/DashboardLayout";
+import AdminLayout from "./components/AdminLayout";
 import AdminDashboard from "./pages/admin/AdminDashboard";
 import DashboardHome from "./pages/dashboard/DashboardHome";
 import ProfilesPage from "./pages/dashboard/ProfilesPage";
@@ -63,7 +64,7 @@ const App = () => (
             {/* Admin route */}
             <Route path="/admin" element={
               <ProtectedRoute requiredRole="chapter">
-                <DashboardLayout><AdminDashboard /></DashboardLayout>
+                <AdminLayout><AdminDashboard /></AdminLayout>
               </ProtectedRoute>
             } />
 
