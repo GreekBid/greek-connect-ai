@@ -67,6 +67,7 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
             <span className="text-sm text-muted-foreground font-body">Platform Administration</span>
           </header>
           <main className="flex-1 p-6 overflow-auto">{children}</main>
+          <SupportFooter />
         </div>
       </div>
     </SidebarProvider>

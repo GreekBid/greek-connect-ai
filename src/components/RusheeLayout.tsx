@@ -112,6 +112,7 @@ export default function RusheeLayout({ children }: { children: ReactNode }) {
             <span className="text-sm text-muted-foreground font-body">My Rush</span>
           </header>
           <main className="flex-1 p-6 overflow-auto">{children}</main>
+          <SupportFooter />
         </div>
       </div>
     </SidebarProvider>
