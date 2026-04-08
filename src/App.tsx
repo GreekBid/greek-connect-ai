@@ -12,6 +12,7 @@ import ProtectedRoute from "./components/ProtectedRoute";
 import PendingApprovalGate from "./components/PendingApprovalGate";
 import AdminViewSwitcher from "./components/AdminViewSwitcher";
 import DashboardLayout from "./components/DashboardLayout";
+import AdminDashboard from "./pages/admin/AdminDashboard";
 import DashboardHome from "./pages/dashboard/DashboardHome";
 import ProfilesPage from "./pages/dashboard/ProfilesPage";
 import EventsPage from "./pages/dashboard/EventsPage";
