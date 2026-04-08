@@ -3,11 +3,12 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
+import { Switch } from "@/components/ui/switch";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import {
   Users, Building2, GraduationCap, MapPin, Search, Trash2, Eye,
-  BarChart3, TrendingUp, School, ChevronDown, ChevronUp, Shield,
+  BarChart3, TrendingUp, School, ChevronDown, ChevronUp, Shield, FlaskConical, ShieldCheck,
 } from "lucide-react";
 
 interface Profile {
@@ -21,6 +22,7 @@ interface Profile {
   org_type: string | null;
   created_at: string;
   chapter_id: string | null;
+  is_test: boolean;
 }
 
 interface Chapter {
@@ -35,6 +37,7 @@ interface Chapter {
 export default function AdminDashboard() {
   const [profiles, setProfiles] = useState<Profile[]>([]);
   const [chapters, setChapters] = useState<Chapter[]>([]);
+  const [adminUserIds, setAdminUserIds] = useState<Set<string>>(new Set());
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCollege, setSelectedCollege] = useState<string>("all");
@@ -48,12 +51,17 @@ export default function AdminDashboard() {
 
   const fetchData = async () => {
     setLoading(true);
-    const [profilesRes, chaptersRes] = await Promise.all([
+    const [profilesRes, chaptersRes, rolesRes] = await Promise.all([
       supabase.from("profiles").select("*"),
       supabase.from("chapters").select("*"),
+      supabase.from("user_roles").select("user_id, role"),
     ]);
-    setProfiles(profilesRes.data ?? []);
+    setProfiles(profilesRes.data?.map((p: any) => ({ ...p, is_test: p.is_test ?? false })) ?? []);
     setChapters(chaptersRes.data ?? []);
+    // Build admin set from user_roles (admin can see all via is_admin RLS)
+    const admins = new Set<string>();
+    (rolesRes.data ?? []).forEach((r: any) => { if (r.role === "admin") admins.add(r.user_id); });
+    setAdminUserIds(admins);
     setLoading(false);
   };
 
@@ -105,7 +113,6 @@ export default function AdminDashboard() {
       .select("*")
       .eq("chapter_id", chapterId);
 
-    // Fetch member profiles separately
     const memberUserIds = (members ?? []).map((m: any) => m.user_id);
     let memberProfiles: Record<string, string> = {};
     if (memberUserIds.length > 0) {
@@ -146,6 +153,38 @@ export default function AdminDashboard() {
     }
   };
 
+  const toggleTestProfile = async (userId: string, currentIsTest: boolean) => {
+    const newVal = !currentIsTest;
+    const { error } = await supabase.from("profiles").update({ is_test: newVal } as any).eq("user_id", userId);
+    if (error) {
+      toast.error("Failed to update: " + error.message);
+    } else {
+      toast.success(`Marked as ${newVal ? "test" : "real"} profile`);
+      setProfiles((prev) => prev.map((p) => p.user_id === userId ? { ...p, is_test: newVal } : p));
+    }
+  };
+
+  const toggleAdmin = async (userId: string) => {
+    const isCurrentlyAdmin = adminUserIds.has(userId);
+    if (isCurrentlyAdmin) {
+      const { error } = await supabase.from("user_roles").delete().eq("user_id", userId).eq("role", "admin" as any);
+      if (error) {
+        toast.error("Failed to remove admin: " + error.message);
+      } else {
+        toast.success("Admin role removed");
+        setAdminUserIds((prev) => { const n = new Set(prev); n.delete(userId); return n; });
+      }
+    } else {
+      const { error } = await supabase.from("user_roles").insert({ user_id: userId, role: "admin" } as any);
+      if (error) {
+        toast.error("Failed to assign admin: " + error.message);
+      } else {
+        toast.success("Admin role assigned");
+        setAdminUserIds((prev) => new Set(prev).add(userId));
+      }
+    }
+  };
+
   if (loading) {
     return <div className="p-8 text-muted-foreground">Loading admin data…</div>;
   }
@@ -156,6 +195,37 @@ export default function AdminDashboard() {
     { key: "rushees" as const, label: "Rushees", icon: GraduationCap },
     { key: "accounts" as const, label: "All Accounts", icon: Users },
   ];
+
+  const renderProfileActions = (p: Profile) => (
+    <div className="flex items-center gap-3">
+      <div className="flex items-center gap-1.5" title={p.is_test ? "Test profile" : "Real profile"}>
+        <FlaskConical className={`w-3.5 h-3.5 ${p.is_test ? "text-orange-500" : "text-muted-foreground/40"}`} />
+        <Switch
+          checked={p.is_test}
+          onCheckedChange={() => toggleTestProfile(p.user_id, p.is_test)}
+          className="scale-75"
+        />
+        <span className="text-[10px] text-muted-foreground w-7">{p.is_test ? "Test" : "Real"}</span>
+      </div>
+      <div className="flex items-center gap-1.5" title={adminUserIds.has(p.user_id) ? "Admin" : "Not admin"}>
+        <ShieldCheck className={`w-3.5 h-3.5 ${adminUserIds.has(p.user_id) ? "text-primary" : "text-muted-foreground/40"}`} />
+        <Switch
+          checked={adminUserIds.has(p.user_id)}
+          onCheckedChange={() => toggleAdmin(p.user_id)}
+          className="scale-75"
+        />
+        <span className="text-[10px] text-muted-foreground w-9">{adminUserIds.has(p.user_id) ? "Admin" : ""}</span>
+      </div>
+      <Button
+        size="sm"
+        variant="ghost"
+        className="text-destructive hover:text-destructive"
+        onClick={() => handleDeleteProfile(p.user_id, p.full_name)}
+      >
+        <Trash2 className="w-3.5 h-3.5" />
+      </Button>
+    </div>
+  );
 
   return (
     <div className="space-y-6">
@@ -213,7 +283,6 @@ export default function AdminDashboard() {
       {/* Overview Tab */}
       {activeTab === "overview" && (
         <div className="space-y-6">
-          {/* Stats Cards */}
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
             <Card className="p-5 bg-card shadow-warm">
               <div className="flex items-center gap-3">
@@ -261,7 +330,6 @@ export default function AdminDashboard() {
             </Card>
           </div>
 
-          {/* Gender / Org breakdown */}
           <div className="grid md:grid-cols-2 gap-6">
             <Card className="p-6 bg-card shadow-warm">
               <h3 className="font-display font-semibold text-foreground mb-4 flex items-center gap-2">
@@ -307,11 +375,18 @@ export default function AdminDashboard() {
                   <span className="text-muted-foreground">Female Rushees</span>
                   <span className="font-medium text-foreground">{rushees.filter(r => r.gender === "female").length}</span>
                 </div>
+                <div className="flex justify-between text-sm border-t border-border pt-2 mt-2">
+                  <span className="text-muted-foreground">Test Profiles</span>
+                  <span className="font-medium text-orange-500">{profiles.filter(p => p.is_test).length}</span>
+                </div>
+                <div className="flex justify-between text-sm">
+                  <span className="text-muted-foreground">Real Profiles</span>
+                  <span className="font-medium text-foreground">{profiles.filter(p => !p.is_test).length}</span>
+                </div>
               </div>
             </Card>
           </div>
 
-          {/* Recent Signups */}
           <Card className="p-6 bg-card shadow-warm">
             <h3 className="font-display font-semibold text-foreground mb-4">Recent Signups</h3>
             <div className="overflow-x-auto">
@@ -321,6 +396,7 @@ export default function AdminDashboard() {
                     <th className="text-left py-2 text-muted-foreground font-medium">Name</th>
                     <th className="text-left py-2 text-muted-foreground font-medium">Role</th>
                     <th className="text-left py-2 text-muted-foreground font-medium">College</th>
+                    <th className="text-left py-2 text-muted-foreground font-medium">Type</th>
                     <th className="text-left py-2 text-muted-foreground font-medium">Joined</th>
                   </tr>
                 </thead>
@@ -334,6 +410,13 @@ export default function AdminDashboard() {
                         </Badge>
                       </td>
                       <td className="py-2 text-muted-foreground text-xs">{p.college || "—"}</td>
+                      <td className="py-2">
+                        {p.is_test ? (
+                          <Badge variant="outline" className="text-xs text-orange-500 border-orange-500/30">Test</Badge>
+                        ) : (
+                          <Badge variant="outline" className="text-xs">Real</Badge>
+                        )}
+                      </td>
                       <td className="py-2 text-muted-foreground text-xs">
                         {new Date(p.created_at).toLocaleDateString()}
                       </td>
@@ -423,6 +506,7 @@ export default function AdminDashboard() {
                   <th className="text-left py-2 text-muted-foreground font-medium">Name</th>
                   <th className="text-left py-2 text-muted-foreground font-medium">College</th>
                   <th className="text-left py-2 text-muted-foreground font-medium">Gender</th>
+                  <th className="text-left py-2 text-muted-foreground font-medium">Type</th>
                   <th className="text-left py-2 text-muted-foreground font-medium">Joined</th>
                   <th className="text-right py-2 text-muted-foreground font-medium">Actions</th>
                 </tr>
@@ -435,18 +519,18 @@ export default function AdminDashboard() {
                     <td className="py-2">
                       <Badge variant="outline" className="text-xs">{r.gender || "—"}</Badge>
                     </td>
+                    <td className="py-2">
+                      {r.is_test ? (
+                        <Badge variant="outline" className="text-xs text-orange-500 border-orange-500/30">Test</Badge>
+                      ) : (
+                        <Badge variant="outline" className="text-xs">Real</Badge>
+                      )}
+                    </td>
                     <td className="py-2 text-muted-foreground text-xs">
                       {new Date(r.created_at).toLocaleDateString()}
                     </td>
                     <td className="py-2 text-right">
-                      <Button
-                        size="sm"
-                        variant="ghost"
-                        className="text-destructive hover:text-destructive"
-                        onClick={() => handleDeleteProfile(r.user_id, r.full_name)}
-                      >
-                        <Trash2 className="w-3.5 h-3.5" />
-                      </Button>
+                      {renderProfileActions(r)}
                     </td>
                   </tr>
                 ))}
@@ -470,8 +554,7 @@ export default function AdminDashboard() {
                   <th className="text-left py-2 text-muted-foreground font-medium">Name</th>
                   <th className="text-left py-2 text-muted-foreground font-medium">Role</th>
                   <th className="text-left py-2 text-muted-foreground font-medium">College</th>
-                  <th className="text-left py-2 text-muted-foreground font-medium">Gender</th>
-                  <th className="text-left py-2 text-muted-foreground font-medium">Org Type</th>
+                  <th className="text-left py-2 text-muted-foreground font-medium">Type</th>
                   <th className="text-left py-2 text-muted-foreground font-medium">Joined</th>
                   <th className="text-right py-2 text-muted-foreground font-medium">Actions</th>
                 </tr>
@@ -485,27 +568,30 @@ export default function AdminDashboard() {
                   })
                   .map((p) => (
                     <tr key={p.id} className="border-b border-border/50">
-                      <td className="py-2 text-foreground">{p.full_name || "—"}</td>
+                      <td className="py-2 text-foreground">
+                        {p.full_name || "—"}
+                        {adminUserIds.has(p.user_id) && (
+                          <Badge className="ml-2 text-[10px] bg-primary/10 text-primary border-0">Admin</Badge>
+                        )}
+                      </td>
                       <td className="py-2">
                         <Badge variant={p.role === "chapter" ? "default" : "secondary"} className="text-xs">
                           {p.role}
                         </Badge>
                       </td>
                       <td className="py-2 text-muted-foreground text-xs">{p.college || "—"}</td>
-                      <td className="py-2 text-xs">{p.gender || "—"}</td>
-                      <td className="py-2 text-xs">{p.org_type || "—"}</td>
+                      <td className="py-2">
+                        {p.is_test ? (
+                          <Badge variant="outline" className="text-xs text-orange-500 border-orange-500/30">Test</Badge>
+                        ) : (
+                          <Badge variant="outline" className="text-xs">Real</Badge>
+                        )}
+                      </td>
                       <td className="py-2 text-muted-foreground text-xs">
                         {new Date(p.created_at).toLocaleDateString()}
                       </td>
                       <td className="py-2 text-right">
-                        <Button
-                          size="sm"
-                          variant="ghost"
-                          className="text-destructive hover:text-destructive"
-                          onClick={() => handleDeleteProfile(p.user_id, p.full_name)}
-                        >
-                          <Trash2 className="w-3.5 h-3.5" />
-                        </Button>
+                        {renderProfileActions(p)}
                       </td>
                     </tr>
                   ))}
