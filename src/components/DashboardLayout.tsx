@@ -7,7 +7,7 @@ import {
 import { NavLink } from "@/components/NavLink";
 import { useLocation } from "react-router-dom";
 import {
-  LayoutDashboard, Users, Calendar, Star, BarChart3, MessageSquare, Brain, ClipboardList, Settings, LogOut,
+  LayoutDashboard, Users, Calendar, Star, BarChart3, MessageSquare, Brain, ClipboardList, Settings, LogOut, UserPlus,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -25,6 +25,7 @@ const mainNav = [
 const toolsNav = [
   { title: "AI Coach", url: "/dashboard/ai-coach", icon: Brain, badgeKey: null },
   { title: "Bid Management", url: "/dashboard/bids", icon: ClipboardList, badgeKey: "pendingBids" as const },
+  { title: "Members", url: "/dashboard/members", icon: UserPlus, badgeKey: null },
   { title: "Settings", url: "/dashboard/settings", icon: Settings, badgeKey: null },
 ];
 
