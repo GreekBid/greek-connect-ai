@@ -290,6 +290,7 @@ export type Database = {
           id: string
           instagram: string | null
           interests: string[] | null
+          is_test: boolean
           linkedin: string | null
           major: string | null
           org_type: string | null
@@ -311,6 +312,7 @@ export type Database = {
           id?: string
           instagram?: string | null
           interests?: string[] | null
+          is_test?: boolean
           linkedin?: string | null
           major?: string | null
           org_type?: string | null
@@ -332,6 +334,7 @@ export type Database = {
           id?: string
           instagram?: string | null
           interests?: string[] | null
+          is_test?: boolean
           linkedin?: string | null
           major?: string | null
           org_type?: string | null
@@ -471,6 +474,7 @@ export type Database = {
     }
     Functions: {
       get_user_college: { Args: { _user_id: string }; Returns: string }
+      get_user_is_test: { Args: { _user_id: string }; Returns: boolean }
       get_user_org_type: { Args: { _user_id: string }; Returns: string }
       is_admin: { Args: { _user_id: string }; Returns: boolean }
       is_chapter_admin: {
