@@ -100,13 +100,27 @@ export default function AdminDashboard() {
       setExpandedChapter(expandedChapter === chapterId ? null : chapterId);
       return;
     }
-    const { data } = await supabase
+    const { data: members } = await supabase
       .from("chapter_members")
-      .select("*, profiles!chapter_members_user_id_fkey(full_name, college)")
+      .select("*")
       .eq("chapter_id", chapterId);
 
-    // Fallback: if the join fails, just use chapter_members data
-    setChapterMembers((prev) => ({ ...prev, [chapterId]: data ?? [] }));
+    // Fetch member profiles separately
+    const memberUserIds = (members ?? []).map((m: any) => m.user_id);
+    let memberProfiles: Record<string, string> = {};
+    if (memberUserIds.length > 0) {
+      const { data: profs } = await supabase
+        .from("profiles")
+        .select("user_id, full_name")
+        .in("user_id", memberUserIds);
+      (profs ?? []).forEach((p: any) => { memberProfiles[p.user_id] = p.full_name; });
+    }
+
+    const enriched = (members ?? []).map((m: any) => ({
+      ...m,
+      profiles: { full_name: memberProfiles[m.user_id] || m.user_id },
+    }));
+    setChapterMembers((prev) => ({ ...prev, [chapterId]: enriched }));
     setExpandedChapter(chapterId);
   };
 
