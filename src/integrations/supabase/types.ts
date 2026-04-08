@@ -44,6 +44,71 @@ export type Database = {
         }
         Relationships: []
       }
+      chapter_members: {
+        Row: {
+          chapter_id: string
+          created_at: string
+          id: string
+          role: string
+          status: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          chapter_id: string
+          created_at?: string
+          id?: string
+          role?: string
+          status?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          chapter_id?: string
+          created_at?: string
+          id?: string
+          role?: string
+          status?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "chapter_members_chapter_id_fkey"
+            columns: ["chapter_id"]
+            isOneToOne: false
+            referencedRelation: "chapters"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      chapters: {
+        Row: {
+          college: string
+          created_at: string
+          created_by: string
+          id: string
+          name: string
+          org_type: string
+        }
+        Insert: {
+          college: string
+          created_at?: string
+          created_by: string
+          id?: string
+          name: string
+          org_type?: string
+        }
+        Update: {
+          college?: string
+          created_at?: string
+          created_by?: string
+          id?: string
+          name?: string
+          org_type?: string
+        }
+        Relationships: []
+      }
       direct_message_recipients: {
         Row: {
           created_at: string
@@ -216,6 +281,7 @@ export type Database = {
         Row: {
           avatar_url: string | null
           bio: string | null
+          chapter_id: string | null
           college: string | null
           created_at: string
           full_name: string
@@ -236,6 +302,7 @@ export type Database = {
         Insert: {
           avatar_url?: string | null
           bio?: string | null
+          chapter_id?: string | null
           college?: string | null
           created_at?: string
           full_name?: string
@@ -256,6 +323,7 @@ export type Database = {
         Update: {
           avatar_url?: string | null
           bio?: string | null
+          chapter_id?: string | null
           college?: string | null
           created_at?: string
           full_name?: string
@@ -273,7 +341,15 @@ export type Database = {
           twitter?: string | null
           user_id?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "profiles_chapter_id_fkey"
+            columns: ["chapter_id"]
+            isOneToOne: false
+            referencedRelation: "chapters"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       rankings: {
         Row: {
@@ -397,6 +473,10 @@ export type Database = {
       get_user_college: { Args: { _user_id: string }; Returns: string }
       get_user_org_type: { Args: { _user_id: string }; Returns: string }
       is_admin: { Args: { _user_id: string }; Returns: boolean }
+      is_chapter_admin: {
+        Args: { _chapter_id: string; _user_id: string }
+        Returns: boolean
+      }
       is_chapter_member: { Args: { _user_id: string }; Returns: boolean }
     }
     Enums: {

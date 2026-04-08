@@ -9,6 +9,7 @@ import NotFound from "./pages/NotFound";
 import LoginPage from "./pages/LoginPage";
 import SignupPage from "./pages/SignupPage";
 import ProtectedRoute from "./components/ProtectedRoute";
+import PendingApprovalGate from "./components/PendingApprovalGate";
 import AdminViewSwitcher from "./components/AdminViewSwitcher";
 import DashboardLayout from "./components/DashboardLayout";
 import DashboardHome from "./pages/dashboard/DashboardHome";
@@ -19,6 +20,7 @@ import AnalyticsPage from "./pages/dashboard/AnalyticsPage";
 import MessagesPage from "./pages/dashboard/MessagesPage";
 import AICoachPage from "./pages/dashboard/AICoachPage";
 import BidsPage from "./pages/dashboard/BidsPage";
+import MembersPage from "./pages/dashboard/MembersPage";
 import SettingsPage from "./pages/dashboard/SettingsPage";
 import RusheeLayout from "./components/RusheeLayout";
 import RusheeHome from "./pages/rushee/RusheeHome";
@@ -37,6 +39,14 @@ function AuthRedirect() {
   return <Landing />;
 }
 
+const ChapterRoute = ({ children }: { children: React.ReactNode }) => (
+  <ProtectedRoute requiredRole="chapter">
+    <PendingApprovalGate>
+      <DashboardLayout>{children}</DashboardLayout>
+    </PendingApprovalGate>
+  </ProtectedRoute>
+);
+
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
@@ -50,15 +60,16 @@ const App = () => (
             <Route path="/signup" element={<SignupPage />} />
 
             {/* Chapter routes */}
-            <Route path="/dashboard" element={<ProtectedRoute requiredRole="chapter"><DashboardLayout><DashboardHome /></DashboardLayout></ProtectedRoute>} />
-            <Route path="/dashboard/profiles" element={<ProtectedRoute requiredRole="chapter"><DashboardLayout><ProfilesPage /></DashboardLayout></ProtectedRoute>} />
-            <Route path="/dashboard/events" element={<ProtectedRoute requiredRole="chapter"><DashboardLayout><EventsPage /></DashboardLayout></ProtectedRoute>} />
-            <Route path="/dashboard/rankings" element={<ProtectedRoute requiredRole="chapter"><DashboardLayout><RankingsPage /></DashboardLayout></ProtectedRoute>} />
-            <Route path="/dashboard/analytics" element={<ProtectedRoute requiredRole="chapter"><DashboardLayout><AnalyticsPage /></DashboardLayout></ProtectedRoute>} />
-            <Route path="/dashboard/messages" element={<ProtectedRoute requiredRole="chapter"><DashboardLayout><MessagesPage /></DashboardLayout></ProtectedRoute>} />
-            <Route path="/dashboard/ai-coach" element={<ProtectedRoute requiredRole="chapter"><DashboardLayout><AICoachPage /></DashboardLayout></ProtectedRoute>} />
-            <Route path="/dashboard/bids" element={<ProtectedRoute requiredRole="chapter"><DashboardLayout><BidsPage /></DashboardLayout></ProtectedRoute>} />
-            <Route path="/dashboard/settings" element={<ProtectedRoute requiredRole="chapter"><DashboardLayout><SettingsPage /></DashboardLayout></ProtectedRoute>} />
+            <Route path="/dashboard" element={<ChapterRoute><DashboardHome /></ChapterRoute>} />
+            <Route path="/dashboard/profiles" element={<ChapterRoute><ProfilesPage /></ChapterRoute>} />
+            <Route path="/dashboard/events" element={<ChapterRoute><EventsPage /></ChapterRoute>} />
+            <Route path="/dashboard/rankings" element={<ChapterRoute><RankingsPage /></ChapterRoute>} />
+            <Route path="/dashboard/analytics" element={<ChapterRoute><AnalyticsPage /></ChapterRoute>} />
+            <Route path="/dashboard/messages" element={<ChapterRoute><MessagesPage /></ChapterRoute>} />
+            <Route path="/dashboard/ai-coach" element={<ChapterRoute><AICoachPage /></ChapterRoute>} />
+            <Route path="/dashboard/bids" element={<ChapterRoute><BidsPage /></ChapterRoute>} />
+            <Route path="/dashboard/members" element={<ChapterRoute><MembersPage /></ChapterRoute>} />
+            <Route path="/dashboard/settings" element={<ChapterRoute><SettingsPage /></ChapterRoute>} />
 
             {/* Rushee routes */}
             <Route path="/rushee" element={<ProtectedRoute requiredRole="rushee"><RusheeLayout><RusheeHome /></RusheeLayout></ProtectedRoute>} />
