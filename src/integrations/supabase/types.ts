@@ -595,6 +595,16 @@ export type Database = {
         Args: { payload: Json; queue_name: string }
         Returns: number
       }
+      get_chapter_member_profiles: {
+        Args: { p_chapter_id: string }
+        Returns: {
+          avatar_url: string
+          college: string
+          email: string
+          full_name: string
+          user_id: string
+        }[]
+      }
       get_user_college: { Args: { _user_id: string }; Returns: string }
       get_user_is_test: { Args: { _user_id: string }; Returns: boolean }
       get_user_org_type: { Args: { _user_id: string }; Returns: string }
