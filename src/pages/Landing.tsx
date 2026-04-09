@@ -1,7 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
-import { Users, Calendar, Star, BarChart3, MessageSquare, Brain, Shield, ArrowRight, CheckCircle, Quote } from "lucide-react";
-import heroImage from "@/assets/hero-illustration.jpg";
+import { Users, Calendar, Star, BarChart3, MessageSquare, Brain, Shield, ArrowRight, CheckCircle } from "lucide-react";
 
 const features = [
   { icon: Users, title: "Rushee Profiles", desc: "Complete profiles with major, hometown, socials, interests & notes" },
@@ -17,20 +16,6 @@ const howItWorks = [
   { step: "2", title: "Set Up", desc: "Chapters create events and invite rushees. Rushees build their profiles." },
   { step: "3", title: "Connect", desc: "RSVP to events, take notes, rank candidates, and send broadcasts." },
   { step: "4", title: "Decide", desc: "Use analytics, AI insights, and rankings to make confident bid decisions." },
-];
-
-const testimonials = [
-  { quote: "GreekBid saved us hours of spreadsheet chaos. Our entire chapter could rank and vote in real time.", author: "Jake M.", role: "Rush Chair, ΣΑΕ", school: "University of Texas" },
-  { quote: "As a freshman, it was so nice having one place to track events, RSVP, and get reminders. Way less stressful.", author: "Priya K.", role: "Rushee", school: "UCLA" },
-  { quote: "The AI Coach helped me prep for interviews and figure out what to wear. I felt way more confident going in.", author: "Marcus T.", role: "Rushee", school: "UGA" },
-  { quote: "We went from messy group chats to organized bid pipelines. Our recruitment improved dramatically.", author: "Sarah L.", role: "VP Membership, ΔΔΔ", school: "Florida State" },
-];
-
-const stats = [
-  { value: "500+", label: "Chapters" },
-  { value: "12K+", label: "Rushees" },
-  { value: "3K+", label: "Events Created" },
-  { value: "98%", label: "Satisfaction" },
 ];
 
 export default function Landing() {
