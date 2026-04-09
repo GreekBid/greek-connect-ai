@@ -48,6 +48,18 @@ interface Chapter {
   created_at: string;
 }
 
+function DetailField({ icon: Icon, label, value }: { icon: any; label: string; value?: string | null }) {
+  return (
+    <div className="flex items-start gap-2">
+      <Icon className="w-3.5 h-3.5 text-muted-foreground mt-0.5 shrink-0" />
+      <div>
+        <p className="text-muted-foreground text-[10px] font-medium">{label}</p>
+        <p className="text-foreground text-sm">{value || "—"}</p>
+      </div>
+    </div>
+  );
+}
+
 export default function AdminDashboard() {
   const [profiles, setProfiles] = useState<Profile[]>([]);
   const [chapters, setChapters] = useState<Chapter[]>([]);
