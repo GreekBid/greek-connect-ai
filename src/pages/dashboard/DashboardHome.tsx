@@ -4,12 +4,16 @@ import { Users, Calendar, ArrowRight, MessageSquare } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useNavigate } from "react-router-dom";
 import { format } from "date-fns";
+import { useAuth } from "@/contexts/AuthContext";
+import { Badge } from "@/components/ui/badge";
 
 export default function DashboardHome() {
   const navigate = useNavigate();
+  const { user } = useAuth();
   const [stats, setStats] = useState({ rushees: 0, events: 0, rsvps: 0, messages: 0 });
   const [upcomingEvents, setUpcomingEvents] = useState<{ name: string; date: string }[]>([]);
   const [recentMessages, setRecentMessages] = useState<{ content: string; created_at: string }[]>([]);
+  const [profileInfo, setProfileInfo] = useState<{ full_name: string; chapterRole: string } | null>(null);
 
   useEffect(() => {
     const load = async () => {
@@ -29,6 +33,36 @@ export default function DashboardHome() {
     load();
   }, []);
 
+  useEffect(() => {
+    if (!user) return;
+    const loadProfile = async () => {
+      const { data: profile } = await supabase
+        .from("profiles")
+        .select("full_name, chapter_id")
+        .eq("user_id", user.id)
+        .single();
+
+      if (!profile) return;
+
+      let chapterRole = "Chapter";
+      if (profile.chapter_id) {
+        const { data: membership } = await supabase
+          .from("chapter_members")
+          .select("role")
+          .eq("user_id", user.id)
+          .eq("chapter_id", profile.chapter_id)
+          .single();
+        if (membership?.role === "admin") {
+          chapterRole = "Admin";
+        } else if (membership?.role === "member") {
+          chapterRole = "Chapter Member";
+        }
+      }
+      setProfileInfo({ full_name: profile.full_name, chapterRole });
+    };
+    loadProfile();
+  }, [user]);
+
   const statCards = [
     { label: "Rushees", value: stats.rushees, icon: Users },
     { label: "Events", value: stats.events, icon: Calendar },
@@ -47,6 +81,12 @@ export default function DashboardHome() {
     <div className="space-y-8 max-w-6xl">
       <div>
         <h1 className="text-3xl font-display font-bold text-foreground">Welcome back 👋</h1>
+        {profileInfo && (
+          <div className="flex items-center gap-2 mt-1">
+            <span className="text-muted-foreground">{profileInfo.full_name}</span>
+            <Badge variant="secondary" className="text-xs">{profileInfo.chapterRole}</Badge>
+          </div>
+        )}
         <p className="text-muted-foreground mt-1">Here's what's happening with your rush.</p>
       </div>
 
