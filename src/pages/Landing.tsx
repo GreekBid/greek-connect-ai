@@ -1,7 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
-import { Users, Calendar, Star, BarChart3, MessageSquare, Brain, Shield, ArrowRight, CheckCircle, Quote } from "lucide-react";
-import heroImage from "@/assets/hero-illustration.jpg";
+import { Users, Calendar, Star, BarChart3, MessageSquare, Brain, Shield, ArrowRight, CheckCircle } from "lucide-react";
 
 const features = [
   { icon: Users, title: "Rushee Profiles", desc: "Complete profiles with major, hometown, socials, interests & notes" },
@@ -17,20 +16,6 @@ const howItWorks = [
   { step: "2", title: "Set Up", desc: "Chapters create events and invite rushees. Rushees build their profiles." },
   { step: "3", title: "Connect", desc: "RSVP to events, take notes, rank candidates, and send broadcasts." },
   { step: "4", title: "Decide", desc: "Use analytics, AI insights, and rankings to make confident bid decisions." },
-];
-
-const testimonials = [
-  { quote: "GreekBid saved us hours of spreadsheet chaos. Our entire chapter could rank and vote in real time.", author: "Jake M.", role: "Rush Chair, ΣΑΕ", school: "University of Texas" },
-  { quote: "As a freshman, it was so nice having one place to track events, RSVP, and get reminders. Way less stressful.", author: "Priya K.", role: "Rushee", school: "UCLA" },
-  { quote: "The AI Coach helped me prep for interviews and figure out what to wear. I felt way more confident going in.", author: "Marcus T.", role: "Rushee", school: "UGA" },
-  { quote: "We went from messy group chats to organized bid pipelines. Our recruitment improved dramatically.", author: "Sarah L.", role: "VP Membership, ΔΔΔ", school: "Florida State" },
-];
-
-const stats = [
-  { value: "500+", label: "Chapters" },
-  { value: "12K+", label: "Rushees" },
-  { value: "3K+", label: "Events Created" },
-  { value: "98%", label: "Satisfaction" },
 ];
 
 export default function Landing() {
@@ -78,23 +63,21 @@ export default function Landing() {
               </Link>
             </div>
           </div>
-          <div className="animate-fade-in" style={{ animationDelay: "0.2s" }}>
-            <img src={heroImage} alt="Students connecting during rush" className="rounded-2xl shadow-warm-lg w-full" />
+          <div className="animate-fade-in lg:flex lg:items-center lg:justify-center" style={{ animationDelay: "0.2s" }}>
+            <div className="w-full max-w-md mx-auto bg-card rounded-2xl shadow-warm-lg p-8 text-center space-y-4">
+              <div className="w-16 h-16 rounded-xl bg-primary flex items-center justify-center mx-auto">
+                <span className="text-primary-foreground font-bold text-2xl font-display">G</span>
+              </div>
+              <h2 className="text-2xl font-display font-bold text-foreground">Join GreekBid</h2>
+              <p className="text-muted-foreground text-sm">Start managing your rush in minutes.</p>
+              <Link to="/signup">
+                <Button variant="hero" size="lg" className="w-full gap-2">Get Started Free <ArrowRight className="w-4 h-4" /></Button>
+              </Link>
+            </div>
           </div>
         </div>
       </section>
 
-      {/* Stats Bar */}
-      <section className="py-10 px-6 border-b border-border">
-        <div className="max-w-5xl mx-auto grid grid-cols-2 md:grid-cols-4 gap-8">
-          {stats.map((s) => (
-            <div key={s.label} className="text-center">
-              <p className="text-3xl md:text-4xl font-display font-bold text-primary">{s.value}</p>
-              <p className="text-sm text-muted-foreground mt-1">{s.label}</p>
-            </div>
-          ))}
-        </div>
-      </section>
 
       {/* Features */}
       <section className="py-20 px-6">
@@ -138,32 +121,6 @@ export default function Landing() {
         </div>
       </section>
 
-      {/* Testimonials */}
-      <section className="py-20 px-6">
-        <div className="max-w-7xl mx-auto">
-          <div className="text-center mb-14">
-            <h2 className="text-3xl md:text-4xl font-display font-bold text-foreground mb-3">Loved by chapters & rushees</h2>
-            <p className="text-muted-foreground">See what people are saying about GreekBid.</p>
-          </div>
-          <div className="grid sm:grid-cols-2 gap-6">
-            {testimonials.map((t, i) => (
-              <div key={i} className="bg-card rounded-xl p-6 shadow-warm hover:shadow-warm-lg transition-shadow animate-fade-in" style={{ animationDelay: `${i * 0.1}s` }}>
-                <Quote className="w-6 h-6 text-primary/30 mb-3" />
-                <p className="text-foreground font-body leading-relaxed mb-4">"{t.quote}"</p>
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-full bg-accent flex items-center justify-center font-display font-bold text-sm text-accent-foreground">
-                    {t.author.split(" ").map((n) => n[0]).join("")}
-                  </div>
-                  <div>
-                    <p className="font-semibold text-foreground text-sm">{t.author}</p>
-                    <p className="text-xs text-muted-foreground">{t.role} · {t.school}</p>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
 
       {/* For Chapters vs For Rushees */}
       <section className="py-20 px-6 bg-card">
