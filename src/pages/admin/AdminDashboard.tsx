@@ -418,6 +418,11 @@ export default function AdminDashboard() {
                         <Badge variant={p.role === "chapter" ? "default" : "secondary"} className="text-xs">
                           {p.role}
                         </Badge>
+                        {p.role === "chapter" && chapterMemberRoles[p.user_id] && (
+                          <Badge variant="outline" className="ml-1 text-[10px]">
+                            {chapterMemberRoles[p.user_id].role === "admin" ? "Creator" : "Member"}
+                          </Badge>
+                        )}
                       </td>
                       <td className="py-2 text-muted-foreground text-xs">{p.college || "—"}</td>
                       <td className="py-2">
