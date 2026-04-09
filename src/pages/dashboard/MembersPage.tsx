@@ -41,14 +41,14 @@ export default function MembersPage() {
     if (!user) return;
     setLoading(true);
 
-    // Get current user's chapter
-    const { data: membership } = await supabase
-      .from("chapter_members")
-      .select("chapter_id, role")
+    // Get current user's chapter (from profile, works for all chapter accounts)
+    const { data: profile } = await supabase
+      .from("profiles")
+      .select("chapter_id")
       .eq("user_id", user.id)
-      .eq("role", "admin")
-      .eq("status", "approved")
-      .maybeSingle();
+      .single();
+
+    const membership = profile?.chapter_id ? { chapter_id: profile.chapter_id } : null;
 
     if (!membership) {
       setLoading(false);
