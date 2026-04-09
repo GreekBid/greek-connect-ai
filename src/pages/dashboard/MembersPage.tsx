@@ -124,6 +124,38 @@ export default function MembersPage() {
       return;
     }
     toast.success(status === "approved" ? "Member approved!" : "Member rejected");
+
+    // Send acceptance email
+    if (status === "approved" && chapterId) {
+      const member = members.find((m) => m.id === memberId);
+      if (member) {
+        const { data: memberProfile } = await supabase
+          .from("profiles")
+          .select("email, full_name")
+          .eq("user_id", member.user_id)
+          .single();
+
+        const { data: chapter } = await supabase
+          .from("chapters")
+          .select("name")
+          .eq("id", chapterId)
+          .single();
+
+        if (memberProfile?.email) {
+          supabase.functions.invoke("send-transactional-email", {
+            body: {
+              templateName: "member-approved",
+              recipientEmail: memberProfile.email,
+              templateData: {
+                memberName: memberProfile.full_name || "there",
+                chapterName: chapter?.name || "the chapter",
+              },
+            },
+          });
+        }
+      }
+    }
+
     fetchChapterAndMembers();
   };
 

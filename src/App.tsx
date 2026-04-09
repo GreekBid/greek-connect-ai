@@ -34,6 +34,7 @@ import RusheeAICoach from "./pages/rushee/RusheeAICoach";
 import RusheeBidStatus from "./pages/rushee/RusheeBidStatus";
 import RusheeSettings from "./pages/rushee/RusheeSettings";
 import RusheeSearchChapters from "./pages/rushee/RusheeSearchChapters";
+import UnsubscribePage from "./pages/UnsubscribePage";
 
 const queryClient = new QueryClient();
 
@@ -60,6 +61,7 @@ const App = () => (
             <Route path="/" element={<AuthRedirect />} />
             <Route path="/login" element={<LoginPage />} />
             <Route path="/signup" element={<SignupPage />} />
+            <Route path="/unsubscribe" element={<UnsubscribePage />} />
 
             {/* Admin route */}
             <Route path="/admin" element={
