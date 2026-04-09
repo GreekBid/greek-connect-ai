@@ -44,6 +44,7 @@ export default function AdminDashboard() {
   const [activeTab, setActiveTab] = useState<"overview" | "chapters" | "rushees" | "accounts">("overview");
   const [expandedChapter, setExpandedChapter] = useState<string | null>(null);
   const [chapterMembers, setChapterMembers] = useState<Record<string, any[]>>({});
+  const [chapterMemberRoles, setChapterMemberRoles] = useState<Record<string, { role: string; status: string; chapterName?: string }>>({});
 
   useEffect(() => {
     fetchData();
@@ -51,17 +52,26 @@ export default function AdminDashboard() {
 
   const fetchData = async () => {
     setLoading(true);
-    const [profilesRes, chaptersRes, rolesRes] = await Promise.all([
+    const [profilesRes, chaptersRes, rolesRes, chapterMembersRes] = await Promise.all([
       supabase.from("profiles").select("*"),
       supabase.from("chapters").select("*"),
       supabase.from("user_roles").select("user_id, role"),
+      supabase.from("chapter_members").select("user_id, role, status, chapter_id"),
     ]);
+    const chaptersData = chaptersRes.data ?? [];
     setProfiles(profilesRes.data?.map((p: any) => ({ ...p, is_test: p.is_test ?? false })) ?? []);
-    setChapters(chaptersRes.data ?? []);
-    // Build admin set from user_roles (admin can see all via is_admin RLS)
+    setChapters(chaptersData);
     const admins = new Set<string>();
     (rolesRes.data ?? []).forEach((r: any) => { if (r.role === "admin") admins.add(r.user_id); });
     setAdminUserIds(admins);
+
+    // Build chapter member role lookup
+    const roleMap: Record<string, { role: string; status: string; chapterName?: string }> = {};
+    (chapterMembersRes.data ?? []).forEach((m: any) => {
+      const ch = chaptersData.find((c) => c.id === m.chapter_id);
+      roleMap[m.user_id] = { role: m.role, status: m.status, chapterName: ch?.name };
+    });
+    setChapterMemberRoles(roleMap);
     setLoading(false);
   };
 
@@ -408,6 +418,11 @@ export default function AdminDashboard() {
                         <Badge variant={p.role === "chapter" ? "default" : "secondary"} className="text-xs">
                           {p.role}
                         </Badge>
+                        {p.role === "chapter" && chapterMemberRoles[p.user_id] && (
+                          <Badge variant="outline" className="ml-1 text-[10px]">
+                            {chapterMemberRoles[p.user_id].role === "admin" ? "Creator" : "Member"}
+                          </Badge>
+                        )}
                       </td>
                       <td className="py-2 text-muted-foreground text-xs">{p.college || "—"}</td>
                       <td className="py-2">
@@ -578,6 +593,16 @@ export default function AdminDashboard() {
                         <Badge variant={p.role === "chapter" ? "default" : "secondary"} className="text-xs">
                           {p.role}
                         </Badge>
+                        {p.role === "chapter" && chapterMemberRoles[p.user_id] && (
+                          <Badge variant="outline" className="ml-1 text-[10px]">
+                            {chapterMemberRoles[p.user_id].role === "admin" ? "Creator" : "Member"}
+                          </Badge>
+                        )}
+                        {p.role === "chapter" && chapterMemberRoles[p.user_id] && chapterMemberRoles[p.user_id].status !== "approved" && (
+                          <Badge variant="secondary" className="ml-1 text-[10px]">
+                            {chapterMemberRoles[p.user_id].status}
+                          </Badge>
+                        )}
                       </td>
                       <td className="py-2 text-muted-foreground text-xs">{p.college || "—"}</td>
                       <td className="py-2">
