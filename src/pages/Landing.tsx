@@ -121,32 +121,6 @@ export default function Landing() {
         </div>
       </section>
 
-      {/* Testimonials */}
-      <section className="py-20 px-6">
-        <div className="max-w-7xl mx-auto">
-          <div className="text-center mb-14">
-            <h2 className="text-3xl md:text-4xl font-display font-bold text-foreground mb-3">Loved by chapters & rushees</h2>
-            <p className="text-muted-foreground">See what people are saying about GreekBid.</p>
-          </div>
-          <div className="grid sm:grid-cols-2 gap-6">
-            {testimonials.map((t, i) => (
-              <div key={i} className="bg-card rounded-xl p-6 shadow-warm hover:shadow-warm-lg transition-shadow animate-fade-in" style={{ animationDelay: `${i * 0.1}s` }}>
-                <Quote className="w-6 h-6 text-primary/30 mb-3" />
-                <p className="text-foreground font-body leading-relaxed mb-4">"{t.quote}"</p>
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-full bg-accent flex items-center justify-center font-display font-bold text-sm text-accent-foreground">
-                    {t.author.split(" ").map((n) => n[0]).join("")}
-                  </div>
-                  <div>
-                    <p className="font-semibold text-foreground text-sm">{t.author}</p>
-                    <p className="text-xs text-muted-foreground">{t.role} · {t.school}</p>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
 
       {/* For Chapters vs For Rushees */}
       <section className="py-20 px-6 bg-card">
