@@ -640,6 +640,95 @@ export default function AdminDashboard() {
           </div>
         </div>
       )}
+
+      {/* Profile Detail Dialog */}
+      <Dialog open={!!selectedProfile} onOpenChange={(open) => !open && setSelectedProfile(null)}>
+        <DialogContent className="max-w-lg">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-3">
+              {selectedProfile?.avatar_url ? (
+                <img src={selectedProfile.avatar_url} alt="" className="w-12 h-12 rounded-full object-cover" />
+              ) : (
+                <div className="w-12 h-12 rounded-full bg-accent flex items-center justify-center font-display font-bold text-lg text-accent-foreground">
+                  {selectedProfile?.full_name?.charAt(0) || "?"}
+                </div>
+              )}
+              <div>
+                <span>{selectedProfile?.full_name || "Unknown"}</span>
+                <div className="flex items-center gap-1.5 mt-0.5">
+                  <Badge variant={selectedProfile?.role === "chapter" ? "default" : "secondary"} className="text-xs">
+                    {selectedProfile?.role}
+                  </Badge>
+                  {selectedProfile && selectedProfile.role === "chapter" && chapterMemberRoles[selectedProfile.user_id] && (
+                    <Badge variant="outline" className="text-[10px]">
+                      {chapterMemberRoles[selectedProfile.user_id].role === "admin" ? "Creator" : "Member"}
+                    </Badge>
+                  )}
+                  {selectedProfile && adminUserIds.has(selectedProfile.user_id) && (
+                    <Badge className="text-[10px] bg-primary/10 text-primary border-0">Platform Admin</Badge>
+                  )}
+                </div>
+              </div>
+            </DialogTitle>
+          </DialogHeader>
+          {selectedProfile && (
+            <div className="space-y-4 mt-2">
+              <div className="grid grid-cols-2 gap-3 text-sm">
+                <DetailField icon={Mail} label="Email" value={selectedProfile.email} />
+                <DetailField icon={School} label="College" value={selectedProfile.college} />
+                <DetailField icon={User} label="Gender" value={selectedProfile.gender} />
+                <DetailField icon={Building2} label="Org Type" value={selectedProfile.org_type} />
+                <DetailField icon={BookOpen} label="Major" value={selectedProfile.major} />
+                <DetailField icon={MapPinned} label="Hometown" value={selectedProfile.hometown} />
+              </div>
+
+              {selectedProfile.bio && (
+                <div className="text-sm">
+                  <p className="text-muted-foreground text-xs font-medium mb-1">Bio</p>
+                  <p className="text-foreground">{selectedProfile.bio}</p>
+                </div>
+              )}
+
+              {selectedProfile.interests && selectedProfile.interests.length > 0 && (
+                <div className="text-sm">
+                  <p className="text-muted-foreground text-xs font-medium mb-1">Interests</p>
+                  <div className="flex flex-wrap gap-1.5">
+                    {selectedProfile.interests.map((i) => (
+                      <Badge key={i} variant="secondary" className="text-xs">{i}</Badge>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              <div className="text-sm">
+                <p className="text-muted-foreground text-xs font-medium mb-1">Socials</p>
+                <div className="flex flex-wrap gap-3">
+                  {selectedProfile.instagram && <span className="text-xs text-foreground">📷 {selectedProfile.instagram}</span>}
+                  {selectedProfile.linkedin && <span className="text-xs text-foreground">💼 {selectedProfile.linkedin}</span>}
+                  {selectedProfile.snapchat && <span className="text-xs text-foreground">👻 {selectedProfile.snapchat}</span>}
+                  {selectedProfile.tiktok && <span className="text-xs text-foreground">🎵 {selectedProfile.tiktok}</span>}
+                  {selectedProfile.twitter && <span className="text-xs text-foreground">🐦 {selectedProfile.twitter}</span>}
+                  {!selectedProfile.instagram && !selectedProfile.linkedin && !selectedProfile.snapchat && !selectedProfile.tiktok && !selectedProfile.twitter && (
+                    <span className="text-xs text-muted-foreground">None added</span>
+                  )}
+                </div>
+              </div>
+
+              {selectedProfile.role === "chapter" && chapterMemberRoles[selectedProfile.user_id]?.chapterName && (
+                <div className="text-sm">
+                  <p className="text-muted-foreground text-xs font-medium mb-1">Chapter</p>
+                  <p className="text-foreground">{chapterMemberRoles[selectedProfile.user_id].chapterName}</p>
+                </div>
+              )}
+
+              <div className="flex items-center justify-between text-xs text-muted-foreground pt-2 border-t border-border">
+                <span>Joined {new Date(selectedProfile.created_at).toLocaleDateString()}</span>
+                <span>{selectedProfile.is_test ? "🧪 Test Profile" : "✅ Real Profile"}</span>
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
