@@ -69,12 +69,9 @@ export default function MembersPage() {
       return;
     }
 
-    // Fetch profiles for all members
-    const userIds = membersData.map((m) => m.user_id);
+    // Fetch profiles for all members via secure RPC
     const { data: profiles } = await supabase
-      .from("profiles")
-      .select("user_id, full_name, avatar_url, college")
-      .in("user_id", userIds);
+      .rpc("get_chapter_member_profiles", { p_chapter_id: membership.chapter_id });
 
     // Fetch activity counts for each member
     const enrichedMembers = await Promise.all(
