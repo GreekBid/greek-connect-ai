@@ -15,7 +15,7 @@ interface Profile {
   id: string;
   user_id: string;
   full_name: string;
-  email?: string;
+  email?: string | null;
   role: "chapter" | "rushee";
   college: string | null;
   gender: string | null;
@@ -23,6 +23,16 @@ interface Profile {
   created_at: string;
   chapter_id: string | null;
   is_test: boolean;
+  bio: string | null;
+  major: string | null;
+  hometown: string | null;
+  instagram: string | null;
+  linkedin: string | null;
+  snapchat: string | null;
+  tiktok: string | null;
+  twitter: string | null;
+  avatar_url: string | null;
+  interests: string[] | null;
 }
 
 interface Chapter {
