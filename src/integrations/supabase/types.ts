@@ -371,6 +371,7 @@ export type Database = {
           chapter_id: string | null
           college: string | null
           created_at: string
+          email: string | null
           full_name: string
           gender: string | null
           hometown: string | null
@@ -393,6 +394,7 @@ export type Database = {
           chapter_id?: string | null
           college?: string | null
           created_at?: string
+          email?: string | null
           full_name?: string
           gender?: string | null
           hometown?: string | null
@@ -415,6 +417,7 @@ export type Database = {
           chapter_id?: string | null
           college?: string | null
           created_at?: string
+          email?: string | null
           full_name?: string
           gender?: string | null
           hometown?: string | null

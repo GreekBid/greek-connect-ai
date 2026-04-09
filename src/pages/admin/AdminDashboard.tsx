@@ -9,13 +9,17 @@ import { toast } from "sonner";
 import {
   Users, Building2, GraduationCap, MapPin, Search, Trash2, Eye,
   BarChart3, TrendingUp, School, ChevronDown, ChevronUp, Shield, FlaskConical, ShieldCheck,
+  X, Mail, Instagram, Linkedin, Globe, MapPinned, BookOpen, User,
 } from "lucide-react";
+import {
+  Dialog, DialogContent, DialogHeader, DialogTitle,
+} from "@/components/ui/dialog";
 
 interface Profile {
   id: string;
   user_id: string;
   full_name: string;
-  email?: string;
+  email?: string | null;
   role: "chapter" | "rushee";
   college: string | null;
   gender: string | null;
@@ -23,6 +27,16 @@ interface Profile {
   created_at: string;
   chapter_id: string | null;
   is_test: boolean;
+  bio: string | null;
+  major: string | null;
+  hometown: string | null;
+  instagram: string | null;
+  linkedin: string | null;
+  snapchat: string | null;
+  tiktok: string | null;
+  twitter: string | null;
+  avatar_url: string | null;
+  interests: string[] | null;
 }
 
 interface Chapter {
@@ -32,6 +46,18 @@ interface Chapter {
   org_type: string;
   created_by: string;
   created_at: string;
+}
+
+function DetailField({ icon: Icon, label, value }: { icon: any; label: string; value?: string | null }) {
+  return (
+    <div className="flex items-start gap-2">
+      <Icon className="w-3.5 h-3.5 text-muted-foreground mt-0.5 shrink-0" />
+      <div>
+        <p className="text-muted-foreground text-[10px] font-medium">{label}</p>
+        <p className="text-foreground text-sm">{value || "—"}</p>
+      </div>
+    </div>
+  );
 }
 
 export default function AdminDashboard() {
@@ -45,6 +71,7 @@ export default function AdminDashboard() {
   const [expandedChapter, setExpandedChapter] = useState<string | null>(null);
   const [chapterMembers, setChapterMembers] = useState<Record<string, any[]>>({});
   const [chapterMemberRoles, setChapterMemberRoles] = useState<Record<string, { role: string; status: string; chapterName?: string }>>({});
+  const [selectedProfile, setSelectedProfile] = useState<Profile | null>(null);
 
   useEffect(() => {
     fetchData();
@@ -528,7 +555,7 @@ export default function AdminDashboard() {
               </thead>
               <tbody>
                 {filteredRushees.map((r) => (
-                  <tr key={r.id} className="border-b border-border/50">
+                  <tr key={r.id} className="border-b border-border/50 cursor-pointer hover:bg-accent/50 transition-colors" onClick={() => setSelectedProfile(r)}>
                     <td className="py-2 text-foreground">{r.full_name || "—"}</td>
                     <td className="py-2 text-muted-foreground text-xs">{r.college || "—"}</td>
                     <td className="py-2">
@@ -582,7 +609,7 @@ export default function AdminDashboard() {
                     return true;
                   })
                   .map((p) => (
-                    <tr key={p.id} className="border-b border-border/50">
+                    <tr key={p.id} className="border-b border-border/50 cursor-pointer hover:bg-accent/50 transition-colors" onClick={() => setSelectedProfile(p)}>
                       <td className="py-2 text-foreground">
                         {p.full_name || "—"}
                         {adminUserIds.has(p.user_id) && (
@@ -625,6 +652,95 @@ export default function AdminDashboard() {
           </div>
         </div>
       )}
+
+      {/* Profile Detail Dialog */}
+      <Dialog open={!!selectedProfile} onOpenChange={(open) => !open && setSelectedProfile(null)}>
+        <DialogContent className="max-w-lg">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-3">
+              {selectedProfile?.avatar_url ? (
+                <img src={selectedProfile.avatar_url} alt="" className="w-12 h-12 rounded-full object-cover" />
+              ) : (
+                <div className="w-12 h-12 rounded-full bg-accent flex items-center justify-center font-display font-bold text-lg text-accent-foreground">
+                  {selectedProfile?.full_name?.charAt(0) || "?"}
+                </div>
+              )}
+              <div>
+                <span>{selectedProfile?.full_name || "Unknown"}</span>
+                <div className="flex items-center gap-1.5 mt-0.5">
+                  <Badge variant={selectedProfile?.role === "chapter" ? "default" : "secondary"} className="text-xs">
+                    {selectedProfile?.role}
+                  </Badge>
+                  {selectedProfile && selectedProfile.role === "chapter" && chapterMemberRoles[selectedProfile.user_id] && (
+                    <Badge variant="outline" className="text-[10px]">
+                      {chapterMemberRoles[selectedProfile.user_id].role === "admin" ? "Creator" : "Member"}
+                    </Badge>
+                  )}
+                  {selectedProfile && adminUserIds.has(selectedProfile.user_id) && (
+                    <Badge className="text-[10px] bg-primary/10 text-primary border-0">Platform Admin</Badge>
+                  )}
+                </div>
+              </div>
+            </DialogTitle>
+          </DialogHeader>
+          {selectedProfile && (
+            <div className="space-y-4 mt-2">
+              <div className="grid grid-cols-2 gap-3 text-sm">
+                <DetailField icon={Mail} label="Email" value={selectedProfile.email} />
+                <DetailField icon={School} label="College" value={selectedProfile.college} />
+                <DetailField icon={User} label="Gender" value={selectedProfile.gender} />
+                <DetailField icon={Building2} label="Org Type" value={selectedProfile.org_type} />
+                <DetailField icon={BookOpen} label="Major" value={selectedProfile.major} />
+                <DetailField icon={MapPinned} label="Hometown" value={selectedProfile.hometown} />
+              </div>
+
+              {selectedProfile.bio && (
+                <div className="text-sm">
+                  <p className="text-muted-foreground text-xs font-medium mb-1">Bio</p>
+                  <p className="text-foreground">{selectedProfile.bio}</p>
+                </div>
+              )}
+
+              {selectedProfile.interests && selectedProfile.interests.length > 0 && (
+                <div className="text-sm">
+                  <p className="text-muted-foreground text-xs font-medium mb-1">Interests</p>
+                  <div className="flex flex-wrap gap-1.5">
+                    {selectedProfile.interests.map((i) => (
+                      <Badge key={i} variant="secondary" className="text-xs">{i}</Badge>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              <div className="text-sm">
+                <p className="text-muted-foreground text-xs font-medium mb-1">Socials</p>
+                <div className="flex flex-wrap gap-3">
+                  {selectedProfile.instagram && <span className="text-xs text-foreground">📷 {selectedProfile.instagram}</span>}
+                  {selectedProfile.linkedin && <span className="text-xs text-foreground">💼 {selectedProfile.linkedin}</span>}
+                  {selectedProfile.snapchat && <span className="text-xs text-foreground">👻 {selectedProfile.snapchat}</span>}
+                  {selectedProfile.tiktok && <span className="text-xs text-foreground">🎵 {selectedProfile.tiktok}</span>}
+                  {selectedProfile.twitter && <span className="text-xs text-foreground">🐦 {selectedProfile.twitter}</span>}
+                  {!selectedProfile.instagram && !selectedProfile.linkedin && !selectedProfile.snapchat && !selectedProfile.tiktok && !selectedProfile.twitter && (
+                    <span className="text-xs text-muted-foreground">None added</span>
+                  )}
+                </div>
+              </div>
+
+              {selectedProfile.role === "chapter" && chapterMemberRoles[selectedProfile.user_id]?.chapterName && (
+                <div className="text-sm">
+                  <p className="text-muted-foreground text-xs font-medium mb-1">Chapter</p>
+                  <p className="text-foreground">{chapterMemberRoles[selectedProfile.user_id].chapterName}</p>
+                </div>
+              )}
+
+              <div className="flex items-center justify-between text-xs text-muted-foreground pt-2 border-t border-border">
+                <span>Joined {new Date(selectedProfile.created_at).toLocaleDateString()}</span>
+                <span>{selectedProfile.is_test ? "🧪 Test Profile" : "✅ Real Profile"}</span>
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
