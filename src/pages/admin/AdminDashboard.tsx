@@ -9,7 +9,11 @@ import { toast } from "sonner";
 import {
   Users, Building2, GraduationCap, MapPin, Search, Trash2, Eye,
   BarChart3, TrendingUp, School, ChevronDown, ChevronUp, Shield, FlaskConical, ShieldCheck,
+  X, Mail, Instagram, Linkedin, Globe, MapPinned, BookOpen, User,
 } from "lucide-react";
+import {
+  Dialog, DialogContent, DialogHeader, DialogTitle,
+} from "@/components/ui/dialog";
 
 interface Profile {
   id: string;
