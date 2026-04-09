@@ -265,7 +265,6 @@ export default function SignupPage() {
                 required
               />
             </div>
-          )}
 
           <div className="space-y-2">
             <Label htmlFor="email">Email</Label>
