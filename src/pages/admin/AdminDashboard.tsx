@@ -555,7 +555,7 @@ export default function AdminDashboard() {
               </thead>
               <tbody>
                 {filteredRushees.map((r) => (
-                  <tr key={r.id} className="border-b border-border/50">
+                  <tr key={r.id} className="border-b border-border/50 cursor-pointer hover:bg-accent/50 transition-colors" onClick={() => setSelectedProfile(r)}>
                     <td className="py-2 text-foreground">{r.full_name || "—"}</td>
                     <td className="py-2 text-muted-foreground text-xs">{r.college || "—"}</td>
                     <td className="py-2">
