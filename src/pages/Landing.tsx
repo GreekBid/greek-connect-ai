@@ -78,17 +78,6 @@ export default function Landing() {
         </div>
       </section>
 
-      {/* Stats Bar */}
-      <section className="py-10 px-6 border-b border-border">
-        <div className="max-w-5xl mx-auto grid grid-cols-2 md:grid-cols-4 gap-8">
-          {stats.map((s) => (
-            <div key={s.label} className="text-center">
-              <p className="text-3xl md:text-4xl font-display font-bold text-primary">{s.value}</p>
-              <p className="text-sm text-muted-foreground mt-1">{s.label}</p>
-            </div>
-          ))}
-        </div>
-      </section>
 
       {/* Features */}
       <section className="py-20 px-6">
