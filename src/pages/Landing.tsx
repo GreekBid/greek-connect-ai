@@ -63,8 +63,17 @@ export default function Landing() {
               </Link>
             </div>
           </div>
-          <div className="animate-fade-in" style={{ animationDelay: "0.2s" }}>
-            <img src={heroImage} alt="Students connecting during rush" className="rounded-2xl shadow-warm-lg w-full" />
+          <div className="animate-fade-in lg:flex lg:items-center lg:justify-center" style={{ animationDelay: "0.2s" }}>
+            <div className="w-full max-w-md mx-auto bg-card rounded-2xl shadow-warm-lg p-8 text-center space-y-4">
+              <div className="w-16 h-16 rounded-xl bg-primary flex items-center justify-center mx-auto">
+                <span className="text-primary-foreground font-bold text-2xl font-display">G</span>
+              </div>
+              <h2 className="text-2xl font-display font-bold text-foreground">Join GreekBid</h2>
+              <p className="text-muted-foreground text-sm">Start managing your rush in minutes.</p>
+              <Link to="/signup">
+                <Button variant="hero" size="lg" className="w-full gap-2">Get Started Free <ArrowRight className="w-4 h-4" /></Button>
+              </Link>
+            </div>
           </div>
         </div>
       </section>
