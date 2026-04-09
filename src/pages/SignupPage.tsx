@@ -255,9 +255,8 @@ export default function SignupPage() {
         </p>
 
         <form onSubmit={handleSignup} className="space-y-4">
-          {role !== "chapter" && (
-            <div className="space-y-2">
-              <Label htmlFor="name">Full Name</Label>
+          <div className="space-y-2">
+            <Label htmlFor="name">Full Name</Label>
               <Input
                 id="name"
                 value={fullName}
