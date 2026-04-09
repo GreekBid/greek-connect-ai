@@ -44,6 +44,7 @@ export default function AdminDashboard() {
   const [activeTab, setActiveTab] = useState<"overview" | "chapters" | "rushees" | "accounts">("overview");
   const [expandedChapter, setExpandedChapter] = useState<string | null>(null);
   const [chapterMembers, setChapterMembers] = useState<Record<string, any[]>>({});
+  const [chapterMemberRoles, setChapterMemberRoles] = useState<Record<string, { role: string; status: string; chapterName?: string }>>({});
 
   useEffect(() => {
     fetchData();
