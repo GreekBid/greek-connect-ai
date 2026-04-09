@@ -53,7 +53,7 @@ export default function DashboardHome() {
           .eq("chapter_id", profile.chapter_id)
           .single();
         if (membership?.role === "admin") {
-          chapterRole = "Admin";
+          chapterRole = "Chapter Admin";
         } else if (membership?.role === "member") {
           chapterRole = "Chapter Member";
         }
