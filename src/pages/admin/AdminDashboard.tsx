@@ -609,7 +609,7 @@ export default function AdminDashboard() {
                     return true;
                   })
                   .map((p) => (
-                    <tr key={p.id} className="border-b border-border/50">
+                    <tr key={p.id} className="border-b border-border/50 cursor-pointer hover:bg-accent/50 transition-colors" onClick={() => setSelectedProfile(p)}>
                       <td className="py-2 text-foreground">
                         {p.full_name || "—"}
                         {adminUserIds.has(p.user_id) && (
