@@ -52,17 +52,26 @@ export default function AdminDashboard() {
 
   const fetchData = async () => {
     setLoading(true);
-    const [profilesRes, chaptersRes, rolesRes] = await Promise.all([
+    const [profilesRes, chaptersRes, rolesRes, chapterMembersRes] = await Promise.all([
       supabase.from("profiles").select("*"),
       supabase.from("chapters").select("*"),
       supabase.from("user_roles").select("user_id, role"),
+      supabase.from("chapter_members").select("user_id, role, status, chapter_id"),
     ]);
+    const chaptersData = chaptersRes.data ?? [];
     setProfiles(profilesRes.data?.map((p: any) => ({ ...p, is_test: p.is_test ?? false })) ?? []);
-    setChapters(chaptersRes.data ?? []);
-    // Build admin set from user_roles (admin can see all via is_admin RLS)
+    setChapters(chaptersData);
     const admins = new Set<string>();
     (rolesRes.data ?? []).forEach((r: any) => { if (r.role === "admin") admins.add(r.user_id); });
     setAdminUserIds(admins);
+
+    // Build chapter member role lookup
+    const roleMap: Record<string, { role: string; status: string; chapterName?: string }> = {};
+    (chapterMembersRes.data ?? []).forEach((m: any) => {
+      const ch = chaptersData.find((c) => c.id === m.chapter_id);
+      roleMap[m.user_id] = { role: m.role, status: m.status, chapterName: ch?.name };
+    });
+    setChapterMemberRoles(roleMap);
     setLoading(false);
   };
 
