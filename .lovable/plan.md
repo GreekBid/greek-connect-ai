@@ -1,21 +1,20 @@
 
 
-# Replace Mock Chapters with Real Data in Rushee Notes
+# Fix: Filter Rushee Notes by College and Org Type
 
 ## Problem
-The Rushee Notes page uses hardcoded mock chapters (Alpha Beta Gamma, Delta Epsilon, etc.). It should instead show only real chapters registered on GreekBid that match the rushee's college and gender/org_type.
+The current `RusheeNotes.tsx` fetches ALL chapters from the database without filtering by the rushee's college or organization type. The RLS policy allows admins to see everything, so when testing with an admin account (or any account), unrelated chapters appear.
 
 ## Solution
-Update `RusheeNotes.tsx` to query the `chapters` table (filtered by the rushee's college and org_type via existing RLS policies) instead of using `mockChapters`. The existing RLS policy on `chapters` already enforces college + org_type matching, so a simple `select *` will return only relevant chapters.
+Update `RusheeNotes.tsx` to:
+1. First fetch the current user's profile (college and org_type/gender) 
+2. Then query chapters filtered by `.eq("college", college)` and `.eq("org_type", orgType)`
+3. If the user has no college set, show an empty state prompting them to update their profile
 
-## Changes
-
-### 1. Update `src/pages/rushee/RusheeNotes.tsx`
-- Remove the `mockChapters` array
-- Add a `useEffect` that fetches chapters from the `chapters` table using the Supabase client
-- Map chapter data to the same shape used by the UI (`id`, `name`, `letters` derived from the chapter name initials)
-- Show a loading state while fetching
-- Show an empty state if no chapters are registered at their college
-
-No database or backend changes needed — the existing `chapters` table and RLS policies already support this query.
+### File: `src/pages/rushee/RusheeNotes.tsx`
+- Import `useAuth` to get the current user ID
+- Add a first query to get the user's `college` and `gender` from `profiles`
+- Derive `org_type` from gender (male → "fraternity", female → "sorority") matching the `get_user_org_type` DB function logic
+- Add `.eq("college", college).eq("org_type", orgType)` filters to the chapters query
+- Skip fetching chapters if college or org_type is empty, show a message instead
 
