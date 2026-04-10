@@ -1,21 +1,49 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { Search, Building2 } from "lucide-react";
+import { Search, Building2, Loader2 } from "lucide-react";
 import NotesPanel from "@/components/NotesPanel";
+import { supabase } from "@/integrations/supabase/client";
 
-// Mock chapters the rushee is interacting with — will be replaced with real data
-const mockChapters = [
-  { id: "chapter-1", name: "Alpha Beta Gamma", letters: "ABG" },
-  { id: "chapter-2", name: "Delta Epsilon", letters: "DE" },
-  { id: "chapter-3", name: "Kappa Sigma", letters: "KΣ" },
-  { id: "chapter-4", name: "Phi Delta Theta", letters: "ΦΔΘ" },
-];
+interface Chapter {
+  id: string;
+  name: string;
+  letters: string;
+}
+
+function getLetters(name: string): string {
+  return name
+    .split(/\s+/)
+    .map((w) => w[0])
+    .join("")
+    .toUpperCase();
+}
 
 export default function RusheeNotes() {
   const [search, setSearch] = useState("");
-  const [selectedChapter, setSelectedChapter] = useState<typeof mockChapters[0] | null>(null);
-  const filtered = mockChapters.filter((c) =>
+  const [selectedChapter, setSelectedChapter] = useState<Chapter | null>(null);
+  const [chapters, setChapters] = useState<Chapter[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchChapters = async () => {
+      const { data } = await supabase
+        .from("chapters")
+        .select("id, name")
+        .order("name");
+      setChapters(
+        (data || []).map((c) => ({
+          id: c.id,
+          name: c.name,
+          letters: getLetters(c.name),
+        }))
+      );
+      setLoading(false);
+    };
+    fetchChapters();
+  }, []);
+
+  const filtered = chapters.filter((c) =>
     c.name.toLowerCase().includes(search.toLowerCase())
   );
 
@@ -38,51 +66,62 @@ export default function RusheeNotes() {
         />
       </div>
 
-      <div className="flex gap-6">
-        {/* Chapter list */}
-        <div className="space-y-3 flex-1">
-          {filtered.map((chapter) => (
-            <Card
-              key={chapter.id}
-              className={`p-4 bg-card shadow-warm hover:shadow-warm-lg transition-shadow cursor-pointer flex items-center gap-4 ${
-                selectedChapter?.id === chapter.id ? "ring-2 ring-primary" : ""
-              }`}
-              onClick={() =>
-                setSelectedChapter(selectedChapter?.id === chapter.id ? null : chapter)
-              }
-            >
-              <div className="w-12 h-12 rounded-lg bg-accent flex items-center justify-center shrink-0">
-                <span className="font-display font-bold text-primary text-sm">
-                  {chapter.letters}
-                </span>
-              </div>
-              <div>
-                <h3 className="font-display font-semibold text-foreground">{chapter.name}</h3>
-                <p className="text-xs text-muted-foreground">Click to view / add notes</p>
-              </div>
-            </Card>
-          ))}
+      {loading ? (
+        <div className="flex items-center justify-center py-12">
+          <Loader2 className="w-6 h-6 animate-spin text-muted-foreground" />
         </div>
+      ) : chapters.length === 0 ? (
+        <div className="text-center py-12 text-muted-foreground">
+          <Building2 className="w-10 h-10 mx-auto mb-3 opacity-50" />
+          <p className="text-sm">No chapters registered at your college yet.</p>
+        </div>
+      ) : (
+        <div className="flex gap-6">
+          {/* Chapter list */}
+          <div className="space-y-3 flex-1">
+            {filtered.map((chapter) => (
+              <Card
+                key={chapter.id}
+                className={`p-4 bg-card shadow-warm hover:shadow-warm-lg transition-shadow cursor-pointer flex items-center gap-4 ${
+                  selectedChapter?.id === chapter.id ? "ring-2 ring-primary" : ""
+                }`}
+                onClick={() =>
+                  setSelectedChapter(selectedChapter?.id === chapter.id ? null : chapter)
+                }
+              >
+                <div className="w-12 h-12 rounded-lg bg-accent flex items-center justify-center shrink-0">
+                  <span className="font-display font-bold text-primary text-sm">
+                    {chapter.letters}
+                  </span>
+                </div>
+                <div>
+                  <h3 className="font-display font-semibold text-foreground">{chapter.name}</h3>
+                  <p className="text-xs text-muted-foreground">Click to view / add notes</p>
+                </div>
+              </Card>
+            ))}
+          </div>
 
-        {/* Notes panel */}
-        {selectedChapter && (
-          <Card className="w-80 shrink-0 p-5 bg-card shadow-warm self-start sticky top-6">
-            <div className="flex items-center gap-3 mb-4">
-              <div className="w-10 h-10 rounded-lg bg-accent flex items-center justify-center">
-                <Building2 className="w-5 h-5 text-primary" />
+          {/* Notes panel */}
+          {selectedChapter && (
+            <Card className="w-80 shrink-0 p-5 bg-card shadow-warm self-start sticky top-6">
+              <div className="flex items-center gap-3 mb-4">
+                <div className="w-10 h-10 rounded-lg bg-accent flex items-center justify-center">
+                  <Building2 className="w-5 h-5 text-primary" />
+                </div>
+                <h3 className="font-display font-semibold text-foreground">
+                  {selectedChapter.name}
+                </h3>
               </div>
-              <h3 className="font-display font-semibold text-foreground">
-                {selectedChapter.name}
-              </h3>
-            </div>
-            <NotesPanel
-              subjectId={selectedChapter.id}
-              subjectType="chapter"
-              subjectName={selectedChapter.name}
-            />
-          </Card>
-        )}
-      </div>
+              <NotesPanel
+                subjectId={selectedChapter.id}
+                subjectType="chapter"
+                subjectName={selectedChapter.name}
+              />
+            </Card>
+          )}
+        </div>
+      )}
     </div>
   );
 }
