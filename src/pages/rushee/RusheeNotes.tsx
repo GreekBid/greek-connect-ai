@@ -94,6 +94,11 @@ export default function RusheeNotes() {
         <div className="flex items-center justify-center py-12">
           <Loader2 className="w-6 h-6 animate-spin text-muted-foreground" />
         </div>
+      ) : noProfile ? (
+        <div className="text-center py-12 text-muted-foreground">
+          <Building2 className="w-10 h-10 mx-auto mb-3 opacity-50" />
+          <p className="text-sm">Please update your profile with your college and gender to see chapters.</p>
+        </div>
       ) : chapters.length === 0 ? (
         <div className="text-center py-12 text-muted-foreground">
           <Building2 className="w-10 h-10 mx-auto mb-3 opacity-50" />
