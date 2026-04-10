@@ -4,6 +4,7 @@ import { Input } from "@/components/ui/input";
 import { Search, Building2, Loader2 } from "lucide-react";
 import NotesPanel from "@/components/NotesPanel";
 import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/contexts/AuthContext";
 
 interface Chapter {
   id: string;
@@ -20,16 +21,39 @@ function getLetters(name: string): string {
 }
 
 export default function RusheeNotes() {
+  const { user } = useAuth();
   const [search, setSearch] = useState("");
   const [selectedChapter, setSelectedChapter] = useState<Chapter | null>(null);
   const [chapters, setChapters] = useState<Chapter[]>([]);
   const [loading, setLoading] = useState(true);
+  const [noProfile, setNoProfile] = useState(false);
 
   useEffect(() => {
     const fetchChapters = async () => {
+      if (!user) return;
+
+      // Get user's college and gender to derive org_type
+      const { data: profile } = await supabase
+        .from("profiles")
+        .select("college, gender")
+        .eq("user_id", user.id)
+        .single();
+
+      const college = profile?.college || "";
+      const gender = profile?.gender || "";
+      const orgType = gender === "male" ? "fraternity" : gender === "female" ? "sorority" : "";
+
+      if (!college || !orgType) {
+        setNoProfile(true);
+        setLoading(false);
+        return;
+      }
+
       const { data } = await supabase
         .from("chapters")
         .select("id, name")
+        .eq("college", college)
+        .eq("org_type", orgType)
         .order("name");
       setChapters(
         (data || []).map((c) => ({
@@ -41,7 +65,7 @@ export default function RusheeNotes() {
       setLoading(false);
     };
     fetchChapters();
-  }, []);
+  }, [user]);
 
   const filtered = chapters.filter((c) =>
     c.name.toLowerCase().includes(search.toLowerCase())
