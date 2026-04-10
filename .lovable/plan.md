@@ -1,30 +1,21 @@
 
 
-# Fix: Members Showing as "Unknown" in Chapter View
+# Replace Mock Chapters with Real Data in Rushee Notes
 
 ## Problem
-
-The Members page fetches profiles for chapter members, but the database security policy on `profiles` requires matching `college` AND `org_type`. Chapter members (rushees) have a different `org_type` than the chapter account, so the profile lookup returns empty results — hence "Unknown".
+The Rushee Notes page uses hardcoded mock chapters (Alpha Beta Gamma, Delta Epsilon, etc.). It should instead show only real chapters registered on GreekBid that match the rushee's college and gender/org_type.
 
 ## Solution
+Update `RusheeNotes.tsx` to query the `chapters` table (filtered by the rushee's college and org_type via existing RLS policies) instead of using `mockChapters`. The existing RLS policy on `chapters` already enforces college + org_type matching, so a simple `select *` will return only relevant chapters.
 
-Create a database function (`get_chapter_member_profiles`) that runs with elevated privileges (`SECURITY DEFINER`) to fetch profile data for members of a given chapter. This is safe because it only returns profiles for users who are actual members of the caller's chapter.
+## Changes
 
-### Step 1: Database migration
+### 1. Update `src/pages/rushee/RusheeNotes.tsx`
+- Remove the `mockChapters` array
+- Add a `useEffect` that fetches chapters from the `chapters` table using the Supabase client
+- Map chapter data to the same shape used by the UI (`id`, `name`, `letters` derived from the chapter name initials)
+- Show a loading state while fetching
+- Show an empty state if no chapters are registered at their college
 
-Create a `SECURITY DEFINER` function that:
-- Accepts a `chapter_id` parameter
-- Verifies the caller is the chapter creator or an admin of that chapter
-- Returns `user_id, full_name, avatar_url, college, email` for all `chapter_members` of that chapter
-
-### Step 2: Update MembersPage.tsx
-
-Replace the direct `profiles` table query (line 74-77) with an RPC call to the new function:
-```ts
-const { data: profiles } = await supabase.rpc("get_chapter_member_profiles", {
-  p_chapter_id: membership.chapter_id,
-});
-```
-
-This bypasses the restrictive RLS on profiles while remaining secure (only returns data for the caller's own chapter members).
+No database or backend changes needed — the existing `chapters` table and RLS policies already support this query.
 
