@@ -24,10 +24,7 @@ export default function Landing() {
       {/* Nav */}
       <nav className="flex items-center justify-between px-6 py-4 max-w-7xl mx-auto">
         <div className="flex items-center gap-2">
-          <div className="w-8 h-8 rounded-lg bg-primary flex items-center justify-center">
-            <span className="text-primary-foreground font-bold text-sm font-display">G</span>
-          </div>
-          <span className="text-xl font-display font-bold text-foreground">GreekBid</span>
+          <img src="/logo.png" alt="GreekBid" className="h-8 w-auto" />
         </div>
         <div className="flex items-center gap-3">
           <Link to="/login">
@@ -65,9 +62,7 @@ export default function Landing() {
           </div>
           <div className="animate-fade-in lg:flex lg:items-center lg:justify-center" style={{ animationDelay: "0.2s" }}>
             <div className="w-full max-w-md mx-auto bg-card rounded-2xl shadow-warm-lg p-8 text-center space-y-4">
-              <div className="w-16 h-16 rounded-xl bg-primary flex items-center justify-center mx-auto">
-                <span className="text-primary-foreground font-bold text-2xl font-display">G</span>
-              </div>
+              <img src="/logo.png" alt="GreekBid" className="h-16 w-auto mx-auto" />
               <h2 className="text-2xl font-display font-bold text-foreground">Join GreekBid</h2>
               <p className="text-muted-foreground text-sm">Start managing your rush in minutes.</p>
               <Link to="/signup">

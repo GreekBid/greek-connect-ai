@@ -22,10 +22,7 @@ function AdminSidebar() {
     <Sidebar collapsible="icon">
       <SidebarContent>
         <a href="/" className="p-4 flex items-center gap-2 hover:opacity-80 transition-opacity cursor-pointer">
-          <div className="w-8 h-8 rounded-lg bg-primary flex items-center justify-center shrink-0">
-            <Shield className="h-4 w-4 text-primary-foreground" />
-          </div>
-          {!collapsed && <span className="text-lg font-display font-bold text-foreground">GreekBid Admin</span>}
+          <img src="/logo.png" alt="GreekBid" className="h-8 w-auto shrink-0" />
         </a>
 
         <SidebarGroup>
