@@ -194,7 +194,7 @@ export default function SignupPage() {
       <div className="min-h-screen bg-background flex items-center justify-center px-4">
         <Card className="w-full max-w-lg p-8 shadow-warm">
           <div className="flex justify-center mb-8">
-            <img src="/logo.png" alt="GreekBid" className="h-16 w-auto" />
+            <img src="/logo.png" alt="GreekBid" className="h-20 w-auto" />
           </div>
 
           <h1 className="text-2xl font-display font-bold text-foreground text-center mb-2">Join GreekBid</h1>
@@ -240,7 +240,7 @@ export default function SignupPage() {
     <div className="min-h-screen bg-background flex items-center justify-center px-4">
       <Card className="w-full max-w-md p-8 shadow-warm">
         <div className="flex justify-center mb-8">
-          <img src="/logo.png" alt="GreekBid" className="h-16 w-auto" />
+          <img src="/logo.png" alt="GreekBid" className="h-20 w-auto" />
         </div>
 
         <h1 className="text-2xl font-display font-bold text-foreground text-center mb-1">{roleLabel}</h1>
