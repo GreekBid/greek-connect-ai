@@ -70,10 +70,7 @@ function AppSidebar() {
     <Sidebar collapsible="icon">
       <SidebarContent>
         <a href="/" className="p-4 flex items-center gap-2 hover:opacity-80 transition-opacity cursor-pointer">
-          <div className="w-8 h-8 rounded-lg bg-primary flex items-center justify-center shrink-0">
-            <span className="text-primary-foreground font-bold text-sm font-display">G</span>
-          </div>
-          {!collapsed && <span className="text-lg font-display font-bold text-foreground">GreekBid</span>}
+          <img src="/logo.png" alt="GreekBid" className="h-8 w-auto shrink-0" />
         </a>
 
         <SidebarGroup>
