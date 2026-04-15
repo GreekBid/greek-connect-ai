@@ -50,7 +50,7 @@ function RusheeSidebar() {
     <Sidebar collapsible="icon">
       <SidebarContent>
         <a href="/" className="p-4 flex items-center gap-2 hover:opacity-80 transition-opacity cursor-pointer">
-          <img src="/logo.png" alt="GreekBid" className="h-8 w-auto shrink-0" />
+          <img src="/logo.png" alt="GreekBid" className="h-10 w-auto shrink-0" />
         </a>
 
         <SidebarGroup>
