@@ -1,20 +1,32 @@
 
 
-# Fix: Filter Rushee Notes by College and Org Type
+# Make Logo Bigger and Remove White Background
 
 ## Problem
-The current `RusheeNotes.tsx` fetches ALL chapters from the database without filtering by the rushee's college or organization type. The RLS policy allows admins to see everything, so when testing with an admin account (or any account), unrelated chapters appear.
+The uploaded logo PNG has a white rectangular background baked into the image file. This creates a visible white box around the logo, especially on non-white backgrounds (like the dark navy sidebar). The logo also appears small in several places.
 
 ## Solution
-Update `RusheeNotes.tsx` to:
-1. First fetch the current user's profile (college and org_type/gender) 
-2. Then query chapters filtered by `.eq("college", college)` and `.eq("org_type", orgType)`
-3. If the user has no college set, show an empty state prompting them to update their profile
 
-### File: `src/pages/rushee/RusheeNotes.tsx`
-- Import `useAuth` to get the current user ID
-- Add a first query to get the user's `college` and `gender` from `profiles`
-- Derive `org_type` from gender (male → "fraternity", female → "sorority") matching the `get_user_org_type` DB function logic
-- Add `.eq("college", college).eq("org_type", orgType)` filters to the chapters query
-- Skip fetching chapters if college or org_type is empty, show a message instead
+### 1. Remove the white background from the image
+Use Python (Pillow) to process `public/logo.png` — convert the white background to transparent and save as a clean PNG with alpha channel. This eliminates the white outline everywhere the logo is used.
+
+### 2. Increase logo sizes across the app
+Update all `<img>` tags referencing the logo:
+
+| Location | Current size | New size |
+|---|---|---|
+| Landing nav | `h-8` | `h-12` |
+| Landing hero card | `h-16` | `h-20` |
+| Login/Signup pages | `h-12` | `h-16` |
+| Sidebar (Dashboard, Rushee, Admin) | `h-8` | `h-10` |
+| Footer text | text only | no change |
+
+### Files changed
+- `public/logo.png` — reprocessed with transparent background
+- `src/pages/Landing.tsx` — larger logo sizes
+- `src/pages/LoginPage.tsx` — larger logo
+- `src/pages/SignupPage.tsx` — larger logo
+- `src/components/DashboardLayout.tsx` — larger sidebar logo
+- `src/components/RusheeLayout.tsx` — larger sidebar logo
+- `src/components/AdminLayout.tsx` — larger sidebar logo
 
