@@ -1,32 +1,41 @@
 
 
-# Make Logo Bigger and Remove White Background
+## Diagnosis
 
-## Problem
-The uploaded logo PNG has a white rectangular background baked into the image file. This creates a visible white box around the logo, especially on non-white backgrounds (like the dark navy sidebar). The logo also appears small in several places.
+The "Failed to fetch" error on the login page is caused by the **Lovable preview environment's fetch proxy interfering with Supabase authentication requests**. This is a platform-level issue, not a bug in your code.
 
-## Solution
+Key evidence:
+- Affects ALL emails (not credential-specific)
+- Error is "Failed to fetch" (network-level, before Supabase even responds)
+- Your `LoginPage.tsx` and `AuthContext.tsx` code is correctly implemented
+- Supabase client is properly configured
 
-### 1. Remove the white background from the image
-Use Python (Pillow) to process `public/logo.png` — convert the white background to transparent and save as a clean PNG with alpha channel. This eliminates the white outline everywhere the logo is used.
+## What to do
 
-### 2. Increase logo sizes across the app
-Update all `<img>` tags referencing the logo:
+**Test login on your published site instead of the preview:**
 
-| Location | Current size | New size |
-|---|---|---|
-| Landing nav | `h-8` | `h-12` |
-| Landing hero card | `h-16` | `h-20` |
-| Login/Signup pages | `h-12` | `h-16` |
-| Sidebar (Dashboard, Rushee, Admin) | `h-8` | `h-10` |
-| Footer text | text only | no change |
+- Published URL: https://greek-connect-ai.lovable.app
+- Custom domain: https://greekbid.com
 
-### Files changed
-- `public/logo.png` — reprocessed with transparent background
-- `src/pages/Landing.tsx` — larger logo sizes
-- `src/pages/LoginPage.tsx` — larger logo
-- `src/pages/SignupPage.tsx` — larger logo
-- `src/components/DashboardLayout.tsx` — larger sidebar logo
-- `src/components/RusheeLayout.tsx` — larger sidebar logo
-- `src/components/AdminLayout.tsx` — larger sidebar logo
+Login should work normally on either of those. The preview iframe is the only place this error happens.
+
+## What NOT to do
+
+Per Lovable platform guidance, do not attempt code fixes for this:
+- Do NOT modify CORS settings
+- Do NOT change Supabase auth configuration
+- Do NOT override `window.fetch`
+- Do NOT touch `src/integrations/supabase/client.ts`
+
+These changes won't fix the preview issue and may break your working production login.
+
+## Plan
+
+Since this is a platform issue with no code fix needed, the "plan" is simply:
+
+1. Confirm login works on https://greekbid.com (your custom domain) or https://greek-connect-ai.lovable.app (published URL)
+2. Use those URLs for any auth testing going forward
+3. Use the preview only for visual/UI work
+
+If login also fails on the published URL, that's a different problem (likely credential or account-related) and we'd debug from there — check the browser console for the actual error and verify the email/password against the database.
 
