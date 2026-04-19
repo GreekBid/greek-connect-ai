@@ -1,54 +1,40 @@
 
 
-## Diagnosis
+The user reports that selected sidebar tabs are hard to see. Looking at `DashboardLayout.tsx` and `AdminLayout.tsx`, the active state uses `activeClassName="bg-sidebar-accent text-primary font-medium"`.
 
-The user "Chi phi" (email: amamamama@gmail.com) signed up at Aaniiih Nakoda College on 2026-04-15 with role=`chapter`, but **no row was ever inserted into the `chapters` table**. Their `profiles.chapter_id` is also NULL.
+From `index.css`:
+- `--sidebar-background: 215 45% 12%` (dark navy)
+- `--sidebar-accent: 215 40% 18%` (slightly lighter navy — very low contrast against the background)
+- `--primary: 215 55% 25%` (navy — used for `text-primary`, which on the dark navy `bg-sidebar-accent` is nearly invisible)
 
-What this means:
-- A profile exists with role "chapter"
-- But there is no actual chapter entity in the `chapters` table
-- And no `chapter_members` row linking them as admin
+So the active tab has dark navy text on dark navy background. That's the contrast problem.
 
-So the Admin Dashboard correctly shows zero chapters for that college — there literally isn't one in the database.
+The sidebar already defines proper tokens for this exact purpose:
+- `--sidebar-primary: 40 60% 55%` (gold)
+- `--sidebar-primary-foreground: 215 50% 15%` (dark navy)
+- `--sidebar-accent-foreground: 40 20% 90%` (cream)
 
-### Why this happened
+## Fix
 
-Signup creates a `profiles` row automatically (via the `handle_new_user` trigger), but creating the actual chapter entity is a **separate step**. The user appears to have:
-- Completed signup (profile created), then
-- Either bailed out before completing chapter creation, or
-- Hit an error during the "create chapter" step that was never surfaced
+Change the active state in both layouts from `bg-sidebar-accent text-primary` to use the gold accent for high contrast against the dark navy sidebar.
 
-Their account is essentially in a half-initialized state: they have a chapter-role profile but no chapter to be admin of. They likely can't access the dashboard properly because `PendingApprovalGate` requires an approved `chapter_members` row.
+**Recommended active style:** `bg-sidebar-primary text-sidebar-primary-foreground font-medium`
+→ Gold pill with dark navy text. Highly visible, on-brand, matches the existing sidebar token system.
 
-## Options to fix
+### Files to change
 
-You have two paths. Pick one:
+1. **`src/components/DashboardLayout.tsx`** — update `activeClassName` on the NavLink inside `renderNavItems` (line ~46).
+2. **`src/components/AdminLayout.tsx`** — update `activeClassName` on the NavLink inside the admin nav loop (line ~32).
+3. **`src/components/RusheeLayout.tsx`** — check and apply the same fix if it uses the same pattern (almost certainly does).
 
-### Option A — Create the chapter for them (recommended if they're a real user)
+Also update the badge color logic so the count badge stays readable on the gold active background — change the badge from `bg-primary text-primary-foreground` to `bg-sidebar-primary-foreground text-sidebar-primary` only when active, OR simpler: keep the badge as-is but the active background change alone will resolve the user's complaint.
 
-Insert the missing rows so their account works:
-1. Create a `chapters` row: name="Chi Phi", college="Aaniiih Nakoda College", org_type="fraternity", created_by=their user_id
-2. Create a `chapter_members` row: user_id=theirs, chapter_id=new, role="admin", status="approved"
-3. Update their `profiles.chapter_id` to point to the new chapter
+### Preview
 
-After this, they'll show up in the Admin Dashboard and can log in normally.
+```text
+Before: [dark navy bg] [dark navy text "Dashboard"]   ← unreadable
+After:  [gold bg]      [dark navy text "Dashboard"]   ← high contrast
+```
 
-### Option B — Delete the orphaned account
-
-If this looks like a test/abandoned signup (the name "Chi phi" as a person's full name and email "amamamama@gmail.com" suggest test data), just delete the profile and let them re-register cleanly.
-
-## Bonus: prevent this in the future
-
-The root cause is that signup and chapter creation are decoupled with no recovery path. To prevent half-initialized chapter accounts going forward, we could:
-- Make the chapter signup flow atomic (profile + chapter + admin membership in one transaction), OR
-- Add a "complete your chapter setup" gate that catches chapter-role users with no `chapter_id` and forces them to finish creating/joining a chapter before proceeding
-
-I'd recommend doing this fix after we resolve the immediate user, but it's optional.
-
-## What I need from you
-
-Which option do you want?
-- **A**: Fix this user's account (create the chapter + admin membership)
-- **B**: Delete the orphaned profile
-- **A + bonus**: Fix this user AND add a "complete chapter setup" gate so this can't happen again
+No new tokens needed, no CSS changes — just swap two utility classes in 2-3 layout files.
 
