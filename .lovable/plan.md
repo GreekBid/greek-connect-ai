@@ -1,48 +1,54 @@
 
 
-The user is still unable to log in. Since we ruled out the preview-proxy theory in approval but the issue persists, I need to actually investigate before guessing again.
+## Diagnosis
 
-Hypotheses to check:
-1. Auth service health — auth logs show GoTrue restarted at 14:16 today, which is normal but worth confirming it's running.
-2. The user (austin) may not actually have an account in `auth.users` with the email/password he's trying.
-3. Email confirmation may be blocking — though memory says auto-confirm is enabled.
-4. Network/CORS from the published domain (greekbid.com) — different from preview.
+The user "Chi phi" (email: amamamama@gmail.com) signed up at Aaniiih Nakoda College on 2026-04-15 with role=`chapter`, but **no row was ever inserted into the `chapters` table**. Their `profiles.chapter_id` is also NULL.
 
-Without knowing WHERE he tested (preview vs greekbid.com vs published lovable URL) and WHAT exact error he sees now, I'm guessing. Last he said "Failed to fetch" on the login page — that was in the preview. He hasn't confirmed he tried the published URL.
+What this means:
+- A profile exists with role "chapter"
+- But there is no actual chapter entity in the `chapters` table
+- And no `chapter_members` row linking them as admin
 
-Plan:
+So the Admin Dashboard correctly shows zero chapters for that college — there literally isn't one in the database.
 
-## Step 1 — Find out exactly what's happening now
+### Why this happened
 
-Ask 3 quick questions:
-- Which URL did you try (greekbid.com, the lovable.app URL, or the preview)?
-- What's the exact error message now (is it still "Failed to fetch", or something different like "Invalid login credentials")?
-- What email are you trying to log in with?
+Signup creates a `profiles` row automatically (via the `handle_new_user` trigger), but creating the actual chapter entity is a **separate step**. The user appears to have:
+- Completed signup (profile created), then
+- Either bailed out before completing chapter creation, or
+- Hit an error during the "create chapter" step that was never surfaced
 
-## Step 2 — Based on the answer, take one of these paths
+Their account is essentially in a half-initialized state: they have a chapter-role profile but no chapter to be admin of. They likely can't access the dashboard properly because `PendingApprovalGate` requires an approved `chapter_members` row.
 
-**Path A — "Failed to fetch" on greekbid.com / published URL:**
-This would be a real bug, not a preview issue. Check:
-- Browser console network tab for the failing request URL
-- Whether Supabase auth endpoint is reachable from that domain
-- CORS / Site URL config in auth settings
+## Options to fix
 
-**Path B — "Invalid login credentials":**
-Account doesn't exist or password is wrong. Check `auth.users` for the email via DB query. If account exists, offer password reset (which requires building a `/reset-password` page — not currently in the codebase).
+You have two paths. Pick one:
 
-**Path C — "Email not confirmed":**
-Memory says auto-confirm is on, but verify in auth config. If somehow disabled, re-enable or manually confirm the user.
+### Option A — Create the chapter for them (recommended if they're a real user)
 
-**Path D — Still preview-only:**
-Re-confirm: production works, preview doesn't, use production.
+Insert the missing rows so their account works:
+1. Create a `chapters` row: name="Chi Phi", college="Aaniiih Nakoda College", org_type="fraternity", created_by=their user_id
+2. Create a `chapter_members` row: user_id=theirs, chapter_id=new, role="admin", status="approved"
+3. Update their `profiles.chapter_id` to point to the new chapter
 
-## Step 3 — If password reset is needed
+After this, they'll show up in the Admin Dashboard and can log in normally.
 
-Currently there's no `/reset-password` route or "Forgot password" link in `LoginPage.tsx`. If the account exists but password is forgotten, build:
-- "Forgot password?" link on login page
-- New `ForgotPasswordPage.tsx` calling `supabase.auth.resetPasswordForEmail`
-- New `ResetPasswordPage.tsx` at `/reset-password` calling `supabase.auth.updateUser`
-- Add both routes to `App.tsx`
+### Option B — Delete the orphaned account
 
-I'll ask the clarifying questions first rather than guessing and building the wrong fix.
+If this looks like a test/abandoned signup (the name "Chi phi" as a person's full name and email "amamamama@gmail.com" suggest test data), just delete the profile and let them re-register cleanly.
+
+## Bonus: prevent this in the future
+
+The root cause is that signup and chapter creation are decoupled with no recovery path. To prevent half-initialized chapter accounts going forward, we could:
+- Make the chapter signup flow atomic (profile + chapter + admin membership in one transaction), OR
+- Add a "complete your chapter setup" gate that catches chapter-role users with no `chapter_id` and forces them to finish creating/joining a chapter before proceeding
+
+I'd recommend doing this fix after we resolve the immediate user, but it's optional.
+
+## What I need from you
+
+Which option do you want?
+- **A**: Fix this user's account (create the chapter + admin membership)
+- **B**: Delete the orphaned profile
+- **A + bonus**: Fix this user AND add a "complete chapter setup" gate so this can't happen again
 
