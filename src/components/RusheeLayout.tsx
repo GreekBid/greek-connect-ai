@@ -62,7 +62,7 @@ function RusheeSidebar() {
                 return (
                   <SidebarMenuItem key={item.title}>
                     <SidebarMenuButton asChild>
-                      <NavLink to={item.url} end={item.url === "/rushee"} className="hover:bg-sidebar-accent/50" activeClassName="bg-sidebar-accent text-primary font-medium">
+                      <NavLink to={item.url} end={item.url === "/rushee"} className="hover:bg-sidebar-accent/50" activeClassName="bg-sidebar-primary text-sidebar-primary-foreground font-medium">
                         <div className="relative mr-2">
                           <item.icon className="h-4 w-4" />
                           {count > 0 && collapsed && (
