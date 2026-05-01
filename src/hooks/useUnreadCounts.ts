@@ -14,29 +14,28 @@ export function useRusheeUnreadCounts() {
 
   useEffect(() => {
     if (!user) return;
-    const load = async () => {
-      // Unread direct messages
-      const { count: unreadMsgs } = await supabase
-        .from("direct_message_recipients")
-        .select("*", { count: "exact", head: true })
-        .eq("recipient_id", user.id)
-        .eq("read", false);
 
-      // Upcoming events (next 7 days)
+    const load = async () => {
       const now = new Date();
       const week = new Date(now.getTime() + 7 * 86400000);
-      const { count: upcomingEvents } = await supabase
-        .from("events")
-        .select("*", { count: "exact", head: true })
-        .gte("date", now.toISOString().split("T")[0])
-        .lte("date", week.toISOString().split("T")[0]);
 
-      // Active bids
-      const { count: activeBids } = await supabase
-        .from("bids")
-        .select("*", { count: "exact", head: true })
-        .eq("rushee_id", user.id)
-        .in("status", ["bid_extended", "under_review"]);
+      const [{ count: unreadMsgs }, { count: upcomingEvents }, { count: activeBids }] = await Promise.all([
+        supabase
+          .from("direct_message_recipients")
+          .select("*", { count: "exact", head: true })
+          .eq("recipient_id", user.id)
+          .eq("read", false),
+        supabase
+          .from("events")
+          .select("*", { count: "exact", head: true })
+          .gte("date", now.toISOString().split("T")[0])
+          .lte("date", week.toISOString().split("T")[0]),
+        supabase
+          .from("bids")
+          .select("*", { count: "exact", head: true })
+          .eq("rushee_id", user.id)
+          .in("status", ["bid_extended", "under_review"]),
+      ]);
 
       setCounts({
         messages: unreadMsgs || 0,
@@ -44,9 +43,27 @@ export function useRusheeUnreadCounts() {
         bids: activeBids || 0,
       });
     };
+
     load();
-    const interval = setInterval(load, 30000);
-    return () => clearInterval(interval);
+
+    const channel = supabase
+      .channel(`rushee-unread-${user.id}`)
+      .on(
+        "postgres_changes",
+        { event: "*", schema: "public", table: "direct_message_recipients", filter: `recipient_id=eq.${user.id}` },
+        load
+      )
+      .on("postgres_changes", { event: "*", schema: "public", table: "events" }, load)
+      .on(
+        "postgres_changes",
+        { event: "*", schema: "public", table: "bids", filter: `rushee_id=eq.${user.id}` },
+        load
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
   }, [user]);
 
   return counts;
@@ -58,21 +75,26 @@ export function useChapterUnreadCounts() {
 
   useEffect(() => {
     if (!user) return;
+
     const load = async () => {
-      // Pending bids
       const { count: pendingBids } = await supabase
         .from("bids")
         .select("*", { count: "exact", head: true })
         .eq("status", "under_review");
 
-      setCounts({
-        replies: 0,
-        pendingBids: pendingBids || 0,
-      });
+      setCounts({ replies: 0, pendingBids: pendingBids || 0 });
     };
+
     load();
-    const interval = setInterval(load, 30000);
-    return () => clearInterval(interval);
+
+    const channel = supabase
+      .channel(`chapter-unread-${user.id}`)
+      .on("postgres_changes", { event: "*", schema: "public", table: "bids" }, load)
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
   }, [user]);
 
   return counts;

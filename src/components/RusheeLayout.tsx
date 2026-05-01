@@ -1,4 +1,4 @@
-import { ReactNode, useEffect, useState } from "react";
+import { ReactNode } from "react";
 import {
   Sidebar, SidebarContent, SidebarGroup, SidebarGroupContent, SidebarGroupLabel,
   SidebarMenu, SidebarMenuButton, SidebarMenuItem, SidebarProvider, SidebarTrigger, useSidebar,
@@ -10,7 +10,6 @@ import { Badge } from "@/components/ui/badge";
 import { useAuth } from "@/contexts/AuthContext";
 import SupportFooter from "@/components/SupportFooter";
 import { useRusheeUnreadCounts } from "@/hooks/useUnreadCounts";
-import { supabase } from "@/integrations/supabase/client";
 
 const getNav = (searchLabel: string) => [
   { title: "Home", url: "/rushee", icon: LayoutDashboard, badgeKey: null },
@@ -27,21 +26,8 @@ const getNav = (searchLabel: string) => [
 function RusheeSidebar() {
   const { state } = useSidebar();
   const collapsed = state === "collapsed";
-  const { signOut, user } = useAuth();
+  const { signOut, gender } = useAuth();
   const counts = useRusheeUnreadCounts();
-  const [gender, setGender] = useState("");
-
-  useEffect(() => {
-    if (!user) return;
-    supabase
-      .from("profiles")
-      .select("gender")
-      .eq("user_id", user.id)
-      .single()
-      .then(({ data }) => {
-        setGender((data as any)?.gender || "");
-      });
-  }, [user]);
 
   const searchLabel = gender === "female" ? "Search Sororities" : "Search Fraternities";
   const nav = getNav(searchLabel);
