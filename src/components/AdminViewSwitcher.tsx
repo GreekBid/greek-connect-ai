@@ -1,9 +1,10 @@
 import { useAuth } from "@/contexts/AuthContext";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 
 export default function AdminViewSwitcher() {
-  const { isAdmin, activeView, setActiveView } = useAuth();
+  const { isAdmin, setActiveView } = useAuth();
   const navigate = useNavigate();
+  const { pathname } = useLocation();
 
   if (!isAdmin) return null;
 
@@ -15,7 +16,7 @@ export default function AdminViewSwitcher() {
 
   const switchTo = (view: "admin" | "chapter" | "rushee") => {
     if (view === "admin") {
-      setActiveView("chapter"); // keep activeView valid for context
+      setActiveView("chapter");
       navigate("/admin");
     } else {
       setActiveView(view);
@@ -23,13 +24,11 @@ export default function AdminViewSwitcher() {
     }
   };
 
-  const currentPath = window.location.pathname;
-
   return (
     <div className="fixed bottom-4 right-4 z-50 bg-card border border-border rounded-xl shadow-warm-lg p-2 flex items-center gap-2">
       <span className="text-xs text-muted-foreground px-2 font-medium">Admin</span>
       {views.map((v) => {
-        const isActive = currentPath.startsWith(v.path);
+        const isActive = pathname.startsWith(v.path);
         return (
           <button
             key={v.key}
