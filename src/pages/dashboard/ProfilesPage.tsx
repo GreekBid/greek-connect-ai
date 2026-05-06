@@ -54,6 +54,7 @@ export default function ProfilesPage() {
   const toggleStar = async (rusheeUserId: string, e: React.MouseEvent) => {
     e.stopPropagation();
     if (!user) return;
+    if (!canWrite) { toast.error("Premium required to star rushees"); return; }
     if (stars.has(rusheeUserId)) {
       await supabase.from("stars").delete().eq("rushee_id", rusheeUserId).eq("starred_by", user.id);
       setStars((prev) => { const n = new Set(prev); n.delete(rusheeUserId); return n; });
