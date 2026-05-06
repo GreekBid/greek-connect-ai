@@ -7,12 +7,13 @@ import {
 import { NavLink } from "@/components/NavLink";
 import { useLocation } from "react-router-dom";
 import {
-  LayoutDashboard, Users, Calendar, Star, BarChart3, MessageSquare, Brain, ClipboardList, Settings, LogOut, UserPlus,
+  LayoutDashboard, Users, Calendar, Star, BarChart3, MessageSquare, Brain, ClipboardList, Settings, LogOut, UserPlus, CreditCard,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { useChapterUnreadCounts } from "@/hooks/useUnreadCounts";
 import SupportFooter from "@/components/SupportFooter";
+import PremiumBanner from "@/components/PremiumBanner";
 
 const mainNav = [
   { title: "Dashboard", url: "/dashboard", icon: LayoutDashboard, badgeKey: null },
@@ -27,6 +28,7 @@ const toolsNav = [
   { title: "AI Coach", url: "/dashboard/ai-coach", icon: Brain, badgeKey: null },
   { title: "Bid Management", url: "/dashboard/bids", icon: ClipboardList, badgeKey: "pendingBids" as const },
   { title: "Members", url: "/dashboard/members", icon: UserPlus, badgeKey: null },
+  { title: "Billing", url: "/dashboard/billing", icon: CreditCard, badgeKey: null },
   { title: "Settings", url: "/dashboard/settings", icon: Settings, badgeKey: null },
 ];
 
@@ -108,6 +110,7 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
             <SidebarTrigger />
             <span className="text-sm text-muted-foreground font-body">Chapter Dashboard</span>
           </header>
+          <PremiumBanner />
           <main className="flex-1 p-6 overflow-auto">{children}</main>
           <SupportFooter />
         </div>

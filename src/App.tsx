@@ -26,6 +26,9 @@ import AICoachPage from "./pages/dashboard/AICoachPage";
 import BidsPage from "./pages/dashboard/BidsPage";
 import MembersPage from "./pages/dashboard/MembersPage";
 import SettingsPage from "./pages/dashboard/SettingsPage";
+import BillingPage from "./pages/dashboard/BillingPage";
+import BillingSuccessPage from "./pages/BillingSuccessPage";
+import BillingCancelPage from "./pages/BillingCancelPage";
 import RusheeLayout from "./components/RusheeLayout";
 import RusheeHome from "./pages/rushee/RusheeHome";
 import RusheeProfile from "./pages/rushee/RusheeProfile";
@@ -66,6 +69,8 @@ const App = () => (
             <Route path="/forgot-password" element={<ForgotPasswordPage />} />
             <Route path="/reset-password" element={<ResetPasswordPage />} />
             <Route path="/unsubscribe" element={<UnsubscribePage />} />
+            <Route path="/billing/success" element={<BillingSuccessPage />} />
+            <Route path="/billing/cancel" element={<BillingCancelPage />} />
 
             {/* Admin route */}
             <Route path="/admin" element={
@@ -85,6 +90,7 @@ const App = () => (
             <Route path="/dashboard/bids" element={<ChapterRoute><BidsPage /></ChapterRoute>} />
             <Route path="/dashboard/members" element={<ChapterRoute><MembersPage /></ChapterRoute>} />
             <Route path="/dashboard/settings" element={<ChapterRoute><SettingsPage /></ChapterRoute>} />
+            <Route path="/dashboard/billing" element={<ChapterRoute><BillingPage /></ChapterRoute>} />
 
             {/* Rushee routes */}
             <Route path="/rushee" element={<ProtectedRoute requiredRole="rushee"><RusheeLayout><RusheeHome /></RusheeLayout></ProtectedRoute>} />

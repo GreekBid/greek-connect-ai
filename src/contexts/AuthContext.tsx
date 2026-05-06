@@ -1,8 +1,16 @@
-import { createContext, useContext, useEffect, useRef, useState, ReactNode } from "react";
+import { createContext, useContext, useEffect, useRef, useState, ReactNode, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import type { User, Session } from "@supabase/supabase-js";
 
 type AppRole = "chapter" | "rushee";
+
+interface SubscriptionDiscount {
+  code: string | null;
+  percent_off: number | null;
+  name: string | null;
+  duration: string;
+  duration_in_months: number | null;
+}
 
 interface AuthContextType {
   user: User | null;
@@ -14,6 +22,13 @@ interface AuthContextType {
   setActiveView: (view: AppRole) => void;
   loading: boolean;
   signOut: () => Promise<void>;
+  // Subscription
+  subscribed: boolean;
+  subscriptionEnd: string | null;
+  discount: SubscriptionDiscount | null;
+  cancelAtPeriodEnd: boolean;
+  subscriptionLoading: boolean;
+  refreshSubscription: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType>({
@@ -26,6 +41,12 @@ const AuthContext = createContext<AuthContextType>({
   setActiveView: () => {},
   loading: true,
   signOut: async () => {},
+  subscribed: false,
+  subscriptionEnd: null,
+  discount: null,
+  cancelAtPeriodEnd: false,
+  subscriptionLoading: false,
+  refreshSubscription: async () => {},
 });
 
 export const useAuth = () => useContext(AuthContext);
@@ -39,6 +60,28 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [activeView, setActiveView] = useState<AppRole | null>(null);
   const [loading, setLoading] = useState(true);
   const lastFetchedUserId = useRef<string | null>(null);
+
+  const [subscribed, setSubscribed] = useState(false);
+  const [subscriptionEnd, setSubscriptionEnd] = useState<string | null>(null);
+  const [discount, setDiscount] = useState<SubscriptionDiscount | null>(null);
+  const [cancelAtPeriodEnd, setCancelAtPeriodEnd] = useState(false);
+  const [subscriptionLoading, setSubscriptionLoading] = useState(false);
+
+  const refreshSubscription = useCallback(async () => {
+    setSubscriptionLoading(true);
+    try {
+      const { data, error } = await supabase.functions.invoke("check-subscription");
+      if (error) throw error;
+      setSubscribed(!!data?.subscribed);
+      setSubscriptionEnd(data?.subscription_end ?? null);
+      setDiscount(data?.discount ?? null);
+      setCancelAtPeriodEnd(!!data?.cancel_at_period_end);
+    } catch (e) {
+      console.error("[refreshSubscription]", e);
+    } finally {
+      setSubscriptionLoading(false);
+    }
+  }, []);
 
   const fetchRoleAndAdmin = async (userId: string) => {
     const { data: profile } = await supabase
@@ -63,6 +106,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setActiveView(admin ? (profileRole ?? "chapter") : profileRole);
     setLoading(false);
     lastFetchedUserId.current = userId;
+
+    // Kick off subscription check for chapter users (skip admins/rushees)
+    if (profileRole === "chapter" && !admin) {
+      refreshSubscription();
+    } else {
+      setSubscribed(false);
+      setDiscount(null);
+      setSubscriptionEnd(null);
+    }
   };
 
   useEffect(() => {
@@ -77,11 +129,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           setIsAdmin(false);
           setActiveView(null);
           setLoading(false);
+          setSubscribed(false);
+          setDiscount(null);
+          setSubscriptionEnd(null);
           lastFetchedUserId.current = null;
           return;
         }
 
-        // Skip re-fetch on TOKEN_REFRESHED — it fires every hour and role doesn't change
         const isNewUser = lastFetchedUserId.current !== session.user.id;
         const shouldFetch =
           isNewUser ||
@@ -106,7 +160,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     });
 
     return () => subscription.unsubscribe();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  // Periodic re-check every 60s for chapter users (non-admin)
+  useEffect(() => {
+    if (!user || role !== "chapter" || isAdmin) return;
+    const id = setInterval(refreshSubscription, 60_000);
+    return () => clearInterval(id);
+  }, [user, role, isAdmin, refreshSubscription]);
 
   const signOut = async () => {
     await supabase.auth.signOut();
@@ -114,11 +176,32 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setGender(null);
     setIsAdmin(false);
     setActiveView(null);
+    setSubscribed(false);
+    setDiscount(null);
+    setSubscriptionEnd(null);
     lastFetchedUserId.current = null;
   };
 
   return (
-    <AuthContext.Provider value={{ user, session, role, gender, isAdmin, activeView, setActiveView, loading, signOut }}>
+    <AuthContext.Provider
+      value={{
+        user,
+        session,
+        role,
+        gender,
+        isAdmin,
+        activeView,
+        setActiveView,
+        loading,
+        signOut,
+        subscribed,
+        subscriptionEnd,
+        discount,
+        cancelAtPeriodEnd,
+        subscriptionLoading,
+        refreshSubscription,
+      }}
+    >
       {children}
     </AuthContext.Provider>
   );
