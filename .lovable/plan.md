@@ -1,48 +1,58 @@
-## Fix all 8 bugs in one pass
+# Stripe Premium + GREEKBID29 Promo Code
 
-### Auth & login (#1, #2)
-- **`src/pages/LoginPage.tsx`**: Check `user_roles` for admin first → admins go to `/admin`. Detect "email not confirmed" errors and show a "Resend verification email" button. Add a "Forgot password?" link under the password field.
-- **`src/pages/ForgotPasswordPage.tsx`** (NEW): Email input → `supabase.auth.resetPasswordForEmail(email, { redirectTo: ${origin}/reset-password })`. Shows confirmation message after submit.
-- **`src/pages/ResetPasswordPage.tsx`** (NEW): Listens for `PASSWORD_RECOVERY` auth event, shows new-password + confirm form, calls `supabase.auth.updateUser({ password })`, signs out and redirects to login.
-- **`src/App.tsx`**: Register `/forgot-password` and `/reset-password` as **public** routes (outside `ProtectedRoute`).
+**$19.99/mo** Premium subscription for chapters. Without it, the chapter dashboard is **read-only**. Free access via the `GREEKBID29` promo code.
 
-### Layout / routing polish (#3, #7)
-- **`src/components/AdminViewSwitcher.tsx`**: Replace `window.location.pathname` with `useLocation().pathname` so the active button updates on navigation.
-- **`src/App.tsx`**: Add `future={{ v7_startTransition: true, v7_relativeSplatPath: true }}` to `<BrowserRouter>` to clear the two React Router deprecation warnings.
+## ⚠️ Before I touch any code
+Roll the live keys you pasted in chat (Stripe Dashboard → Developers → API keys → Roll on both `sk_live_…` and `rk_live_…`). I'll prompt you to paste the **new** secret key into a secure form — never in chat. The current `STRIPE_SECRET_KEY` secret will be updated to that new value.
 
-### Ref warnings (#4)
-- The "Function components cannot be given refs" warnings come from `LoginPage` and `AdminViewSwitcher` being rendered as route elements. After the rewrites above, both components only render inside `<Route element={...}>` (no parent grabs a ref). The warnings are dev-only and benign — keeping the components as plain function components is fine. If they persist, wrap the outermost `<div>` of each in `React.forwardRef` as a follow-up.
+---
 
-### Auth context efficiency (#5, #6)
-- **`src/contexts/AuthContext.tsx`**:
-  - Track `lastFetchedUserId` in a ref. Only re-run `fetchRoleAndAdmin` on `SIGNED_IN`, `USER_UPDATED`, `INITIAL_SESSION`, or when the user id changes — skip on `TOKEN_REFRESHED`. Stops the redundant double-fetch and the loading flash every hour.
-  - Extend the profile query to also select `gender`. Expose `gender: string | null` in the context value.
-- **`src/components/RusheeLayout.tsx`**: Read `gender` from `useAuth()` instead of running its own per-mount `profiles` query.
+## What gets built
 
-### Realtime notification badges (#8)
-- **Database migration** (new file): Set `REPLICA IDENTITY FULL` and add `direct_message_recipients`, `events`, and `bids` to the `supabase_realtime` publication.
-- **`src/hooks/useUnreadCounts.ts`**: Replace the 30-second `setInterval` polling with Supabase Realtime channel subscriptions:
-  - Rushee channel listens to `direct_message_recipients` (filtered by `recipient_id`), `events`, and `bids` (filtered by `rushee_id`). Any change re-runs the count queries.
-  - Chapter channel listens to `bids`. Any change re-runs the pending-bids count.
-  - Properly removes the channel on unmount.
+### 1. Stripe setup (live mode)
+- Verify product `prod_UJ8FgIU49VfO6Z` / price `price_1TKVz93swZrzMtulheAgOHlI` exist; create "GreekBid Premium — $19.99/mo" if not.
+- Create coupon **"GreekBid Founder — 3 months free"**: 100% off, `duration: repeating`, `duration_in_months: 3`.
+- Create promotion code **`GREEKBID29`** bound to that coupon, `max_redemptions: 50`, active.
 
-### Files touched
-```text
-src/pages/LoginPage.tsx              (#1, #2)
-src/pages/ForgotPasswordPage.tsx     (NEW, #2)
-src/pages/ResetPasswordPage.tsx      (NEW, #2)
-src/App.tsx                          (#2 routes, #7 future flags)
-src/components/AdminViewSwitcher.tsx (#3)
-src/contexts/AuthContext.tsx         (#5, #6)
-src/components/RusheeLayout.tsx      (#6)
-src/hooks/useUnreadCounts.ts         (#8)
-supabase/migrations/<new>.sql        (#8 enable realtime publication)
-```
+After 3 months, subscribers on this code automatically roll to $19.99/mo unless they cancel — Stripe handles natively.
 
-### Verification after build
-- Log in as admin → lands on `/admin`.
-- Click "Forgot password?" → submit email → check inbox → click link → set new password → log in.
-- Click view-switcher buttons → active highlight updates.
-- Console: router deprecation warnings gone.
-- Stay logged in past token refresh (~1h) → no UI flash, no extra `profiles`/`user_roles` calls in network tab.
-- Send a DM to a rushee in another tab → badge updates instantly without 30s wait.
+### 2. Edge functions (3 new, no webhooks)
+- **`create-checkout`** — Stripe Checkout session, `mode: "subscription"`, `allow_promotion_codes: true` so users see a "Add promotion code" field where they type `GREEKBID29`.
+- **`check-subscription`** — Looks up customer by email, returns `{ subscribed, subscription_end, discount: { code, percent_off } | null }`.
+- **`customer-portal`** — Stripe Customer Portal for cancel/update card.
+
+All three: CORS, JWT auth, structured logs, `apiVersion: "2025-08-27.basil"`.
+
+### 3. AuthContext + read-only gate
+- Extend `AuthContext` with `subscribed`, `subscriptionEnd`, `discountCode`. Calls `check-subscription` on login + every 60s for chapter users. Platform Admins always pass; rushees skip.
+- New hook **`useChapterWriteAccess()`** → `boolean`.
+- Apply across chapter pages — disable create/edit/delete buttons with "Premium required" tooltip:
+  - BidsPage, RankingsPage, EventsPage, MessagesPage, ProfilesPage (favorite/star), MembersPage (approve/reject), SettingsPage
+- Banner in `DashboardLayout` for non-subscribers: *"Read-only mode. Upgrade to Premium ($19.99/mo) — have a code? Apply at checkout."* with **Upgrade** CTA.
+- Reads, AI Coach, Analytics stay open.
+
+### 4. New `/dashboard/billing` page + sidebar entry
+- **Not subscribed:** plan card, **Subscribe – $19.99/mo** button (Checkout in new tab), hint *"Have a promo code? Enter it on the next screen — try `GREEKBID29` for 3 months free."*
+- **Subscribed:** active badge, renewal date, discount badge if applicable (e.g., "Free for 3 months — GREEKBID29 applied"), **Manage Subscription** button (Customer Portal).
+- Manual **Refresh status** button.
+
+### 5. Routes
+- `/billing/success` → triggers `check-subscription`, redirects to `/dashboard`
+- `/billing/cancel` → returns to `/dashboard/billing`
+
+### 6. Update memory
+Update `mem://features/subscription-model` to: Premium live, $19.99/mo, `GREEKBID29` promo (3mo free, capped at 50 redemptions).
+
+---
+
+## QA checklist
+- [ ] New chapter signup → read-only mode, banner visible
+- [ ] Subscribe with real card → Stripe charges $19.99 → write access unlocks (refundable from Stripe Dashboard)
+- [ ] Subscribe with `GREEKBID29` → $0.00 today, full access, "Free for 3 months — GREEKBID29 applied" badge
+- [ ] Cancel via Customer Portal → reverts to read-only after period end
+- [ ] Rushees and Platform Admin completely unaffected
+
+## Technical notes
+- No webhooks — verifying live against Stripe each load.
+- Read-only enforcement is **UI-level**. Server-side (RLS) enforcement is a separate hardening pass; want it added later, just say so.
+- Promo codes managed in Stripe Dashboard going forward — adding/disabling needs no code change.
