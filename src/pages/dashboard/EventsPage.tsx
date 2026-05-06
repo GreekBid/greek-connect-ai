@@ -111,7 +111,7 @@ export default function EventsPage() {
         </div>
         <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
           <DialogTrigger asChild>
-            <Button variant="hero" size="sm" className="gap-2"><Plus className="w-4 h-4" /> Create Event</Button>
+            <Button variant="hero" size="sm" className="gap-2" disabled={!canWrite} title={!canWrite ? "Premium required" : undefined}><Plus className="w-4 h-4" /> Create Event</Button>
           </DialogTrigger>
           <DialogContent>
             <DialogHeader>
