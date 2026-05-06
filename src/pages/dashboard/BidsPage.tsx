@@ -64,6 +64,7 @@ export default function BidsPage() {
 
   const addBid = async () => {
     if (!user || !newRusheeId) return;
+    if (!canWrite) { toast.error("Premium required to modify bids"); return; }
     const { error } = await supabase.from("bids").insert({
       rushee_id: newRusheeId,
       chapter_user_id: user.id,
