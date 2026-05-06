@@ -75,6 +75,7 @@ export default function EventsPage() {
 
   const createEvent = async () => {
     if (!user || !form.name || !form.date || !form.time) { toast.error("Fill in name, date, and time"); return; }
+    if (!canWrite) { toast.error("Premium required to create events"); return; }
     setCreating(true);
     const { error } = await supabase.from("events").insert({
       created_by: user.id,
