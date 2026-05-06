@@ -28,6 +28,7 @@ const toolsNav = [
   { title: "AI Coach", url: "/dashboard/ai-coach", icon: Brain, badgeKey: null },
   { title: "Bid Management", url: "/dashboard/bids", icon: ClipboardList, badgeKey: "pendingBids" as const },
   { title: "Members", url: "/dashboard/members", icon: UserPlus, badgeKey: null },
+  { title: "Billing", url: "/dashboard/billing", icon: CreditCard, badgeKey: null },
   { title: "Settings", url: "/dashboard/settings", icon: Settings, badgeKey: null },
 ];
 
