@@ -169,6 +169,7 @@ export default function MessagesPage() {
 
   const handleChapterReply = async (parentId: string) => {
     if (!replyText.trim() || !user) return;
+    if (!canWrite) { toast.error("Premium required to send messages"); return; }
     setReplySending(true);
     // Chapter replies: insert as direct_message with reply_to (no RLS issue since chapter has insert policy)
     const { error } = await supabase.from("direct_messages").insert({
