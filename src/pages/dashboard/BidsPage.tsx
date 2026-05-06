@@ -79,6 +79,7 @@ export default function BidsPage() {
   };
 
   const updateStatus = async (bidId: string, newStatus: string) => {
+    if (!canWrite) { toast.error("Premium required to modify bids"); return; }
     const { error } = await supabase.from("bids").update({ status: newStatus, updated_at: new Date().toISOString() } as any).eq("id", bidId);
     if (error) { toast.error("Failed to update"); return; }
     toast.success("Status updated");
