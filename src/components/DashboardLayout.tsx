@@ -7,12 +7,13 @@ import {
 import { NavLink } from "@/components/NavLink";
 import { useLocation } from "react-router-dom";
 import {
-  LayoutDashboard, Users, Calendar, Star, BarChart3, MessageSquare, Brain, ClipboardList, Settings, LogOut, UserPlus,
+  LayoutDashboard, Users, Calendar, Star, BarChart3, MessageSquare, Brain, ClipboardList, Settings, LogOut, UserPlus, CreditCard,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { useChapterUnreadCounts } from "@/hooks/useUnreadCounts";
 import SupportFooter from "@/components/SupportFooter";
+import PremiumBanner from "@/components/PremiumBanner";
 
 const mainNav = [
   { title: "Dashboard", url: "/dashboard", icon: LayoutDashboard, badgeKey: null },
