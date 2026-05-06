@@ -43,6 +43,7 @@ interface RusheeOption {
 
 export default function MessagesPage() {
   const { user } = useAuth();
+  const canWrite = useChapterWriteAccess();
   const [broadcasts, setBroadcasts] = useState<Msg[]>([]);
   const [directMsgs, setDirectMsgs] = useState<Msg[]>([]);
   const [newMessage, setNewMessage] = useState("");
