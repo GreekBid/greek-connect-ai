@@ -21,6 +21,7 @@ interface RankedRushee {
 
 export default function RankingsPage() {
   const { user } = useAuth();
+  const canWrite = useChapterWriteAccess();
   const [rushees, setRushees] = useState<RankedRushee[]>([]);
   const [loading, setLoading] = useState(true);
 
