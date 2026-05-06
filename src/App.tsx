@@ -90,6 +90,7 @@ const App = () => (
             <Route path="/dashboard/bids" element={<ChapterRoute><BidsPage /></ChapterRoute>} />
             <Route path="/dashboard/members" element={<ChapterRoute><MembersPage /></ChapterRoute>} />
             <Route path="/dashboard/settings" element={<ChapterRoute><SettingsPage /></ChapterRoute>} />
+            <Route path="/dashboard/billing" element={<ChapterRoute><BillingPage /></ChapterRoute>} />
 
             {/* Rushee routes */}
             <Route path="/rushee" element={<ProtectedRoute requiredRole="rushee"><RusheeLayout><RusheeHome /></RusheeLayout></ProtectedRoute>} />
