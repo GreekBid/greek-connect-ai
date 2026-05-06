@@ -32,6 +32,7 @@ const STATUS_CONFIG: Record<string, { label: string; color: string; icon: typeof
 
 export default function BidsPage() {
   const { user } = useAuth();
+  const canWrite = useChapterWriteAccess();
   const [bids, setBids] = useState<Bid[]>([]);
   const [rushees, setRushees] = useState<{ user_id: string; full_name: string; major: string | null }[]>([]);
   const [loading, setLoading] = useState(true);
