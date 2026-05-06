@@ -147,7 +147,7 @@ export default function BidsPage() {
                     <p className="font-semibold text-foreground text-sm">{b.rushee_name}</p>
                     <p className="text-xs text-muted-foreground">{b.rushee_major}</p>
                     {b.notes && <p className="text-xs text-muted-foreground mt-1 line-clamp-2">{b.notes}</p>}
-                    <Select value={b.status} onValueChange={(v) => updateStatus(b.id, v)}>
+                    <Select value={b.status} onValueChange={(v) => updateStatus(b.id, v)} disabled={!canWrite}>
                       <SelectTrigger className="mt-2 h-7 text-xs">
                         <SelectValue />
                       </SelectTrigger>
