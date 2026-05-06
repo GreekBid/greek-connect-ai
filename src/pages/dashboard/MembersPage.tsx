@@ -128,9 +128,12 @@ export default function MembersPage() {
       if (member) {
         const { data: memberProfile } = await supabase
           .from("profiles")
-          .select("email, full_name")
+          .select("full_name")
           .eq("user_id", member.user_id)
           .single();
+
+        const { data: memberEmail } = await supabase
+          .rpc("get_profile_email", { _user_id: member.user_id });
 
         const { data: chapter } = await supabase
           .from("chapters")
@@ -138,13 +141,13 @@ export default function MembersPage() {
           .eq("id", chapterId)
           .single();
 
-        if (memberProfile?.email) {
+        if (memberEmail) {
           supabase.functions.invoke("send-transactional-email", {
             body: {
               templateName: "member-approved",
-              recipientEmail: memberProfile.email,
+              recipientEmail: memberEmail,
               templateData: {
-                memberName: memberProfile.full_name || "there",
+                memberName: memberProfile?.full_name || "there",
                 chapterName: chapter?.name || "the chapter",
               },
             },
