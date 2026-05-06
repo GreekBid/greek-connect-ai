@@ -605,6 +605,16 @@ export type Database = {
           user_id: string
         }[]
       }
+      get_profile_email: { Args: { _user_id: string }; Returns: string }
+      get_rushee_ranking_counts: {
+        Args: never
+        Returns: {
+          maybe_count: number
+          no_count: number
+          rushee_id: string
+          yes_count: number
+        }[]
+      }
       get_user_college: { Args: { _user_id: string }; Returns: string }
       get_user_is_test: { Args: { _user_id: string }; Returns: boolean }
       get_user_org_type: { Args: { _user_id: string }; Returns: string }
