@@ -25,21 +25,24 @@ export default function RankingsPage() {
 
   const fetchData = async () => {
     if (!user) return;
-    const [{ data: profiles }, { data: votes }] = await Promise.all([
+    const [{ data: profiles }, { data: myVotes }, { data: counts }] = await Promise.all([
       supabase.from("profiles").select("user_id, full_name, major").eq("role", "rushee"),
-      supabase.from("rankings").select("*"),
+      supabase.from("rankings").select("rushee_id, vote").eq("voter_id", user.id),
+      supabase.rpc("get_rushee_ranking_counts"),
     ]);
 
-    const voteMap: Record<string, { yes: number; maybe: number; no: number; myVote: string | null }> = {};
-    (votes as any[] || []).forEach((v: any) => {
-      if (!voteMap[v.rushee_id]) voteMap[v.rushee_id] = { yes: 0, maybe: 0, no: 0, myVote: null };
-      voteMap[v.rushee_id][v.vote as "yes" | "maybe" | "no"]++;
-      if (v.voter_id === user.id) voteMap[v.rushee_id].myVote = v.vote;
+    const myVoteMap: Record<string, string> = {};
+    (myVotes as any[] || []).forEach((v: any) => { myVoteMap[v.rushee_id] = v.vote; });
+
+    const countMap: Record<string, { yes: number; maybe: number; no: number }> = {};
+    (counts as any[] || []).forEach((c: any) => {
+      countMap[c.rushee_id] = { yes: c.yes_count, maybe: c.maybe_count, no: c.no_count };
     });
 
     const ranked: RankedRushee[] = (profiles || []).map((p) => {
-      const v = voteMap[p.user_id] || { yes: 0, maybe: 0, no: 0, myVote: null };
-      return { user_id: p.user_id, full_name: p.full_name, major: p.major, ...v, score: v.yes * 3 + v.maybe * 1 - v.no * 2 };
+      const c = countMap[p.user_id] || { yes: 0, maybe: 0, no: 0 };
+      const myVote = myVoteMap[p.user_id] || null;
+      return { user_id: p.user_id, full_name: p.full_name, major: p.major, ...c, myVote, score: c.yes * 3 + c.maybe * 1 - c.no * 2 };
     });
     ranked.sort((a, b) => b.score - a.score);
     setRushees(ranked);
