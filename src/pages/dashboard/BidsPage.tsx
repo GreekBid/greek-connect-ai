@@ -9,6 +9,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { CheckCircle2, XCircle, Clock, ArrowRight, Plus, Search } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
+import { useChapterWriteAccess } from "@/hooks/useChapterWriteAccess";
 import { toast } from "sonner";
 
 interface Bid {
@@ -31,6 +32,7 @@ const STATUS_CONFIG: Record<string, { label: string; color: string; icon: typeof
 
 export default function BidsPage() {
   const { user } = useAuth();
+  const canWrite = useChapterWriteAccess();
   const [bids, setBids] = useState<Bid[]>([]);
   const [rushees, setRushees] = useState<{ user_id: string; full_name: string; major: string | null }[]>([]);
   const [loading, setLoading] = useState(true);
@@ -62,6 +64,7 @@ export default function BidsPage() {
 
   const addBid = async () => {
     if (!user || !newRusheeId) return;
+    if (!canWrite) { toast.error("Premium required to modify bids"); return; }
     const { error } = await supabase.from("bids").insert({
       rushee_id: newRusheeId,
       chapter_user_id: user.id,
@@ -76,6 +79,7 @@ export default function BidsPage() {
   };
 
   const updateStatus = async (bidId: string, newStatus: string) => {
+    if (!canWrite) { toast.error("Premium required to modify bids"); return; }
     const { error } = await supabase.from("bids").update({ status: newStatus, updated_at: new Date().toISOString() } as any).eq("id", bidId);
     if (error) { toast.error("Failed to update"); return; }
     toast.success("Status updated");
@@ -105,7 +109,7 @@ export default function BidsPage() {
           </div>
           <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
             <DialogTrigger asChild>
-              <Button className="gap-2"><Plus className="w-4 h-4" /> Add to Pipeline</Button>
+              <Button className="gap-2" disabled={!canWrite} title={!canWrite ? "Premium required" : undefined}><Plus className="w-4 h-4" /> Add to Pipeline</Button>
             </DialogTrigger>
             <DialogContent>
               <DialogHeader><DialogTitle>Add Rushee to Pipeline</DialogTitle></DialogHeader>
@@ -143,7 +147,7 @@ export default function BidsPage() {
                     <p className="font-semibold text-foreground text-sm">{b.rushee_name}</p>
                     <p className="text-xs text-muted-foreground">{b.rushee_major}</p>
                     {b.notes && <p className="text-xs text-muted-foreground mt-1 line-clamp-2">{b.notes}</p>}
-                    <Select value={b.status} onValueChange={(v) => updateStatus(b.id, v)}>
+                    <Select value={b.status} onValueChange={(v) => updateStatus(b.id, v)} disabled={!canWrite}>
                       <SelectTrigger className="mt-2 h-7 text-xs">
                         <SelectValue />
                       </SelectTrigger>

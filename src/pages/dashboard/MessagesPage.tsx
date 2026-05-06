@@ -6,6 +6,7 @@ import { Send, Bell, Users, Megaphone, Loader2, UserCheck, X, Search, MessageSqu
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
+import { useChapterWriteAccess } from "@/hooks/useChapterWriteAccess";
 import { toast } from "sonner";
 import { formatDistanceToNow } from "date-fns";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -42,6 +43,7 @@ interface RusheeOption {
 
 export default function MessagesPage() {
   const { user } = useAuth();
+  const canWrite = useChapterWriteAccess();
   const [broadcasts, setBroadcasts] = useState<Msg[]>([]);
   const [directMsgs, setDirectMsgs] = useState<Msg[]>([]);
   const [newMessage, setNewMessage] = useState("");
@@ -128,6 +130,7 @@ export default function MessagesPage() {
 
   const handleBroadcast = async () => {
     if (!newMessage.trim() || !user) return;
+    if (!canWrite) { toast.error("Premium required to send messages"); return; }
     setSending(true);
     const { error } = await supabase.from("messages").insert({ author_id: user.id, content: newMessage, message_type: msgType });
     setSending(false);
@@ -139,6 +142,7 @@ export default function MessagesPage() {
 
   const handleDirectSend = async () => {
     if (!dmContent.trim() || selectedRushees.size === 0 || !user) return;
+    if (!canWrite) { toast.error("Premium required to send messages"); return; }
     setDmSending(true);
 
     const { data: dm, error: dmErr } = await supabase.from("direct_messages").insert({
@@ -165,6 +169,7 @@ export default function MessagesPage() {
 
   const handleChapterReply = async (parentId: string) => {
     if (!replyText.trim() || !user) return;
+    if (!canWrite) { toast.error("Premium required to send messages"); return; }
     setReplySending(true);
     // Chapter replies: insert as direct_message with reply_to (no RLS issue since chapter has insert policy)
     const { error } = await supabase.from("direct_messages").insert({
@@ -212,7 +217,7 @@ export default function MessagesPage() {
         </div>
         <Dialog open={dmDialogOpen} onOpenChange={setDmDialogOpen}>
           <DialogTrigger asChild>
-            <Button className="gap-2"><UserCheck className="w-4 h-4" /> Message Select Rushees</Button>
+            <Button className="gap-2" disabled={!canWrite} title={!canWrite ? "Premium required" : undefined}><UserCheck className="w-4 h-4" /> Message Select Rushees</Button>
           </DialogTrigger>
           <DialogContent className="max-w-lg max-h-[80vh] flex flex-col">
             <DialogHeader><DialogTitle>Send to Specific Rushees</DialogTitle></DialogHeader>
@@ -276,7 +281,7 @@ export default function MessagesPage() {
         </h2>
         <div className="flex gap-2">
           <Input placeholder="Type a message to all rushees..." value={newMessage} onChange={(e) => setNewMessage(e.target.value)}
-            onKeyDown={(e) => e.key === "Enter" && handleBroadcast()} className="flex-1" />
+            onKeyDown={(e) => e.key === "Enter" && handleBroadcast()} className="flex-1" disabled={!canWrite} />
           <Select value={msgType} onValueChange={setMsgType}>
             <SelectTrigger className="w-36"><SelectValue /></SelectTrigger>
             <SelectContent>
@@ -285,7 +290,7 @@ export default function MessagesPage() {
               <SelectItem value="event-invite">Event Invite</SelectItem>
             </SelectContent>
           </Select>
-          <Button variant="hero" onClick={handleBroadcast} disabled={sending} className="gap-2">
+          <Button variant="hero" onClick={handleBroadcast} disabled={sending || !canWrite} className="gap-2">
             {sending ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
           </Button>
         </div>

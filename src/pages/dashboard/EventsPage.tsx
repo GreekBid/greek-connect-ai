@@ -6,6 +6,7 @@ import { Calendar, MapPin, Clock, Users, Plus, Loader2, ChevronDown, ChevronUp }
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
+import { useChapterWriteAccess } from "@/hooks/useChapterWriteAccess";
 import { toast } from "sonner";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -34,6 +35,7 @@ interface EventRow {
 
 export default function EventsPage() {
   const { user } = useAuth();
+  const canWrite = useChapterWriteAccess();
   const [events, setEvents] = useState<EventRow[]>([]);
   const [loading, setLoading] = useState(true);
   const [dialogOpen, setDialogOpen] = useState(false);
@@ -73,6 +75,7 @@ export default function EventsPage() {
 
   const createEvent = async () => {
     if (!user || !form.name || !form.date || !form.time) { toast.error("Fill in name, date, and time"); return; }
+    if (!canWrite) { toast.error("Premium required to create events"); return; }
     setCreating(true);
     const { error } = await supabase.from("events").insert({
       created_by: user.id,
@@ -108,7 +111,7 @@ export default function EventsPage() {
         </div>
         <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
           <DialogTrigger asChild>
-            <Button variant="hero" size="sm" className="gap-2"><Plus className="w-4 h-4" /> Create Event</Button>
+            <Button variant="hero" size="sm" className="gap-2" disabled={!canWrite} title={!canWrite ? "Premium required" : undefined}><Plus className="w-4 h-4" /> Create Event</Button>
           </DialogTrigger>
           <DialogContent>
             <DialogHeader>

@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
+import { useChapterWriteAccess } from "@/hooks/useChapterWriteAccess";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -28,6 +29,7 @@ interface Member {
 
 export default function MembersPage() {
   const { user } = useAuth();
+  const canWrite = useChapterWriteAccess();
   const [members, setMembers] = useState<Member[]>([]);
   const [loading, setLoading] = useState(true);
   const [chapterId, setChapterId] = useState<string | null>(null);
@@ -111,6 +113,7 @@ export default function MembersPage() {
   };
 
   const updateStatus = async (memberId: string, status: "approved" | "rejected") => {
+    if (!canWrite) { toast.error("Premium required to manage members"); return; }
     const { error } = await supabase
       .from("chapter_members")
       .update({ status, updated_at: new Date().toISOString() })
@@ -160,6 +163,7 @@ export default function MembersPage() {
   };
 
   const removeMember = async (memberId: string) => {
+    if (!canWrite) { toast.error("Premium required to manage members"); return; }
     const { error } = await supabase
       .from("chapter_members")
       .delete()
@@ -218,10 +222,10 @@ export default function MembersPage() {
                   </div>
                 </div>
                 <div className="flex gap-2">
-                  <Button size="sm" variant="default" onClick={() => updateStatus(m.id, "approved")} className="gap-1">
+                  <Button size="sm" variant="default" onClick={() => updateStatus(m.id, "approved")} disabled={!canWrite} className="gap-1">
                     <Check className="w-4 h-4" /> Approve
                   </Button>
-                  <Button size="sm" variant="destructive" onClick={() => updateStatus(m.id, "rejected")} className="gap-1">
+                  <Button size="sm" variant="destructive" onClick={() => updateStatus(m.id, "rejected")} disabled={!canWrite} className="gap-1">
                     <X className="w-4 h-4" /> Reject
                   </Button>
                 </div>
@@ -264,7 +268,7 @@ export default function MembersPage() {
                   </div>
                 </div>
                 {m.role !== "admin" && m.user_id !== user?.id && (
-                  <Button size="sm" variant="ghost" className="text-destructive hover:bg-destructive/10" onClick={() => removeMember(m.id)}>
+                  <Button size="sm" variant="ghost" className="text-destructive hover:bg-destructive/10" disabled={!canWrite} onClick={() => removeMember(m.id)}>
                     <Trash2 className="w-4 h-4" />
                   </Button>
                 )}

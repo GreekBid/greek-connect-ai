@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { ThumbsUp, ThumbsDown, Minus, Lock } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
+import { useChapterWriteAccess } from "@/hooks/useChapterWriteAccess";
 import { toast } from "sonner";
 
 interface RankedRushee {
@@ -20,6 +21,7 @@ interface RankedRushee {
 
 export default function RankingsPage() {
   const { user } = useAuth();
+  const canWrite = useChapterWriteAccess();
   const [rushees, setRushees] = useState<RankedRushee[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -53,6 +55,7 @@ export default function RankingsPage() {
 
   const castVote = async (rusheeId: string, vote: string) => {
     if (!user) return;
+    if (!canWrite) { toast.error("Premium required to vote"); return; }
     const rushee = rushees.find((r) => r.user_id === rusheeId);
     if (rushee?.myVote === vote) {
       // Remove vote
@@ -122,13 +125,13 @@ export default function RankingsPage() {
                     <span className="flex items-center gap-1 text-destructive"><ThumbsDown className="w-3.5 h-3.5" /> {r.no}</span>
                   </div>
                   <div className="flex gap-1 shrink-0">
-                    <Button variant={r.myVote === "yes" ? "default" : "ghost"} size="sm" className="h-8 w-8 p-0" onClick={() => castVote(r.user_id, "yes")}>
+                    <Button variant={r.myVote === "yes" ? "default" : "ghost"} size="sm" className="h-8 w-8 p-0" disabled={!canWrite} onClick={() => castVote(r.user_id, "yes")}>
                       <ThumbsUp className="w-4 h-4" />
                     </Button>
-                    <Button variant={r.myVote === "maybe" ? "default" : "ghost"} size="sm" className="h-8 w-8 p-0" onClick={() => castVote(r.user_id, "maybe")}>
+                    <Button variant={r.myVote === "maybe" ? "default" : "ghost"} size="sm" className="h-8 w-8 p-0" disabled={!canWrite} onClick={() => castVote(r.user_id, "maybe")}>
                       <Minus className="w-4 h-4" />
                     </Button>
-                    <Button variant={r.myVote === "no" ? "default" : "ghost"} size="sm" className="h-8 w-8 p-0" onClick={() => castVote(r.user_id, "no")}>
+                    <Button variant={r.myVote === "no" ? "default" : "ghost"} size="sm" className="h-8 w-8 p-0" disabled={!canWrite} onClick={() => castVote(r.user_id, "no")}>
                       <ThumbsDown className="w-4 h-4" />
                     </Button>
                   </div>
