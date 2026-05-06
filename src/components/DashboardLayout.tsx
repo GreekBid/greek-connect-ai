@@ -110,6 +110,7 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
             <SidebarTrigger />
             <span className="text-sm text-muted-foreground font-body">Chapter Dashboard</span>
           </header>
+          <PremiumBanner />
           <main className="flex-1 p-6 overflow-auto">{children}</main>
           <SupportFooter />
         </div>
