@@ -113,6 +113,7 @@ export default function MembersPage() {
   };
 
   const updateStatus = async (memberId: string, status: "approved" | "rejected") => {
+    if (!canWrite) { toast.error("Premium required to manage members"); return; }
     const { error } = await supabase
       .from("chapter_members")
       .update({ status, updated_at: new Date().toISOString() })
