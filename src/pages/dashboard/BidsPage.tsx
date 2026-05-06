@@ -109,7 +109,7 @@ export default function BidsPage() {
           </div>
           <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
             <DialogTrigger asChild>
-              <Button className="gap-2"><Plus className="w-4 h-4" /> Add to Pipeline</Button>
+              <Button className="gap-2" disabled={!canWrite} title={!canWrite ? "Premium required" : undefined}><Plus className="w-4 h-4" /> Add to Pipeline</Button>
             </DialogTrigger>
             <DialogContent>
               <DialogHeader><DialogTitle>Add Rushee to Pipeline</DialogTitle></DialogHeader>
