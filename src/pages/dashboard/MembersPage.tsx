@@ -163,6 +163,7 @@ export default function MembersPage() {
   };
 
   const removeMember = async (memberId: string) => {
+    if (!canWrite) { toast.error("Premium required to manage members"); return; }
     const { error } = await supabase
       .from("chapter_members")
       .delete()
