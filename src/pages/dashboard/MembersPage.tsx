@@ -268,7 +268,7 @@ export default function MembersPage() {
                   </div>
                 </div>
                 {m.role !== "admin" && m.user_id !== user?.id && (
-                  <Button size="sm" variant="ghost" className="text-destructive hover:bg-destructive/10" onClick={() => removeMember(m.id)}>
+                  <Button size="sm" variant="ghost" className="text-destructive hover:bg-destructive/10" disabled={!canWrite} onClick={() => removeMember(m.id)}>
                     <Trash2 className="w-4 h-4" />
                   </Button>
                 )}
