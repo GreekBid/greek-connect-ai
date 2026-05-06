@@ -35,6 +35,7 @@ interface EventRow {
 
 export default function EventsPage() {
   const { user } = useAuth();
+  const canWrite = useChapterWriteAccess();
   const [events, setEvents] = useState<EventRow[]>([]);
   const [loading, setLoading] = useState(true);
   const [dialogOpen, setDialogOpen] = useState(false);
