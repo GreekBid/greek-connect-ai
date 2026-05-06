@@ -6,6 +6,7 @@ import { Send, Bell, Users, Megaphone, Loader2, UserCheck, X, Search, MessageSqu
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
+import { useChapterWriteAccess } from "@/hooks/useChapterWriteAccess";
 import { toast } from "sonner";
 import { formatDistanceToNow } from "date-fns";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
