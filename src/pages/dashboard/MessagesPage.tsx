@@ -281,7 +281,7 @@ export default function MessagesPage() {
         </h2>
         <div className="flex gap-2">
           <Input placeholder="Type a message to all rushees..." value={newMessage} onChange={(e) => setNewMessage(e.target.value)}
-            onKeyDown={(e) => e.key === "Enter" && handleBroadcast()} className="flex-1" />
+            onKeyDown={(e) => e.key === "Enter" && handleBroadcast()} className="flex-1" disabled={!canWrite} />
           <Select value={msgType} onValueChange={setMsgType}>
             <SelectTrigger className="w-36"><SelectValue /></SelectTrigger>
             <SelectContent>
@@ -290,7 +290,7 @@ export default function MessagesPage() {
               <SelectItem value="event-invite">Event Invite</SelectItem>
             </SelectContent>
           </Select>
-          <Button variant="hero" onClick={handleBroadcast} disabled={sending} className="gap-2">
+          <Button variant="hero" onClick={handleBroadcast} disabled={sending || !canWrite} className="gap-2">
             {sending ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
           </Button>
         </div>
