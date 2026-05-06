@@ -130,6 +130,7 @@ export default function MessagesPage() {
 
   const handleBroadcast = async () => {
     if (!newMessage.trim() || !user) return;
+    if (!canWrite) { toast.error("Premium required to send messages"); return; }
     setSending(true);
     const { error } = await supabase.from("messages").insert({ author_id: user.id, content: newMessage, message_type: msgType });
     setSending(false);
