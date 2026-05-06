@@ -29,6 +29,7 @@ interface Member {
 
 export default function MembersPage() {
   const { user } = useAuth();
+  const canWrite = useChapterWriteAccess();
   const [members, setMembers] = useState<Member[]>([]);
   const [loading, setLoading] = useState(true);
   const [chapterId, setChapterId] = useState<string | null>(null);
