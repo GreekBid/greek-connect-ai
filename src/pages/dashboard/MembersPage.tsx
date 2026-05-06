@@ -222,10 +222,10 @@ export default function MembersPage() {
                   </div>
                 </div>
                 <div className="flex gap-2">
-                  <Button size="sm" variant="default" onClick={() => updateStatus(m.id, "approved")} className="gap-1">
+                  <Button size="sm" variant="default" onClick={() => updateStatus(m.id, "approved")} disabled={!canWrite} className="gap-1">
                     <Check className="w-4 h-4" /> Approve
                   </Button>
-                  <Button size="sm" variant="destructive" onClick={() => updateStatus(m.id, "rejected")} className="gap-1">
+                  <Button size="sm" variant="destructive" onClick={() => updateStatus(m.id, "rejected")} disabled={!canWrite} className="gap-1">
                     <X className="w-4 h-4" /> Reject
                   </Button>
                 </div>
