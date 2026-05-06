@@ -69,6 +69,8 @@ const App = () => (
             <Route path="/forgot-password" element={<ForgotPasswordPage />} />
             <Route path="/reset-password" element={<ResetPasswordPage />} />
             <Route path="/unsubscribe" element={<UnsubscribePage />} />
+            <Route path="/billing/success" element={<BillingSuccessPage />} />
+            <Route path="/billing/cancel" element={<BillingCancelPage />} />
 
             {/* Admin route */}
             <Route path="/admin" element={
