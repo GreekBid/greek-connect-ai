@@ -142,6 +142,7 @@ export default function MessagesPage() {
 
   const handleDirectSend = async () => {
     if (!dmContent.trim() || selectedRushees.size === 0 || !user) return;
+    if (!canWrite) { toast.error("Premium required to send messages"); return; }
     setDmSending(true);
 
     const { data: dm, error: dmErr } = await supabase.from("direct_messages").insert({
