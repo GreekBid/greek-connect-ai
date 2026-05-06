@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { ThumbsUp, ThumbsDown, Minus, Lock } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
+import { useChapterWriteAccess } from "@/hooks/useChapterWriteAccess";
 import { toast } from "sonner";
 
 interface RankedRushee {
