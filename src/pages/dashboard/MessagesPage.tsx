@@ -217,7 +217,7 @@ export default function MessagesPage() {
         </div>
         <Dialog open={dmDialogOpen} onOpenChange={setDmDialogOpen}>
           <DialogTrigger asChild>
-            <Button className="gap-2"><UserCheck className="w-4 h-4" /> Message Select Rushees</Button>
+            <Button className="gap-2" disabled={!canWrite} title={!canWrite ? "Premium required" : undefined}><UserCheck className="w-4 h-4" /> Message Select Rushees</Button>
           </DialogTrigger>
           <DialogContent className="max-w-lg max-h-[80vh] flex flex-col">
             <DialogHeader><DialogTitle>Send to Specific Rushees</DialogTitle></DialogHeader>
