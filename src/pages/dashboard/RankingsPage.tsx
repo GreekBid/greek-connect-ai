@@ -55,6 +55,7 @@ export default function RankingsPage() {
 
   const castVote = async (rusheeId: string, vote: string) => {
     if (!user) return;
+    if (!canWrite) { toast.error("Premium required to vote"); return; }
     const rushee = rushees.find((r) => r.user_id === rusheeId);
     if (rushee?.myVote === vote) {
       // Remove vote
