@@ -80,13 +80,21 @@ export default function AdminDashboard() {
   const fetchData = async () => {
     setLoading(true);
     const [profilesRes, chaptersRes, rolesRes, chapterMembersRes] = await Promise.all([
-      supabase.from("profiles").select("*"),
+      supabase.from("profiles").select("id,user_id,full_name,role,college,gender,org_type,created_at,chapter_id,is_test,bio,major,hometown,instagram,linkedin,snapchat,tiktok,twitter,avatar_url,interests"),
       supabase.from("chapters").select("*"),
       supabase.from("user_roles").select("user_id, role"),
       supabase.from("chapter_members").select("user_id, role, status, chapter_id"),
     ]);
     const chaptersData = chaptersRes.data ?? [];
-    setProfiles(profilesRes.data?.map((p: any) => ({ ...p, is_test: p.is_test ?? false })) ?? []);
+    const baseProfiles = (profilesRes.data ?? []).map((p: any) => ({ ...p, is_test: p.is_test ?? false }));
+    // Admins can fetch each profile email via the secure RPC
+    const profilesWithEmail = await Promise.all(
+      baseProfiles.map(async (p: any) => {
+        const { data: email } = await supabase.rpc("get_profile_email", { _user_id: p.user_id });
+        return { ...p, email: email ?? null };
+      })
+    );
+    setProfiles(profilesWithEmail);
     setChapters(chaptersData);
     const admins = new Set<string>();
     (rolesRes.data ?? []).forEach((r: any) => { if (r.role === "admin") admins.add(r.user_id); });
