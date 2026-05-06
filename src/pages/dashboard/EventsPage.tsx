@@ -6,6 +6,7 @@ import { Calendar, MapPin, Clock, Users, Plus, Loader2, ChevronDown, ChevronUp }
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
+import { useChapterWriteAccess } from "@/hooks/useChapterWriteAccess";
 import { toast } from "sonner";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
