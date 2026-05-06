@@ -29,6 +29,7 @@ interface RusheeProfile {
 
 export default function ProfilesPage() {
   const { user } = useAuth();
+  const canWrite = useChapterWriteAccess();
   const [search, setSearch] = useState("");
   const [profiles, setProfiles] = useState<RusheeProfile[]>([]);
   const [stars, setStars] = useState<Set<string>>(new Set());
