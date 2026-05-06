@@ -9,6 +9,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { CheckCircle2, XCircle, Clock, ArrowRight, Plus, Search } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
+import { useChapterWriteAccess } from "@/hooks/useChapterWriteAccess";
 import { toast } from "sonner";
 
 interface Bid {
