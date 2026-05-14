@@ -129,10 +129,12 @@ export default function MessagesPage() {
   useEffect(() => { fetchMessages(); fetchRushees(); }, []);
 
   const handleBroadcast = async () => {
-    if (!newMessage.trim() || !user) return;
+    if (!user) return;
     if (!canWrite) { toast.error("Premium required to send messages"); return; }
+    const v = validateText(newMessage, { max: LIMITS.message, field: "Message" });
+    if (!v.ok) { toast.error(v.error); return; }
     setSending(true);
-    const { error } = await supabase.from("messages").insert({ author_id: user.id, content: newMessage, message_type: msgType });
+    const { error } = await supabase.from("messages").insert({ author_id: user.id, content: v.value, message_type: msgType });
     setSending(false);
     if (error) { toast.error("Failed to send"); return; }
     toast.success("Broadcast sent to all rushees!");
@@ -141,12 +143,14 @@ export default function MessagesPage() {
   };
 
   const handleDirectSend = async () => {
-    if (!dmContent.trim() || selectedRushees.size === 0 || !user) return;
+    if (selectedRushees.size === 0 || !user) return;
     if (!canWrite) { toast.error("Premium required to send messages"); return; }
+    const v = validateText(dmContent, { max: LIMITS.message, field: "Message" });
+    if (!v.ok) { toast.error(v.error); return; }
     setDmSending(true);
 
     const { data: dm, error: dmErr } = await supabase.from("direct_messages").insert({
-      sender_id: user.id, content: dmContent, message_type: "direct",
+      sender_id: user.id, content: v.value, message_type: "direct",
     } as any).select("id").single();
 
     if (dmErr || !dm) { toast.error("Failed to send"); setDmSending(false); return; }
@@ -168,12 +172,13 @@ export default function MessagesPage() {
   };
 
   const handleChapterReply = async (parentId: string) => {
-    if (!replyText.trim() || !user) return;
+    if (!user) return;
     if (!canWrite) { toast.error("Premium required to send messages"); return; }
+    const v = validateText(replyText, { max: LIMITS.message, field: "Reply" });
+    if (!v.ok) { toast.error(v.error); return; }
     setReplySending(true);
-    // Chapter replies: insert as direct_message with reply_to (no RLS issue since chapter has insert policy)
     const { error } = await supabase.from("direct_messages").insert({
-      sender_id: user.id, content: replyText, message_type: "direct", reply_to: parentId,
+      sender_id: user.id, content: v.value, message_type: "direct", reply_to: parentId,
     } as any);
     setReplySending(false);
     if (error) { toast.error("Failed to send reply"); return; }
