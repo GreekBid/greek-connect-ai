@@ -166,8 +166,13 @@ export default function Landing() {
 
       {/* Footer */}
       <footer className="py-8 px-6 border-t border-border">
-        <div className="max-w-7xl mx-auto flex items-center justify-between text-sm text-muted-foreground">
+        <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-3 text-sm text-muted-foreground">
           <span className="font-display font-semibold text-foreground">GreekBid</span>
+          <div className="flex items-center gap-4">
+            <Link to="/terms" className="hover:text-foreground">Terms</Link>
+            <Link to="/privacy" className="hover:text-foreground">Privacy</Link>
+            <a href="mailto:admin@greekbid.com" className="hover:text-foreground">Support</a>
+          </div>
           <span>© 2026 GreekBid. All rights reserved.</span>
         </div>
       </footer>
