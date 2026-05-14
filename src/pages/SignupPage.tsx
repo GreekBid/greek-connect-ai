@@ -29,6 +29,7 @@ export default function SignupPage() {
   const [loading, setLoading] = useState(false);
   const [checkingName, setCheckingName] = useState(false);
   const [nameAvailable, setNameAvailable] = useState<boolean | null>(null);
+  const [acceptedTerms, setAcceptedTerms] = useState(false);
   const navigate = useNavigate();
 
   // For chapter_member: fetch chapters at selected college + org_type
@@ -97,6 +98,10 @@ export default function SignupPage() {
     }
     if (role === "chapter_member" && !selectedChapterId) {
       toast.error("Please select a chapter to join");
+      return;
+    }
+    if (!acceptedTerms) {
+      toast.error("Please accept the Terms of Service and Privacy Policy");
       return;
     }
 
@@ -349,7 +354,22 @@ export default function SignupPage() {
             </div>
           )}
 
-          <Button type="submit" className="w-full" disabled={loading || (role === "chapter" && nameAvailable === false)}>
+          <label className="flex items-start gap-2 text-xs text-muted-foreground cursor-pointer pt-1">
+            <input
+              type="checkbox"
+              checked={acceptedTerms}
+              onChange={(e) => setAcceptedTerms(e.target.checked)}
+              className="mt-0.5 h-4 w-4 rounded border-input accent-primary cursor-pointer shrink-0"
+            />
+            <span>
+              I agree to GreekBid's{" "}
+              <Link to="/terms" target="_blank" className="text-primary hover:underline">Terms of Service</Link>
+              {" "}and{" "}
+              <Link to="/privacy" target="_blank" className="text-primary hover:underline">Privacy Policy</Link>.
+            </span>
+          </label>
+
+          <Button type="submit" className="w-full" disabled={loading || !acceptedTerms || (role === "chapter" && nameAvailable === false)}>
             {loading ? "Creating account…" : role === "chapter_member" ? "Request to Join" : "Create Account"}
           </Button>
         </form>
