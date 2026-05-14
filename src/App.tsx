@@ -40,6 +40,8 @@ import RusheeBidStatus from "./pages/rushee/RusheeBidStatus";
 import RusheeSettings from "./pages/rushee/RusheeSettings";
 import RusheeSearchChapters from "./pages/rushee/RusheeSearchChapters";
 import UnsubscribePage from "./pages/UnsubscribePage";
+import TermsPage from "./pages/TermsPage";
+import PrivacyPage from "./pages/PrivacyPage";
 
 const queryClient = new QueryClient();
 
@@ -69,6 +71,8 @@ const App = () => (
             <Route path="/forgot-password" element={<ForgotPasswordPage />} />
             <Route path="/reset-password" element={<ResetPasswordPage />} />
             <Route path="/unsubscribe" element={<UnsubscribePage />} />
+            <Route path="/terms" element={<TermsPage />} />
+            <Route path="/privacy" element={<PrivacyPage />} />
             <Route path="/billing/success" element={<BillingSuccessPage />} />
             <Route path="/billing/cancel" element={<BillingCancelPage />} />
 
