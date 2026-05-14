@@ -13,7 +13,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { useChapterUnreadCounts } from "@/hooks/useUnreadCounts";
 import SupportFooter from "@/components/SupportFooter";
-import PremiumBanner from "@/components/PremiumBanner";
+// import PremiumBanner from "@/components/PremiumBanner"; // hidden until billing is live
 
 const mainNav = [
   { title: "Dashboard", url: "/dashboard", icon: LayoutDashboard, badgeKey: null },
@@ -110,7 +110,7 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
             <SidebarTrigger />
             <span className="text-sm text-muted-foreground font-body">Chapter Dashboard</span>
           </header>
-          <PremiumBanner />
+          {/* <PremiumBanner /> */}
           <main className="flex-1 p-6 overflow-auto">{children}</main>
           <SupportFooter />
         </div>
