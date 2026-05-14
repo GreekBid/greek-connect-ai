@@ -9,6 +9,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { formatDistanceToNow } from "date-fns";
 import { toast } from "sonner";
+import { validateText, LIMITS } from "@/lib/validation";
 
 const typeConfig: Record<string, { icon: typeof Megaphone; label: string; color: string }> = {
   broadcast: { icon: Megaphone, label: "Announcement", color: "bg-primary/10 text-primary" },

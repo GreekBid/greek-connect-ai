@@ -1,6 +1,5 @@
 /**
  * Shared input validation for user-generated text content.
- * Returns trimmed value or an error message.
  */
 export const LIMITS = {
   message: 2000,
@@ -9,10 +8,14 @@ export const LIMITS = {
   eventDescription: 1000,
 } as const;
 
+export type ValidationResult =
+  | { ok: true; value: string; error?: undefined }
+  | { ok: false; value?: undefined; error: string };
+
 export function validateText(
   raw: string | null | undefined,
   opts: { max: number; min?: number; field?: string }
-): { ok: true; value: string } | { ok: false; error: string } {
+): ValidationResult {
   const value = (raw ?? "").trim();
   const min = opts.min ?? 1;
   const field = opts.field ?? "Field";
