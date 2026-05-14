@@ -216,15 +216,40 @@ export default function Landing() {
       </section>
 
       {/* Footer */}
-      <footer className="py-8 px-6 border-t border-border">
-        <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-3 text-sm text-muted-foreground">
-          <span className="font-display font-semibold text-foreground">GreekBid</span>
-          <div className="flex items-center gap-4">
-            <Link to="/terms" className="hover:text-foreground">Terms</Link>
-            <Link to="/privacy" className="hover:text-foreground">Privacy</Link>
-            <a href="mailto:admin@greekbid.com" className="hover:text-foreground">Support</a>
+      <footer className="py-12 px-6 border-t border-border bg-card">
+        <div className="max-w-7xl mx-auto grid grid-cols-2 md:grid-cols-4 gap-8 mb-8">
+          <div className="col-span-2 md:col-span-1">
+            <div className="flex items-center gap-2 mb-3">
+              <img src="/logo.png" alt="GreekBid" className="h-8 w-auto" />
+              <span className="font-display font-bold text-foreground">GreekBid</span>
+            </div>
+            <p className="text-xs text-muted-foreground">Recruitment, simplified for Greek life.</p>
           </div>
-          <span>© 2026 GreekBid. All rights reserved.</span>
+          <div>
+            <h4 className="font-display font-semibold text-foreground text-sm mb-3">Product</h4>
+            <ul className="space-y-2 text-sm text-muted-foreground">
+              <li><a href="#features" className="hover:text-foreground">Features</a></li>
+              <li><Link to="/signup" className="hover:text-foreground">Get Started</Link></li>
+              <li><Link to="/login" className="hover:text-foreground">Log in</Link></li>
+            </ul>
+          </div>
+          <div>
+            <h4 className="font-display font-semibold text-foreground text-sm mb-3">Company</h4>
+            <ul className="space-y-2 text-sm text-muted-foreground">
+              <li><a href="mailto:admin@greekbid.com" className="hover:text-foreground">Contact</a></li>
+              <li><a href="mailto:admin@greekbid.com" className="hover:text-foreground">Support</a></li>
+            </ul>
+          </div>
+          <div>
+            <h4 className="font-display font-semibold text-foreground text-sm mb-3">Legal</h4>
+            <ul className="space-y-2 text-sm text-muted-foreground">
+              <li><Link to="/terms" className="hover:text-foreground">Terms of Service</Link></li>
+              <li><Link to="/privacy" className="hover:text-foreground">Privacy Policy</Link></li>
+            </ul>
+          </div>
+        </div>
+        <div className="max-w-7xl mx-auto pt-6 border-t border-border text-xs text-muted-foreground text-center">
+          © 2026 GreekBid. All rights reserved.
         </div>
       </footer>
     </div>
