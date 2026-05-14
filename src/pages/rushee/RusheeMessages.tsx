@@ -115,10 +115,12 @@ export default function RusheeMessages() {
   };
 
   const handleReply = async (parentId: string) => {
-    if (!replyText.trim() || !user) return;
+    if (!user) return;
+    const v = validateText(replyText, { max: LIMITS.message, field: "Reply" });
+    if (!v.ok) { toast.error(v.error); return; }
     setReplySending(true);
     const { error } = await supabase.from("direct_messages").insert({
-      sender_id: user.id, content: replyText, message_type: "direct", reply_to: parentId,
+      sender_id: user.id, content: v.value, message_type: "direct", reply_to: parentId,
     } as any);
     setReplySending(false);
     if (error) { toast.error("Failed to send reply"); return; }
