@@ -23,9 +23,10 @@ export default function Landing() {
     <div className="min-h-screen bg-background">
       {/* Nav */}
       <nav className="flex items-center justify-between px-6 py-4 max-w-7xl mx-auto">
-        <div className="flex items-center gap-2">
-          <img src="/logo.png" alt="GreekBid" className="h-16 w-auto" />
-        </div>
+        <Link to="/" className="flex items-center gap-2">
+          <img src="/logo.png" alt="GreekBid" className="h-10 w-auto" />
+          <span className="font-display font-bold text-xl text-foreground hidden sm:inline">GreekBid</span>
+        </Link>
         <div className="flex items-center gap-3">
           <Link to="/login">
             <Button variant="ghost" size="sm">Log in</Button>
@@ -37,9 +38,12 @@ export default function Landing() {
       </nav>
 
       {/* Hero */}
-      <section className="bg-hero-gradient py-20 px-6">
-        <div className="max-w-7xl mx-auto grid lg:grid-cols-2 gap-12 items-center">
-          <div className="space-y-6 animate-fade-in">
+      <section className="bg-hero-gradient py-20 px-6 overflow-hidden">
+        <div className="max-w-7xl mx-auto grid lg:grid-cols-5 gap-12 items-center">
+          <div className="space-y-6 animate-fade-in lg:col-span-3">
+            <span className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-accent text-primary text-xs font-medium">
+              <Star className="w-3 h-3 fill-current" /> Built for Greek life, by Greek life
+            </span>
             <h1 className="text-4xl md:text-5xl lg:text-6xl font-display font-bold text-foreground leading-tight">
               Rush season,{" "}
               <span className="text-gradient">simplified.</span>
@@ -47,27 +51,74 @@ export default function Landing() {
             <p className="text-lg text-muted-foreground max-w-lg font-body">
               The all-in-one platform for fraternities and sororities to manage recruitment — from first interest form to final bid.
             </p>
-            <div className="flex flex-wrap gap-4">
+            <div className="flex flex-wrap items-center gap-4">
               <Link to="/signup?role=chapter">
                 <Button variant="hero" size="lg" className="gap-2">
-                  I'm a Chapter <ArrowRight className="w-4 h-4" />
+                  Get Started Free <ArrowRight className="w-4 h-4" />
                 </Button>
               </Link>
-              <Link to="/signup?role=rushee">
-                <Button variant="hero-outline" size="lg" className="gap-2">
-                  I'm Rushing <ArrowRight className="w-4 h-4" />
-                </Button>
+              <Link to="/signup?role=rushee" className="text-sm font-medium text-primary hover:underline inline-flex items-center gap-1">
+                I'm a rushee <ArrowRight className="w-3 h-3" />
               </Link>
             </div>
+            <div className="flex items-center gap-6 pt-4 text-xs text-muted-foreground">
+              <div className="flex items-center gap-1.5"><CheckCircle className="w-3.5 h-3.5 text-primary" /> Free to start</div>
+              <div className="flex items-center gap-1.5"><CheckCircle className="w-3.5 h-3.5 text-primary" /> No credit card</div>
+              <div className="flex items-center gap-1.5"><CheckCircle className="w-3.5 h-3.5 text-primary" /> Setup in minutes</div>
+            </div>
           </div>
-          <div className="animate-fade-in lg:flex lg:items-center lg:justify-center" style={{ animationDelay: "0.2s" }}>
-            <div className="w-full max-w-md mx-auto bg-card rounded-2xl shadow-warm-lg p-8 text-center space-y-4">
-              <img src="/logo.png" alt="GreekBid" className="h-24 w-auto mx-auto" />
-              <h2 className="text-2xl font-display font-bold text-foreground">Join GreekBid</h2>
-              <p className="text-muted-foreground text-sm">Start managing your rush in minutes.</p>
-              <Link to="/signup">
-                <Button variant="hero" size="lg" className="w-full gap-2">Get Started Free <ArrowRight className="w-4 h-4" /></Button>
-              </Link>
+
+          {/* Product preview mockup */}
+          <div className="animate-fade-in lg:col-span-2" style={{ animationDelay: "0.2s" }}>
+            <div className="relative">
+              <div className="absolute -inset-4 bg-gradient-to-tr from-primary/20 to-accent/40 rounded-3xl blur-2xl opacity-60" />
+              <div className="relative bg-card rounded-2xl shadow-warm-lg border border-border overflow-hidden">
+                <div className="flex items-center gap-1.5 px-4 py-3 border-b border-border bg-background">
+                  <div className="w-2.5 h-2.5 rounded-full bg-destructive/60" />
+                  <div className="w-2.5 h-2.5 rounded-full bg-yellow-400/70" />
+                  <div className="w-2.5 h-2.5 rounded-full bg-green-500/70" />
+                  <span className="ml-3 text-[10px] text-muted-foreground font-mono">greekbid.com/dashboard</span>
+                </div>
+                <div className="p-5 space-y-4">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-[10px] uppercase tracking-wider text-muted-foreground">This week</p>
+                      <p className="font-display font-bold text-foreground text-lg">Rush Pipeline</p>
+                    </div>
+                    <span className="px-2 py-1 rounded-full bg-accent text-primary text-[10px] font-semibold">Live</span>
+                  </div>
+                  <div className="grid grid-cols-3 gap-2">
+                    {[
+                      { n: "47", l: "Rushees", c: "bg-primary/10 text-primary" },
+                      { n: "12", l: "Bids out", c: "bg-accent text-primary" },
+                      { n: "8", l: "Accepted", c: "bg-green-500/10 text-green-700" },
+                    ].map((s) => (
+                      <div key={s.l} className={`rounded-lg p-3 ${s.c}`}>
+                        <p className="text-xl font-display font-bold">{s.n}</p>
+                        <p className="text-[10px] opacity-80">{s.l}</p>
+                      </div>
+                    ))}
+                  </div>
+                  <div className="space-y-2">
+                    {[
+                      { n: "Alex M.", t: "Bid sent", s: "bg-primary" },
+                      { n: "Jordan T.", t: "Reviewing", s: "bg-yellow-400" },
+                      { n: "Sam R.", t: "Accepted ✓", s: "bg-green-500" },
+                    ].map((r) => (
+                      <div key={r.n} className="flex items-center gap-3 p-2 rounded-lg hover:bg-accent/40 transition-colors">
+                        <div className={`w-8 h-8 rounded-full ${r.s} text-white flex items-center justify-center text-xs font-bold`}>
+                          {r.n.charAt(0)}
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <p className="text-xs font-semibold text-foreground truncate">{r.n}</p>
+                          <p className="text-[10px] text-muted-foreground">{r.t}</p>
+                        </div>
+                        <Star className="w-3.5 h-3.5 text-primary fill-current" />
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         </div>
