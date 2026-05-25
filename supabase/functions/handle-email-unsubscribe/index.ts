@@ -67,6 +67,12 @@ Deno.serve(async (req) => {
     return jsonResponse({ error: 'Token is required' }, 400)
   }
 
+  // Strict token format: 8-256 url-safe chars
+  if (!/^[A-Za-z0-9._\-]{8,256}$/.test(token)) {
+    return jsonResponse({ error: 'Invalid token format' }, 400)
+  }
+
+
   const supabase = createClient(supabaseUrl, supabaseServiceKey)
 
   // Look up the token
