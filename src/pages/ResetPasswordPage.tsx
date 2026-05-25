@@ -1,6 +1,8 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
+import { resetPasswordSchema, parseOrToast } from "@/lib/schemas";
+
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -28,16 +30,11 @@ export default function ResetPasswordPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (password.length < 8) {
-      toast.error("Password must be at least 8 characters.");
-      return;
-    }
-    if (password !== confirm) {
-      toast.error("Passwords don't match.");
-      return;
-    }
+    const valid = parseOrToast(resetPasswordSchema, { password, confirmPassword: confirm });
+    if (!valid) return;
     setLoading(true);
-    const { error } = await supabase.auth.updateUser({ password });
+    const { error } = await supabase.auth.updateUser({ password: valid.password });
+
     setLoading(false);
     if (error) {
       toast.error(error.message);
