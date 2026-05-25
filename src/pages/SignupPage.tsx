@@ -124,12 +124,12 @@ export default function SignupPage() {
     const profileRole = role === "rushee" ? "rushee" : "chapter";
 
     const { data, error } = await supabase.auth.signUp({
-      email,
-      password,
+      email: credentials.email,
+      password: credentials.password,
       options: {
         data: {
           role: profileRole,
-          full_name: fullName,
+          full_name: credentials.fullName,
           college,
           gender,
           org_type: orgType,
@@ -137,6 +137,7 @@ export default function SignupPage() {
         emailRedirectTo: window.location.origin,
       },
     });
+
 
     if (error) {
       toast.error(error.message);
