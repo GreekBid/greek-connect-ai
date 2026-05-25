@@ -1,6 +1,8 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
+import { loginSchema, parseOrToast } from "@/lib/schemas";
+
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -24,9 +26,12 @@ export default function LoginPage() {
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
+    const valid = parseOrToast(loginSchema, { email, password });
+    if (!valid) return;
     setLoading(true);
     setNeedsVerification(false);
-    const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+    const { data, error } = await supabase.auth.signInWithPassword({ email: valid.email, password: valid.password });
+
     setLoading(false);
     if (error) {
       if (/confirm/i.test(error.message) || /verif/i.test(error.message)) {

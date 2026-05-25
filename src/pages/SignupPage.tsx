@@ -1,6 +1,9 @@
 import { useState, useEffect } from "react";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
+import { emailSchema, passwordSchema, parseOrToast } from "@/lib/schemas";
+import { z } from "zod";
+
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -72,10 +75,20 @@ export default function SignupPage() {
 
   const handleSignup = async (e: React.FormEvent) => {
     e.preventDefault();
+    const credentials = parseOrToast(
+      z.object({
+        email: emailSchema,
+        password: passwordSchema,
+        fullName: z.string().trim().min(1, "Full name is required").max(80, "Name too long"),
+      }),
+      { email, password, fullName }
+    );
+    if (!credentials) return;
     if (!role) {
       toast.error("Please select a role");
       return;
     }
+
     if (!college) {
       toast.error("Please select your college");
       return;
@@ -111,12 +124,12 @@ export default function SignupPage() {
     const profileRole = role === "rushee" ? "rushee" : "chapter";
 
     const { data, error } = await supabase.auth.signUp({
-      email,
-      password,
+      email: credentials.email,
+      password: credentials.password,
       options: {
         data: {
           role: profileRole,
-          full_name: fullName,
+          full_name: credentials.fullName,
           college,
           gender,
           org_type: orgType,
@@ -124,6 +137,7 @@ export default function SignupPage() {
         emailRedirectTo: window.location.origin,
       },
     });
+
 
     if (error) {
       toast.error(error.message);

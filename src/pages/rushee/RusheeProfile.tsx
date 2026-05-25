@@ -113,9 +113,8 @@ export default function RusheeProfile() {
 
   const handleSave = async () => {
     if (!user) return;
-    setSaving(true);
-
-    const updateData: any = {
+    const { profileUpdateSchema, parseOrToast } = await import("@/lib/schemas");
+    const valid = parseOrToast(profileUpdateSchema, {
       full_name: profile.full_name,
       bio: profile.bio,
       major: profile.major,
@@ -126,10 +125,13 @@ export default function RusheeProfile() {
       snapchat: profile.snapchat,
       tiktok: profile.tiktok,
       linkedin: profile.linkedin,
-    };
+    });
+    if (!valid) return;
+    setSaving(true);
+
+    const updateData: any = { ...valid };
     // Only allow setting gender once (when it's currently empty in DB)
-    if (profile.gender) {
-      // Check if gender was already set in DB
+    if (profile.gender === "male" || profile.gender === "female") {
       const { data: current } = await supabase
         .from("profiles")
         .select("gender")
@@ -152,6 +154,7 @@ export default function RusheeProfile() {
     }
     setSaving(false);
   };
+
 
   if (loading) {
     return (

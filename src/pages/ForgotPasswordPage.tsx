@@ -1,6 +1,8 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
+import { forgotPasswordSchema, parseOrToast } from "@/lib/schemas";
+
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -14,10 +16,13 @@ export default function ForgotPasswordPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    const valid = parseOrToast(forgotPasswordSchema, { email });
+    if (!valid) return;
     setLoading(true);
-    const { error } = await supabase.auth.resetPasswordForEmail(email, {
+    const { error } = await supabase.auth.resetPasswordForEmail(valid.email, {
       redirectTo: `${window.location.origin}/reset-password`,
     });
+
     setLoading(false);
     if (error) {
       toast.error(error.message);

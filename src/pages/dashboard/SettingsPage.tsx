@@ -26,11 +26,15 @@ export default function SettingsPage() {
 
   const handleSave = async () => {
     if (!user) return;
+    const { profileUpdateSchema, parseOrToast } = await import("@/lib/schemas");
+    const valid = parseOrToast(profileUpdateSchema, { full_name: profile.full_name, major: profile.major });
+    if (!valid) return;
     setSaving(true);
-    const { error } = await supabase.from("profiles").update({ full_name: profile.full_name, major: profile.major } as any).eq("user_id", user.id);
+    const { error } = await supabase.from("profiles").update(valid as any).eq("user_id", user.id);
     if (error) toast.error("Failed to save"); else toast.success("Settings saved!");
     setSaving(false);
   };
+
 
   if (loading) return <div className="text-muted-foreground p-8">Loading…</div>;
 

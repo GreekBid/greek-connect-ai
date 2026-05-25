@@ -50,8 +50,8 @@ export default function RusheeSettings() {
 
   const handleSave = async () => {
     if (!user) return;
-    setSaving(true);
-    const { error } = await supabase.from("profiles").update({
+    const { profileUpdateSchema, parseOrToast } = await import("@/lib/schemas");
+    const valid = parseOrToast(profileUpdateSchema, {
       full_name: profile.full_name,
       major: profile.major,
       hometown: profile.hometown,
@@ -61,10 +61,14 @@ export default function RusheeSettings() {
       snapchat: profile.snapchat,
       tiktok: profile.tiktok,
       linkedin: profile.linkedin,
-    }).eq("user_id", user.id);
+    });
+    if (!valid) return;
+    setSaving(true);
+    const { error } = await supabase.from("profiles").update(valid).eq("user_id", user.id);
     if (error) toast.error("Failed to save"); else toast.success("Settings saved!");
     setSaving(false);
   };
+
 
   const handleAvatarUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -84,14 +88,19 @@ export default function RusheeSettings() {
   };
 
   const handleChangePassword = async () => {
-    if (passwordData.newPassword.length < 6) { toast.error("Password must be at least 6 characters"); return; }
-    if (passwordData.newPassword !== passwordData.confirmPassword) { toast.error("Passwords don't match"); return; }
+    const { resetPasswordSchema, parseOrToast } = await import("@/lib/schemas");
+    const valid = parseOrToast(resetPasswordSchema, {
+      password: passwordData.newPassword,
+      confirmPassword: passwordData.confirmPassword,
+    });
+    if (!valid) return;
     setChangingPassword(true);
-    const { error } = await supabase.auth.updateUser({ password: passwordData.newPassword });
+    const { error } = await supabase.auth.updateUser({ password: valid.password });
     setChangingPassword(false);
-    if (error) toast.error(error.message); 
+    if (error) toast.error(error.message);
     else { toast.success("Password updated!"); setPasswordData({ newPassword: "", confirmPassword: "" }); }
   };
+
 
   const initials = profile.full_name.split(" ").map((n) => n[0]).join("").toUpperCase() || "?";
 

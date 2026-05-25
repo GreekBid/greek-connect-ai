@@ -1,75 +1,66 @@
-# Visual & Flow Improvements
+# Strict Input Validation & Sanitization
 
-I screenshotted the landing page and a few things stand out. Here's what I'd fix, ranked by impact.
+Add schema-based validation everywhere user input enters the system: client forms before DB writes, and edge functions before processing. Use **zod** as the single source of truth — type checks, length limits, format checks, and `.strict()` to reject unexpected fields.
 
----
+## Approach
 
-## 🔴 Visible bugs (fix first)
+1. **Central schema module** — `src/lib/schemas.ts` exporting one zod schema per domain object. Replace the thin `src/lib/validation.ts` helpers with zod-based equivalents (keep `LIMITS` for backward compat).
+2. **Client wiring** — each form calls `schema.safeParse(input)` before any Supabase write. On failure, show the first error via `toast` and abort. Sanitization = `.trim()` + length cap + character whitelisting for handles (Instagram, Snapchat, TikTok, LinkedIn, Twitter).
+3. **Edge function wiring** — every function that reads `req.json()` / query params parses with a zod schema and returns `400` with field errors on failure. Use `.strict()` to reject unexpected fields.
+4. **Shared edge schemas** — `supabase/functions/_shared/schemas.ts` so client and server schemas stay aligned where they overlap.
 
-1. **The "Join GreekBid" hero card on the right is washed out / barely visible.** It looks like a broken element — text and button are at ~20% opacity against the cream background. Either it's intentional decoration (then it shouldn't look like a CTA), or the styling is broken. Replace with a real visual: a product screenshot, a stylized phone/dashboard mockup, or remove it and center the hero copy.
+## Schemas to define
 
-2. **No logo in the top nav on landing.** The `<img src="/logo.png">` is there in code but isn't rendering at the size you'd expect. Either the asset path is wrong or the `h-16` class is too tall and getting clipped. Should anchor the brand at top-left.
+**Profile** (rushee + chapter):
+- `full_name` 1-80, `bio` ≤500, `major` ≤80, `hometown` ≤80, `college` ≤120
+- Social handles: regex `^[a-zA-Z0-9._-]{1,30}$` (LinkedIn ≤100, URL-safe slug)
+- `interests` array, max 20 items, each ≤40 chars
+- `gender` enum `['male','female']`, `org_type` enum `['fraternity','sorority']`
+- `avatar_url` must be https URL on our storage origin
 
-3. **Two "Get Started" CTAs in the hero area** (top-right button + the faded right card) compete with the two primary buttons ("I'm a Chapter" / "I'm Rushing"). Pick one primary path per fold.
+**Auth** (signup/login/reset): email (≤255), password (8-72), `full_name`, `role` enum, `college`
 
-## 🟠 Landing page flow
+**Chapter**: `name` 2-100, `college` 2-120, `org_type` enum
 
-4. **Above-the-fold needs proof.** Right now the hero says "all-in-one platform" but there's nothing to anchor that claim. Add either: (a) a product screenshot of the dashboard, (b) 3 logos of pilot chapters, or (c) a single "trusted by X chapters at Y schools" stat. Without it, the hero feels like a template.
+**Event**: `name` 2-120, `description` ≤1000, `date` ISO, `time` HH:MM, `location` ≤200, `capacity` int 1-10000, `vibe`/`attire` ≤40
 
-5. **Two CTAs of the same weight in the hero confuse the user.** "I'm a Chapter" and "I'm Rushing" are both filled+outline at equal weight. Make Chapter the primary (filled, larger) since they're the paying customer; rushee is a secondary text link or smaller outline.
+**Message / Direct message**: `content` 1-2000, `message_type` enum, `recipient_ids` uuid[] (≥1, ≤500)
 
-6. **"For Chapters / For Rushees" section repeats the features section.** The bullet lists are 80% the same content the user just scrolled past. Either remove the features grid or remove the dual-column section — pick one.
+**Rush notes**: `content` ≤2000, `subject_type` enum, `subject_id` uuid
 
-7. **Footer is too sparse.** Add a column layout: Product (Features, Pricing, FAQ) · Company (About, Contact) · Legal (Terms, Privacy). Right now it's one line, which feels unfinished.
+**Bids / Rankings / Stars / Favorites**: uuid checks, `vote` enum, `status` enum, `notes` ≤1000
 
-## 🟡 Auth & onboarding flow
+**Edge function payloads**: `chat` (messages array, role/content checks, content ≤4000), `create-checkout` / `customer-portal` / `check-subscription` (price_id format, return_url same-origin), `handle-email-unsubscribe` (token format), `preview-transactional-email` (template enum, recipient email).
 
-8. **Signup → first-time experience has no welcome state.** A new chapter admin lands on an empty dashboard with no clear "do this next" prompt. Add a checklist card ("Create your first event · Invite members · Add your first rushee") that disappears once each step is done. Same for rushees ("Complete your profile · Browse chapters · RSVP to an event").
+## Files to change
 
-9. **Pending approval gate is a dead end.** Right now if a chapter member is awaiting admin approval, the page just says "Pending Approval" with no estimated time, no way to nudge the admin, no link to find another chapter. Add: "Your admin has been notified" + a button to message the admin or pick a different chapter.
+- **New** `src/lib/schemas.ts` — all client schemas + `parseOrToast()` helper
+- **New** `supabase/functions/_shared/schemas.ts` — server schemas using `npm:zod`
+- **Update** `src/lib/validation.ts` — re-export from schemas, keep LIMITS
+- **Update forms** (validate before insert/update): SignupPage, LoginPage, ForgotPasswordPage, ResetPasswordPage, RusheeProfile, RusheeSettings, RusheeMessages, RusheeSearchChapters, RusheeEvents, dashboard/EventsPage, MessagesPage, MembersPage, ProfilesPage, RankingsPage, BidsPage, SettingsPage, NotesPanel, admin/AdminDashboard
+- **Update edge functions**: `chat`, `create-checkout`, `customer-portal`, `check-subscription`, `handle-email-unsubscribe`, `handle-email-suppression`, `preview-transactional-email`, `send-transactional-email`, `process-email-queue`
+- **Add dep**: `zod` (already standard in Lovable projects; verify in package.json)
 
-10. **No password strength indicator** on signup. With HIBP enabled, users get a generic error if their password is leaked — show a strength meter and the HIBP rule upfront so they don't hit the wall.
+## Sanitization rules
 
-11. **Signup form is missing legal acceptance.** Should have a "I agree to the Terms and Privacy Policy" checkbox linking to the new pages, both for legal cover and to set expectations.
+- All free text: `.trim()`, collapse internal whitespace runs only for names/handles
+- Social handles: strip leading `@`, lowercase, regex whitelist
+- URLs: `z.string().url()` + protocol allowlist (`https:` only for external)
+- No raw HTML rendering anywhere — schemas reject `<script` patterns defensively; rely on React's escaping for display
+- UUIDs: `z.string().uuid()` on every id field accepted from the client
 
-## 🟡 In-app polish
+## Error UX
 
-12. **Sidebar badge counts (DMs, events, bids) are polling-based.** That's fine, but they should fade in instead of popping in. Also, when count is 0 the badge should hide, not show "0".
+- Client: toast with first field error; inline error under field where the form already supports it
+- Server: `400` with `{ error: { field: ["msg"] } }` shape from `parsed.error.flatten().fieldErrors`
 
-13. **Empty states everywhere.** Most lists (Bids, Rankings, Events, Messages) presumably show a blank table when empty. Each needs a dedicated empty state with an illustration/icon, one-line explanation, and a primary action ("Create your first event").
+## Out of scope
 
-14. **Loading states are bare.** "Loading…" text against blank background feels broken. Use shadcn `Skeleton` matching the actual layout — list pages get row skeletons, profile gets a card skeleton. Cheap and instantly feels more premium.
+- Rate limiting (paused per earlier message)
+- Rewriting forms to use react-hook-form (validation will be added without restructuring forms)
+- DB-level CHECK constraints (RLS + zod cover the surface; CHECK constraints are brittle with time-based rules per project guidance)
 
-15. **Toast positioning.** Sonner default is bottom-right; for a workspace app, top-right or top-center reads better and doesn't collide with sidebar tooltips.
+## Verification
 
-16. **Navigation breadcrumbs.** Once a user is 2 clicks deep (e.g., Bids → individual rushee detail), there's no breadcrumb home. Add a simple breadcrumb under the page title.
-
-## 🟢 Mobile
-
-17. **Dashboard sidebar on mobile.** Need to verify the chapter dashboard collapses to a hamburger drawer at <768px. If it's still full-width, the content is unusable on phones — and rushees especially will be on phones.
-
-18. **Tap targets.** `Button size="icon"` is 36×36 by default — bump to `min-h-11 min-w-11` for primary tap targets (notification bell, avatar menu, message send).
-
-## 🟢 Brand consistency
-
-19. **Tighten the type scale.** The hero uses Playfair very large + the gold accent on "simplified" is nice, but inside the app most pages use only DM Sans. Sprinkle one Playfair page title per major section so the brand feel carries past the landing.
-
-20. **Color tokens audit.** Check that no component uses raw `text-gray-*` or `bg-white` — everything should be `text-foreground` / `bg-background` so dark mode (if added later) just works.
-
----
-
-## Suggested first batch
-
-If you want me to ship the highest-impact subset in one pass:
-
-```
-1. Fix hero right side (#1) + add logo (#2) + simplify CTAs (#3, #5)
-2. Add legal checkbox to signup (#11)
-3. Add empty states + skeleton loaders to dashboard pages (#13, #14)
-4. Fix sidebar mobile drawer if broken (#17)
-5. Hide zero-count badges (#12)
-```
-
-That's a focused 1-shot pass that takes the app from "feels like an MVP" to "feels like a launch." I can also generate proper design directions for the hero specifically if you want to A/B a few looks before I implement.
-
-Want me to go with the first batch, or pick specific items?
+- Build passes
+- Manual smoke: submit empty form → toast; submit overlong message → toast; signup with bad email → toast; call `chat` edge function with missing `messages` → 400

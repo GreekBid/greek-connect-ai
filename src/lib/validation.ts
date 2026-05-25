@@ -1,12 +1,7 @@
 /**
- * Shared input validation for user-generated text content.
+ * Backward-compat shim. New code should import from `@/lib/schemas`.
  */
-export const LIMITS = {
-  message: 2000,
-  bio: 500,
-  shortText: 100,
-  eventDescription: 1000,
-} as const;
+export { LIMITS } from "./schemas";
 
 export type ValidationResult =
   | { ok: true; value: string; error?: undefined }
