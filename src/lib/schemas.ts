@@ -137,9 +137,9 @@ export const rankingSchema = z.object({
 }).strict();
 
 // ---- helpers ----
-export type ParseResult<T> =
-  | { ok: true; data: T }
-  | { ok: false; error: string; fieldErrors: Record<string, string[]> };
+export interface ParseSuccess<T> { ok: true; data: T; error?: undefined; fieldErrors?: undefined }
+export interface ParseFailure { ok: false; data?: undefined; error: string; fieldErrors: Record<string, string[]> }
+export type ParseResult<T> = ParseSuccess<T> | ParseFailure;
 
 export function parse<T>(schema: z.ZodType<T>, data: unknown): ParseResult<T> {
   const r = schema.safeParse(data);
@@ -154,7 +154,8 @@ export function parse<T>(schema: z.ZodType<T>, data: unknown): ParseResult<T> {
 
 export function parseOrToast<T>(schema: z.ZodType<T>, data: unknown): T | null {
   const r = parse(schema, data);
-  if (r.ok) return r.data;
-  toast.error(r.error);
+  if (r.ok) return r.data as T;
+  toast.error(r.error ?? "Invalid input");
   return null;
 }
+
