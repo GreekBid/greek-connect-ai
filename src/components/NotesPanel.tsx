@@ -47,13 +47,20 @@ export default function NotesPanel({ subjectId, subjectType, subjectName }: Note
   }, [user, subjectId]);
 
   const handleAdd = async () => {
-    if (!user || !newNote.trim()) return;
+    if (!user) return;
+    const { noteSchema, parseOrToast } = await import("@/lib/schemas");
+    const valid = parseOrToast(noteSchema, {
+      content: newNote,
+      subject_id: subjectId,
+      subject_type: subjectType,
+    });
+    if (!valid) return;
     setSaving(true);
     const { error } = await supabase.from("rush_notes" as any).insert({
       author_id: user.id,
-      subject_id: subjectId,
-      subject_type: subjectType,
-      content: newNote.trim(),
+      subject_id: valid.subject_id,
+      subject_type: valid.subject_type,
+      content: valid.content,
     } as any);
     if (error) {
       toast.error("Failed to save note");
@@ -66,10 +73,13 @@ export default function NotesPanel({ subjectId, subjectType, subjectName }: Note
   };
 
   const handleUpdate = async (id: string) => {
+    const { parse, noteSchema } = await import("@/lib/schemas");
+    const r = parse(noteSchema.pick({ content: true }), { content: editContent });
+    if (!r.ok) { toast.error(r.error); return; }
     setSaving(true);
     const { error } = await supabase
       .from("rush_notes" as any)
-      .update({ content: editContent, updated_at: new Date().toISOString() } as any)
+      .update({ content: r.data.content, updated_at: new Date().toISOString() } as any)
       .eq("id", id);
     if (error) {
       toast.error("Failed to update");
@@ -80,6 +90,7 @@ export default function NotesPanel({ subjectId, subjectType, subjectName }: Note
     }
     setSaving(false);
   };
+
 
   const handleDelete = async (id: string) => {
     const { error } = await supabase.from("rush_notes" as any).delete().eq("id", id);

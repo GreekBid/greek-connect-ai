@@ -74,20 +74,26 @@ export default function EventsPage() {
   useEffect(() => { fetchEvents(); }, []);
 
   const createEvent = async () => {
-    if (!user || !form.name || !form.date || !form.time) { toast.error("Fill in name, date, and time"); return; }
+    if (!user) return;
     if (!canWrite) { toast.error("Premium required to create events"); return; }
-    setCreating(true);
-    const { error } = await supabase.from("events").insert({
-      created_by: user.id,
+    const { eventSchema, parseOrToast } = await import("@/lib/schemas");
+    const valid = parseOrToast(eventSchema, {
       name: form.name,
       description: form.description,
       date: form.date,
       time: form.time,
       location: form.location,
-      capacity: parseInt(form.capacity) || 50,
+      capacity: form.capacity || "50",
       vibe: form.vibe,
       attire: form.attire,
     });
+    if (!valid) return;
+    setCreating(true);
+    const { error } = await supabase.from("events").insert({
+      created_by: user.id,
+      ...valid,
+    } as any);
+
     setCreating(false);
     if (error) { toast.error("Failed to create event"); return; }
     toast.success("Event created!");

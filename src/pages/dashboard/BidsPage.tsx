@@ -65,10 +65,17 @@ export default function BidsPage() {
   const addBid = async () => {
     if (!user || !newRusheeId) return;
     if (!canWrite) { toast.error("Premium required to modify bids"); return; }
-    const { error } = await supabase.from("bids").insert({
+    const { bidSchema, parseOrToast } = await import("@/lib/schemas");
+    const valid = parseOrToast(bidSchema, {
       rushee_id: newRusheeId,
-      chapter_user_id: user.id,
+      status: "under_review",
       notes: newNotes,
+    });
+    if (!valid) return;
+    const { error } = await supabase.from("bids").insert({
+      rushee_id: valid.rushee_id,
+      chapter_user_id: user.id,
+      notes: valid.notes,
     } as any);
     if (error) { toast.error("Failed to add bid"); return; }
     toast.success("Rushee added to pipeline!");
@@ -80,7 +87,10 @@ export default function BidsPage() {
 
   const updateStatus = async (bidId: string, newStatus: string) => {
     if (!canWrite) { toast.error("Premium required to modify bids"); return; }
+    const allowed = ["under_review", "extended", "accepted", "declined", "rescinded"];
+    if (!allowed.includes(newStatus)) { toast.error("Invalid status"); return; }
     const { error } = await supabase.from("bids").update({ status: newStatus, updated_at: new Date().toISOString() } as any).eq("id", bidId);
+
     if (error) { toast.error("Failed to update"); return; }
     toast.success("Status updated");
     fetchData();
