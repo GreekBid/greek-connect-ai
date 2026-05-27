@@ -19,3 +19,7 @@ verify_jwt = false
 # user JWT (it has no logged-in user context when bootstrapping the admin).
 [functions.seed-admin]
 verify_jwt = false
+
+# seed-demo also uses the SEED_ADMIN_TOKEN bearer check (no user JWT context).
+[functions.seed-demo]
+verify_jwt = false
